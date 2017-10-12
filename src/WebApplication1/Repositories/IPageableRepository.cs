@@ -1,0 +1,16 @@
+﻿using System;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using WebApplication1.Commons;
+
+namespace WebApplication1.Repositories
+{
+    public interface IPageableRepository<T,Pkey>
+    {
+        Task<T> FindOneAsync(Pkey id);
+
+        Task<IPage<T>> FindAsync(IPageable pageable);
+
+        Task<IPage<T>> FindAsync(Expression<Func<T, bool>> filter, IPageable pageable);
+    }
+}
