@@ -24,7 +24,8 @@ namespace WebApplication1
         {
             services.AddMvc(config =>
                     {
-                        config.ModelBinderProviders.Insert(0, new PagebleModelBinderProvider());
+                        config.ModelBinderProviders.Insert(0, new PageableModelBinderProvider());
+                        config.ModelBinderProviders.Insert(1, new SpecificationModelBinderProvider());
                     }
                 )
                 .AddJsonOptions(options =>

@@ -1,7 +1,6 @@
 ﻿namespace WebApplication1.Commons
 {
-   
-    public class Specification<T> : ISpecification<T>
+    public interface ISpecification<T>
     {
         
     }

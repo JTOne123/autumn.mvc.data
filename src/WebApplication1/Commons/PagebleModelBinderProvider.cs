@@ -2,7 +2,7 @@
 
 namespace WebApplication1.Commons
 {
-    public class PagebleModelBinderProvider : IModelBinderProvider
+    public class PageableModelBinderProvider : IModelBinderProvider
     {
         public IModelBinder GetBinder(ModelBinderProviderContext context)
         {

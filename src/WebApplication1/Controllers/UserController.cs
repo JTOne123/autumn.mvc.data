@@ -1,9 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Antlr4.Runtime;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Commons;
+using WebApplication1.Entities;
 using WebApplication1.Repositories;
+using WebApplication1.Rsql;
 
 namespace WebApplication1.Controllers
 {
@@ -29,7 +33,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> Find(IPageable pageable)
+        public async Task<IActionResult> Find(ISpecification<User> specification, IPageable pageable)
         {
             var page = await _userRepository.FindAsync(pageable);
             if (page.TotalElements == page.NumberOfElements)

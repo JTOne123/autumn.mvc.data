@@ -38,7 +38,8 @@ namespace WebApplication1.Commons
                     if (queryCollection.ContainsKey(propertyKeyDirection))
                     {
                         object direction;
-                        if (Enum.TryParse(typeof(SortDirection), queryCollection[propertyKeyDirection][0].ToUpperInvariant(),
+                        if (Enum.TryParse(typeof(SortDirection),
+                            queryCollection[propertyKeyDirection][0].ToUpperInvariant(),
                             out direction))
                         {
                             if ((SortDirection) direction == SortDirection.ASC)
@@ -53,6 +54,10 @@ namespace WebApplication1.Commons
                     }
                 }
                 bindingContext.Result = ModelBindingResult.Success(new Pageable(pageNumber, pageSize, sort.ToArray()));
+            }
+            else
+            {
+                bindingContext.Result = ModelBindingResult.Success(new Pageable(pageNumber, pageSize, new Sort[]{}));
             }
             return Task.CompletedTask;
         }
