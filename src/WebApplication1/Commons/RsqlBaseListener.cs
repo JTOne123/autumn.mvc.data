@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from Rsql.g4 by ANTLR 4.6
+// Generated from Rsql.g by ANTLR 4.6
 
 // Unreachable code detected
 #pragma warning disable 0162

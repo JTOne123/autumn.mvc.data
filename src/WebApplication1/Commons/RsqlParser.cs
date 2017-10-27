@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from Rsql.g4 by ANTLR 4.6
+// Generated from Rsql.g by ANTLR 4.6
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -38,7 +38,7 @@ public partial class RsqlParser : Parser {
 	public const int
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
 		T__9=10, T__10=11, T__11=12, LETTER=13, DIGIT=14, NUMBER=15, DATE=16, 
-		ALPHA=17, ALPHANUM=18, ANY=19;
+		ALPHA=17, ANY=18;
 	public const int
 		RULE_eval = 0, RULE_or = 1, RULE_and = 2, RULE_constraint = 3, RULE_group = 4, 
 		RULE_comparison = 5, RULE_comparator = 6, RULE_comp_fiql = 7, RULE_comp_alt = 8, 
@@ -56,7 +56,7 @@ public partial class RsqlParser : Parser {
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, "LETTER", "DIGIT", "NUMBER", "DATE", "ALPHA", "ALPHANUM", "ANY"
+		null, "LETTER", "DIGIT", "NUMBER", "DATE", "ALPHA", "ANY"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -69,7 +69,7 @@ public partial class RsqlParser : Parser {
 		}
 	}
 
-	public override string GrammarFileName { get { return "Rsql.g4"; } }
+	public override string GrammarFileName { get { return "Rsql.g"; } }
 
 	public override string[] RuleNames { get { return ruleNames; } }
 
@@ -306,7 +306,6 @@ public partial class RsqlParser : Parser {
 			case NUMBER:
 			case DATE:
 			case ALPHA:
-			case ALPHANUM:
 			case ANY:
 				EnterOuterAlt(_localctx, 2);
 				{
@@ -818,7 +817,7 @@ public partial class RsqlParser : Parser {
 			State = 95;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << LETTER) | (1L << DIGIT) | (1L << NUMBER) | (1L << DATE) | (1L << ALPHA) | (1L << ALPHANUM) | (1L << ANY))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << LETTER) | (1L << DIGIT) | (1L << NUMBER) | (1L << DATE) | (1L << ALPHA) | (1L << ANY))) != 0)) {
 				{
 				{
 				State = 92;
@@ -1045,7 +1044,7 @@ public partial class RsqlParser : Parser {
 				State = 122;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__5) | (1L << T__11) | (1L << LETTER) | (1L << DIGIT) | (1L << NUMBER) | (1L << DATE) | (1L << ALPHA) | (1L << ALPHANUM) | (1L << ANY))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__5) | (1L << T__11) | (1L << LETTER) | (1L << DIGIT) | (1L << NUMBER) | (1L << DATE) | (1L << ALPHA) | (1L << ANY))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -1063,7 +1062,7 @@ public partial class RsqlParser : Parser {
 	private static string _serializeATN()
 	{
 	    StringBuilder sb = new StringBuilder();
-	    sb.Append("\x3\x430\xD6D1\x8206\xAD2D\x4417\xAEF1\x8D80\xAADD\x3\x15");
+	    sb.Append("\x3\x430\xD6D1\x8206\xAD2D\x4417\xAEF1\x8D80\xAADD\x3\x14");
 		sb.Append("\x7F\x4\x2\t\x2\x4\x3\t\x3\x4\x4\t\x4\x4\x5\t\x5\x4\x6\t\x6");
 		sb.Append("\x4\a\t\a\x4\b\t\b\x4\t\t\t\x4\n\t\n\x4\v\t\v\x4\f\t\f\x4\r");
 		sb.Append("\t\r\x4\xE\t\xE\x4\xF\t\xF\x4\x10\t\x10\x4\x11\t\x11\x3\x2\x3");
