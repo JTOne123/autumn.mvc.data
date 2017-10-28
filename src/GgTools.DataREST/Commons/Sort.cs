@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebApplication1.Repositories
+namespace GgTools.DataREST.Commons
 {
     public class Sort
     {
@@ -9,12 +9,12 @@ namespace WebApplication1.Repositories
 
         public static Sort Asc(string property)
         {
-            return new Sort(property,SortDirection.ASC);
+            return new Sort(property,SortDirection.Asc);
         }
 
         public static Sort Desc(string property)
         {
-            return new Sort(property,SortDirection.DESC);
+            return new Sort(property,SortDirection.Desc);
         }
 
         private Sort(string property, SortDirection direction)
@@ -27,8 +27,8 @@ namespace WebApplication1.Repositories
         
         public string Property => _property;
 
-        public bool IsAscending => Direction == SortDirection.ASC;
+        public bool IsAscending => Direction == SortDirection.Asc;
 
-        public bool IsDescending => Direction == SortDirection.DESC;
+        public bool IsDescending => Direction == SortDirection.Desc;
     }
 }

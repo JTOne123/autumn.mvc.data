@@ -1,7 +1,7 @@
 ﻿
 using System.Collections.Generic;
 
-namespace WebApplication1.Commons
+namespace GgTools.DataREST.Commons
 {
     public class Page<T> : IPage<T>
     {
@@ -29,7 +29,7 @@ namespace WebApplication1.Commons
             if (pageable != null)
             {
                 Number = pageable.PageNumber;
-                IsFirst = pageable.Offset == 0;
+                IsFirst = pageable.PageNumber == 0;
                 HasPrevious = !IsFirst;
                 HasNext = false;
                 if (total > NumberOfElements + Number * pageable.PageSize)

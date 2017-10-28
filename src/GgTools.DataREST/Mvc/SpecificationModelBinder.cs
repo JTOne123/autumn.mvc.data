@@ -3,10 +3,12 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Antlr4.Runtime;
+using GgTools.DataREST.Commons;
+using GgTools.DataREST.Rsql;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace WebApplication1.Commons
+namespace GgTools.DataREST.Mvc
 {
     public class SpecificationModelBinder<T> : IModelBinder
     {
@@ -59,7 +61,7 @@ namespace WebApplication1.Commons
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
-        private static Specification<T> Build(string query)
+        private static ISpecification<T> Build(string query)
         {
             // parse query by antlr
             var antlrInputStream = new AntlrInputStream(query);

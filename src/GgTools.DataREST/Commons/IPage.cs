@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WebApplication1.Commons
+namespace GgTools.DataREST.Commons
 {
     public interface IPage<T>
     {

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Reflection;
+using GgTools.DataREST.Commons;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace WebApplication1.Commons
+namespace GgTools.DataREST.Mvc
 {
     public class SpecificationModelBinderProvider : IModelBinderProvider
     {

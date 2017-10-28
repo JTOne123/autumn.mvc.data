@@ -1,4 +1,4 @@
-﻿namespace WebApplication1.Commons
+﻿namespace GgTools.DataREST.Commons
 {
     public interface ISpecification<T>
     {
