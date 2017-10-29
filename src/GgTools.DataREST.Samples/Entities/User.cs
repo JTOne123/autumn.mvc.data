@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using System.Threading;
+using MongoDB.Bson.Serialization.Attributes;
 using WebApplication1.Repositories;
 
 namespace WebApplication1.Entities
@@ -21,5 +22,8 @@ namespace WebApplication1.Entities
 
         [BsonElement("address")]
         public Address Adresse { get; set; }
+        
+        [BsonElement("count")]
+        public int? Count { get; set; }
     }
 }
