@@ -15,7 +15,6 @@ namespace GgTools.DataREST.Commons
         /// page size
         /// </summary>
         int PageSize { get; }
-       
         /// <summary>
         /// 
         /// </summary>

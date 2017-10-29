@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
 using GgTools.DataREST.Commons;
 using Microsoft.AspNetCore.Mvc;
@@ -29,9 +31,9 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> Find(ISpecification<User> specification, IPageable pageable)
+        public async Task<IActionResult> Find(Expression<Func<User,bool>> filter, IPageable pageable)
         {
-            var page = await _userRepository.FindAsync(pageable);
+            var page = await _userRepository.FindAsync(filter,pageable);
             if (page.TotalElements == page.NumberOfElements)
             {
                 return Ok(page);

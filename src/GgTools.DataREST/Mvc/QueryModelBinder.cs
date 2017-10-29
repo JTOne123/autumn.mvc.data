@@ -1,40 +1,50 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Antlr4.Runtime;
-using GgTools.DataREST.Commons;
+using GgTools.DataREST.Helpers;
 using GgTools.DataREST.Rsql;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json.Serialization;
 
 namespace GgTools.DataREST.Mvc
 {
-    public class SpecificationModelBinder<T> : IModelBinder
+    public class QueryModelBinder<T> : IModelBinder
     {
-        private static readonly MemoryCache Queries = new MemoryCache(new MemoryCacheOptions(){ExpirationScanFrequency = TimeSpan.FromMinutes(5)});
-        
+        private readonly string _queryField;
+        private readonly NamingStrategy _namingStrategy;
+
         /// <summary>
-        /// bind 
+        /// class initializer
         /// </summary>
-        /// <param name="bindingContext"></param>
-        /// <returns></returns>
+        /// <param name="queryField"></param>
+        /// <param name="namingStrategy"></param>
+        public QueryModelBinder(string queryField, NamingStrategy namingStrategy)
+        {
+            _queryField = queryField;
+            _namingStrategy = namingStrategy;
+        }
+
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             var queryCollection = bindingContext.ActionContext.HttpContext.Request.Query;
-            if (queryCollection.TryGetValue("query", out var query))
+            var eval = RsqlHelper.True<T>();
+            if (queryCollection.TryGetValue(_queryField, out var query))
             {
                 var hash = Hash(query[0]);
-                if (!Queries.TryGetValue(hash, out var specification))
+                if (!RsqlHelper.QueriesCache.TryGetValue(hash, out var specification))
                 {
-                    specification = Build(query[0]);
-                    Queries.Set(hash, specification);
+                    eval = Build(query[0]);
+                    RsqlHelper.QueriesCache.Set(hash, specification);
                 }
-                bindingContext.Result = ModelBindingResult.Success(specification);
             }
+            bindingContext.Result = ModelBindingResult.Success(eval);
             return Task.CompletedTask;
         }
-        
+
         /// <summary>
         /// create hash 
         /// </summary>
@@ -61,15 +71,15 @@ namespace GgTools.DataREST.Mvc
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
-        private static ISpecification<T> Build(string query)
+        private Expression<Func<T, bool>> Build(string query)
         {
-            // parse query by antlr
             var antlrInputStream = new AntlrInputStream(query);
             var lexer = new RsqlLexer(antlrInputStream);
             var commonTokenStream = new CommonTokenStream(lexer);
             var parser = new RsqlParser(commonTokenStream);
-            var context = parser.eval();
-            return new Specification<T>();
+            var eval = parser.eval();
+            var visitor = new DefaultRsqlVisitor<T>(_namingStrategy);
+            return visitor.VisitEval(eval);
         }
     }
 }        

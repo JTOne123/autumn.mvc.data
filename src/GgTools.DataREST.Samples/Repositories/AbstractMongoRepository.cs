@@ -15,6 +15,8 @@ namespace WebApplication1.Repositories
         private readonly IMongoClient _client;
         private readonly IMongoDatabase _database;
         private readonly IMongoCollection<T> _collection;
+        private static Expression<Func<T, bool>> True<T> ()  { return f => true;  }
+        private static Expression<Func<T, bool>> False<T> () { return f => false; }
 
         protected IMongoClient Client()
         {
@@ -53,15 +55,13 @@ namespace WebApplication1.Repositories
                 .SingleOrDefaultAsync();
         }
 
-        public async Task<IPage<T>> FindAsync(IPageable pageable)
+        public async Task<IPage<T>> FindAsync(Expression<Func<T, bool>> filter=null, IPageable pageable=null)
         {
-            return await FindAsync(_ => true, pageable);
-        }
 
-        public async Task<IPage<T>> FindAsync(Expression<Func<T, bool>> filter, IPageable pageable)
-        {
-            var count = (int) await Collection().CountAsync(filter);
-            var find = Collection().Find(filter);
+            var query = filter ?? True<T>();
+
+            var count = (int) await Collection().CountAsync(query);
+            var find = Collection().Find(query);
 
             if (pageable != null)
             {

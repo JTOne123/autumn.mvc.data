@@ -9,8 +9,6 @@ namespace WebApplication1.Repositories
     {
         Task<T> FindOneAsync(Pkey id);
 
-        Task<IPage<T>> FindAsync(IPageable pageable);
-
-        Task<IPage<T>> FindAsync(Expression<Func<T, bool>> filter, IPageable pageable);
+        Task<IPage<T>> FindAsync(Expression<Func<T, bool>> filter=null, IPageable pageable=null);
     }
 }
