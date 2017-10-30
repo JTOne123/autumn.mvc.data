@@ -34,10 +34,10 @@ namespace GgTools.DataREST.Mvc
             if (queryCollection.TryGetValue(_queryField, out var query))
             {
                 var hash = Hash(query[0]);
-                if (!RsqlHelper.QueriesCache.TryGetValue(hash, out var specification))
+                if (!RsqlHelper.QueriesCache.TryGetValue(hash, out eval))
                 {
                     eval = Build(query[0]);
-                    RsqlHelper.QueriesCache.Set(hash, specification);
+                    RsqlHelper.QueriesCache.Set(hash, eval);
                 }
             }
             bindingContext.Result = ModelBindingResult.Success(eval);

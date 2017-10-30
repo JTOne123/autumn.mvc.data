@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Data;
 using System.Linq.Expressions;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Serialization;
 
 namespace GgTools.DataREST.Rsql
@@ -11,34 +9,41 @@ namespace GgTools.DataREST.Rsql
         private readonly NamingStrategy  _namingStrategy;
         private readonly ParameterExpression _parameter;
         
+        /// <summary>
+        /// create instance of object
+        /// </summary>
+        /// <param name="namingStrategy"></param>
         public DefaultRsqlVisitor(NamingStrategy namingStrategy)
         {
             _namingStrategy = namingStrategy;
             _parameter = Expression.Parameter(typeof(T));
         }
-
-        public override Expression<Func<T, bool>> VisitAnd(RsqlParser.AndContext context)
+        
+        /// <summary>
+        /// visit a or expression
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public override Expression<Func<T, bool>> VisitOr(RsqlParser.OrContext context)
         {
-            if (context.constraint().Length == 0) return RsqlHelper.True<T>();
-            var result = context.constraint()[0].Accept(this);
-            if (context.constraint().Length == 1) return result;
-
-            Expression subExpression = null;
-            for (var i = 1; i < context.constraint().Length; i++)
-            {
-                if (subExpression == null)
-                {
-                    subExpression = context.constraint()[i].Accept(this);
-                }
-                else
-                {
-                    subExpression = Expression.And(subExpression, context.constraint()[i].Accept(this));
-                }
-            }
-            subExpression = Expression.And(result, subExpression);
-            return Expression.Lambda<Func<T, bool>>(subExpression, _parameter);
+            return RsqlHelper.GetOrExpression(_parameter, this, context);
         }
 
+        /// <summary>
+        /// visit a and expression
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public override Expression<Func<T, bool>> VisitAnd(RsqlParser.AndContext context)
+        {
+            return RsqlHelper.GetAndExpression(_parameter, this, context);
+        }
+
+        /// <summary>
+        /// visiti a constraint expression
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public override Expression<Func<T, bool>> VisitConstraint(RsqlParser.ConstraintContext context)
         {
             if (context.comparison() != null)
@@ -49,7 +54,7 @@ namespace GgTools.DataREST.Rsql
         }
 
         /// <summary>
-        /// visit a comparison
+        /// visit a comparison expression 
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
@@ -57,59 +62,48 @@ namespace GgTools.DataREST.Rsql
         {
             var selector = context.selector().GetText();
             var comparator = context.comparator().GetText().ToLowerInvariant();
-            Expression expression;
             switch (comparator)
             {
                 case "=is-true=":
-                    expression = RsqlHelper.GetIsTrueExpression<T>(_parameter,selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetIsTrueExpression<T>(_parameter, selector, _namingStrategy,
+                        context.arguments());
                 case "=is-false=":
-                    expression = RsqlHelper.GetIsFalseExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetIsFalseExpression<T>(_parameter, selector, _namingStrategy,
+                        context.arguments());
                 case "=is-null=":
-                    expression = RsqlHelper.GetIsNullExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetIsNullExpression<T>(_parameter, selector, _namingStrategy,
+                        context.arguments());
                 case "=is-not-null=":
-                    expression = RsqlHelper.GetNotIsNullExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetNotIsNullExpression<T>(_parameter, selector, _namingStrategy,
+                        context.arguments());
                 case "==":
                 case "=eq=":
-                    expression = RsqlHelper.GetEqExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetEqExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
                 case "!=":
                 case "=neq=":
-                    expression = RsqlHelper.GetNeqExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetNeqExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
                 case "<":
                 case "=lt=":
-                    expression = RsqlHelper.GetLtExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetLtExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
                 case "<=":
                 case "=le=":
-                    expression = RsqlHelper.GetLeExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetLeExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
                 case ">":
                 case "=gt=":
-                    expression = RsqlHelper.GetGtExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetGtExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
                 case ">=":
                 case "=ge=":
-                    expression = RsqlHelper.GetGeExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetGeExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
                 case "=lk=":
-                    expression = RsqlHelper.GetLkExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetLkExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
                 case "=in=":
-                    expression = RsqlHelper.GetInExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetInExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
                 case "=out=":
-                    expression = RsqlHelper.GetOutExpression<T>(_parameter, selector,_namingStrategy,context.arguments());
-                    break;
+                    return RsqlHelper.GetOutExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
                 default:
-                    expression = Expression.Equal(Expression.Constant(true), Expression.Constant(true));
-                    break;
+                    return Expression.Lambda<Func<T, bool>>(
+                        Expression.Equal(Expression.Constant(true), Expression.Constant(true)), _parameter);
             }
-            return Expression.Lambda<Func<T, bool>>(expression, _parameter);
         }
     }
 }

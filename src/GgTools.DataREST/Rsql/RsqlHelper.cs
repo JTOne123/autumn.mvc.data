@@ -23,7 +23,52 @@ namespace GgTools.DataREST.Rsql
         public static readonly MemoryCache QueriesCache = new MemoryCache(new MemoryCacheOptions(){ExpirationScanFrequency = TimeSpan.FromMinutes(5)});
 
         #region GetExpression 
+     
+        /// <summary>
+        /// create and expression
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <param name="visitor"></param>
+        /// <param name="context"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static Expression<Func<T, bool>> GetAndExpression<T>(ParameterExpression parameter,
+            IRsqlVisitor<Expression<Func<T, bool>>> visitor, RsqlParser.AndContext context)
+        {
+            if (context.constraint().Length == 0) return True<T>();
+            var right = context.constraint()[0].Accept(visitor);
+            if (context.constraint().Length == 1) return right;
+            for (var i = 1; i < context.constraint().Length; i++)
+            {
+                var left = context.constraint()[i].Accept(visitor);
+                right = Expression.Lambda<Func<T, bool>>(Expression.And(left.Body, right.Body), left.Parameters);
+            }
+            return right;
+        }
         
+        
+        /// <summary>
+        /// create or expression
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <param name="visitor"></param>
+        /// <param name="context"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static Expression<Func<T, bool>> GetOrExpression<T>(ParameterExpression parameter,
+            IRsqlVisitor<Expression<Func<T, bool>>> visitor, RsqlParser.OrContext context)
+        {
+            if (context.and().Length == 0) return True<T>();
+            var right = context.and()[0].Accept(visitor);
+            if (context.and().Length == 1) return right;
+            for (var i = 1; i < context.and().Length; i++)
+            {
+                var left = context.and()[i].Accept(visitor);
+                right = Expression.Lambda<Func<T, bool>>(Expression.Or(left.Body, right.Body), left.Parameters);
+            }
+            return right;
+        }
+
         /// <summary>
         /// create is-null expression
         /// </summary>
@@ -33,14 +78,14 @@ namespace GgTools.DataREST.Rsql
         /// <param name="arguments"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Expression GetIsNullExpression<T>(ParameterExpression parameter, string selector,
+        public static Expression<Func<T, bool>> GetIsNullExpression<T>(ParameterExpression parameter, string selector,
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
             var property = GetProperty(typeof(T), selector, namingStrategy);
-            return Expression.Equal(
+            return Expression.Lambda<Func<T, bool>>(Expression.Equal(
                 Expression.Property(parameter, property),
-                Expression.Constant(null, typeof(object)));
+                Expression.Constant(null, typeof(object))), parameter);
         }
 
         /// <summary>
@@ -51,14 +96,14 @@ namespace GgTools.DataREST.Rsql
         /// <param name="namingStrategy"></param>
         /// <param name="arguments"></param>
         /// <returns></returns>
-        public static Expression GetNotIsNullExpression<T>(ParameterExpression parameter, string selector,
+        public static Expression<Func<T, bool>> GetNotIsNullExpression<T>(ParameterExpression parameter, string selector,
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
             var property = GetProperty(typeof(T), selector, namingStrategy);
-            return Expression.NotEqual(
+            return Expression.Lambda<Func<T, bool>>(Expression.NotEqual(
                 Expression.Property(parameter, property),
-                Expression.Constant(null, typeof(object)));
+                Expression.Constant(null, typeof(object))), parameter);
         }
 
         /// <summary>
@@ -72,7 +117,7 @@ namespace GgTools.DataREST.Rsql
         /// <returns></returns>
         /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
         /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression GetEqExpression<T>(ParameterExpression parameter, string selector,
+        public static Expression<Func<T, bool>> GetEqExpression<T>(ParameterExpression parameter, string selector,
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
@@ -81,9 +126,9 @@ namespace GgTools.DataREST.Rsql
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
-            return Expression.Equal(
+            return Expression.Lambda<Func<T, bool>>( Expression.Equal(
                 Expression.Property(parameter, property),
-                Expression.Constant(values[0]));
+                Expression.Constant(values[0])), parameter);
         }
 
         /// <summary>
@@ -97,7 +142,7 @@ namespace GgTools.DataREST.Rsql
         /// <returns></returns>
         /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
         /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression GetNeqExpression<T>(ParameterExpression parameter, string selector,
+        public static Expression<Func<T, bool>> GetNeqExpression<T>(ParameterExpression parameter, string selector,
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
@@ -106,9 +151,9 @@ namespace GgTools.DataREST.Rsql
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
-            return Expression.NotEqual(
+            return Expression.Lambda<Func<T, bool>>( Expression.NotEqual(
                 Expression.Property(parameter, property),
-                Expression.Constant(values[0]));
+                Expression.Constant(values[0])), parameter);
         }
 
         /// <summary>
@@ -122,7 +167,7 @@ namespace GgTools.DataREST.Rsql
         /// <returns></returns>
         /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
         /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression GetLtExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
+        public static Expression<Func<T, bool>> GetLtExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
             ,RsqlParser.ArgumentsContext arguments)
         {
             var property = GetProperty(typeof(T), selector, namingStrategy);
@@ -130,9 +175,9 @@ namespace GgTools.DataREST.Rsql
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
             
-            return Expression.LessThan(
+            return Expression.Lambda<Func<T, bool>>( Expression.LessThan(
                 Expression.Property(parameter, property),
-                Expression.Constant(values[0]));
+                Expression.Constant(values[0])), parameter);
         }
         
         /// <summary>
@@ -146,7 +191,7 @@ namespace GgTools.DataREST.Rsql
         /// <returns></returns>
         /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
         /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression GetLeExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
+        public static Expression<Func<T, bool>> GetLeExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
             ,RsqlParser.ArgumentsContext arguments)
         {
             var property = GetProperty(typeof(T), selector, namingStrategy);
@@ -154,9 +199,9 @@ namespace GgTools.DataREST.Rsql
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
             
-            return Expression.LessThanOrEqual(
+            return Expression.Lambda<Func<T, bool>>( Expression.LessThanOrEqual(
                 Expression.Property(parameter, property),
-                Expression.Constant(values[0]));
+                Expression.Constant(values[0])), parameter);
         }
         
         /// <summary>
@@ -170,7 +215,7 @@ namespace GgTools.DataREST.Rsql
         /// <returns></returns>
         /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
         /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression GetGtExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
+        public static Expression<Func<T, bool>> GetGtExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
             ,RsqlParser.ArgumentsContext arguments)
         {
             var property = GetProperty(typeof(T), selector, namingStrategy);
@@ -178,11 +223,10 @@ namespace GgTools.DataREST.Rsql
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
      
-            return Expression.GreaterThan(
+            return Expression.Lambda<Func<T, bool>>( Expression.GreaterThan(
                 Expression.Property(parameter, property),
-                Expression.Constant(values[0]));
+                Expression.Constant(values[0])), parameter);
         }
-
 
         /// <summary>
         /// create ge expression
@@ -195,7 +239,7 @@ namespace GgTools.DataREST.Rsql
         /// <returns></returns>
         /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
         /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression GetGeExpression<T>(ParameterExpression parameter, string selector,
+        public static Expression<Func<T, bool>> GetGeExpression<T>(ParameterExpression parameter, string selector,
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
@@ -204,9 +248,9 @@ namespace GgTools.DataREST.Rsql
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
-            return Expression.GreaterThanOrEqual(
+            return Expression.Lambda<Func<T, bool>>( Expression.GreaterThanOrEqual(
                 Expression.Property(parameter, property),
-                Expression.Constant(values[0]));
+                Expression.Constant(values[0])), parameter);
         }
 
         /// <summary>
@@ -218,13 +262,13 @@ namespace GgTools.DataREST.Rsql
         /// <param name="arguments"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Expression GetIsTrueExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
+        public static Expression<Func<T, bool>> GetIsTrueExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
             ,RsqlParser.ArgumentsContext arguments)
         {
             var property = GetProperty(typeof(T), selector, namingStrategy);
-            return Expression.Equal(
+            return Expression.Lambda<Func<T, bool>>( Expression.Equal(
                 Expression.Property(parameter, property),
-                Expression.Constant(true));
+                Expression.Constant(true)), parameter);
         }
 
         /// <summary>
@@ -236,22 +280,21 @@ namespace GgTools.DataREST.Rsql
         /// <param name="arguments"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Expression GetIsFalseExpression<T>(ParameterExpression parameter, string selector,
+        public static Expression<Func<T, bool>> GetIsFalseExpression<T>(ParameterExpression parameter, string selector,
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
             var property = GetProperty(typeof(T), selector, namingStrategy);
-            return Expression.Equal(
+            return Expression.Lambda<Func<T, bool>>( Expression.Equal(
                 Expression.Property(parameter, property),
-                Expression.Constant(false));
+                Expression.Constant(false)), parameter);
         }
-
         
         /// <summary>
         /// create like expression
         /// </summary>
         /// <returns></returns>
-        public static Expression GetLkExpression<T>(ParameterExpression parameter, string selector,
+        public static Expression<Func<T, bool>> GetLkExpression<T>(ParameterExpression parameter, string selector,
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
@@ -281,37 +324,36 @@ namespace GgTools.DataREST.Rsql
                 method = MethodStringStartsWith;
             }
             criteria = criteria.Replace("*", "").Replace(maskStar, "*");
-            return Expression.Equal(
-                Expression.Call(Expression.Property(parameter, property),
-                    method,
-                    Expression.Constant(criteria)),
-                Expression.Constant(true));
+            return Expression.Lambda<Func<T, bool>>(Expression.Call(Expression.Property(parameter, property),
+                method,
+                Expression.Constant(criteria)), parameter);
         }
 
         /// <summary>
         /// create in expression
         /// </summary>
         /// <returns></returns>
-        public static Expression GetInExpression<T>(ParameterExpression parameter, string selector,
+        public static Expression<Func<T, bool>> GetInExpression<T>(ParameterExpression parameter, string selector,
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
             var property = GetProperty(typeof(T), selector, namingStrategy);
             var values = GetValues(property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
-            return Expression.Call(Expression.Constant(values), MethodListContains,
-                Expression.Property(parameter, property));
+            return Expression.Lambda<Func<T, bool>>(Expression.Call(Expression.Constant(values), MethodListContains,
+                Expression.Property(parameter, property)));
         }
 
         /// <summary>
         /// create out expression
         /// </summary>
         /// <returns></returns>
-        public static Expression GetOutExpression<T>(ParameterExpression parameter, string selector,
+        public static Expression<Func<T, bool>> GetOutExpression<T>(ParameterExpression parameter, string selector,
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            return Expression.Not(GetInExpression<T>(parameter, selector, namingStrategy, arguments));
+            return Expression.Lambda<Func<T, bool>>(
+                Expression.Not(GetInExpression<T>(parameter, selector, namingStrategy, arguments)));
         }
 
         #endregion

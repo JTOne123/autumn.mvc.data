@@ -24,6 +24,6 @@ namespace WebApplication1.Entities
         public Address Adresse { get; set; }
         
         [BsonElement("count")]
-        public int? Count { get; set; }
+        public int Count { get; set; }
     }
 }
