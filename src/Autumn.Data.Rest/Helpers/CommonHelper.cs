@@ -13,58 +13,6 @@ namespace Autumn.Data.Rest.Helpers
 {
     public static class CommonHelper
     {
-        private static readonly List<Type> PrimitiveTypes =
-            new List<Type>(new[]
-                {
-                    typeof(bool),
-                    typeof(bool?),
-                    typeof(bool[]),
-                    typeof(bool?[]),
-                    typeof(string),
-                    typeof(string[]),
-                    typeof(short),
-                    typeof(short[]),
-                    typeof(short?),
-                    typeof(short?[]),
-                    typeof(int),
-                    typeof(int[]),
-                    typeof(int?),
-                    typeof(int?[]),
-                    typeof(long),
-                    typeof(long[]),
-                    typeof(long?),
-                    typeof(long?[]),
-                    typeof(float),
-                    typeof(float[]),
-                    typeof(float?),
-                    typeof(float?[]),
-                    typeof(double),
-                    typeof(double[]),
-                    typeof(double?),
-                    typeof(double?[]),
-                    typeof(decimal),
-                    typeof(decimal[]),
-                    typeof(decimal?),
-                    typeof(decimal?[]),
-                    typeof(DateTime),
-                    typeof(DateTime[]),
-                    typeof(DateTime?),
-                    typeof(DateTime?[]),
-                    typeof(DateTimeOffset),
-                    typeof(DateTimeOffset[]),
-                    typeof(DateTimeOffset?),
-                    typeof(DateTimeOffset?[]),
-                    typeof(TimeSpan),
-                    typeof(TimeSpan[]),
-                    typeof(TimeSpan?),
-                    typeof(TimeSpan?[]),
-                    typeof(char),
-                    typeof(char?),
-                    typeof(char[]),
-                    typeof(char?[])
-                }
-            );
-
         private static readonly Dictionary<Type, Dictionary<string,PropertyInfo>> MappingJson2PropertyInfo =
             new Dictionary<Type, Dictionary<string,PropertyInfo>> ();
 
@@ -91,39 +39,21 @@ namespace Autumn.Data.Rest.Helpers
         }
 
 
-        private static Dictionary<string, PropertyInfo> Build(Type type, string prefixPropertyName,
-            ICollection<Type> knowtypes, NamingStrategy namingStrategy = null)
+        private static Dictionary<string, PropertyInfo> Build(Type type, NamingStrategy namingStrategy = null)
         {
-            if (knowtypes.Contains(type)) return new Dictionary<string, PropertyInfo>();
-            knowtypes.Add(type);
             var result = new Dictionary<string, PropertyInfo>();
-            foreach (var property in type.GetProperties(BindingFlags.Instance|BindingFlags.Public))
+            foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
                 var jsonExclude = property.GetCustomAttribute<JsonIgnoreAttribute>();
                 if (jsonExclude != null) continue;
-                var jsonPropertyName = GetJsonPropertyName(property, prefixPropertyName, namingStrategy);
-                if (PrimitiveTypes.Contains(property.PropertyType))
-                {
-                    result.Add(jsonPropertyName, property);
-                }
-                // TODO voir comment traité expression sub entity
-                /*
-                else
-                {
-                    var subBuild = Build(property.PropertyType, (prefixPropertyName!=    string.Empty?".":"") + jsonPropertyName, knowtypes,
-                        namingStrategy);
-
-                    foreach (var subJsonPropertyName in subBuild.Keys)
-                    {
-                        result.Add(subJsonPropertyName, subBuild[subJsonPropertyName]);
-                    }
-                }*/
+                var jsonPropertyName = GetJsonPropertyName(property, namingStrategy);
+                result.Add(jsonPropertyName, property);
             }
             return result;
         }
 
 
-        private static string GetJsonPropertyName(MemberInfo propertyInfo, string prefixPropertyName,
+        public static string GetJsonPropertyName(MemberInfo propertyInfo, 
             NamingStrategy namingStrategy = null)
         {
             var propertyName = propertyInfo.Name;
@@ -132,29 +62,27 @@ namespace Autumn.Data.Rest.Helpers
             {
                 propertyName = attribute.PropertyName;
             }
-            if (namingStrategy == null) return string.Format(prefixPropertyName, propertyName);
+            if (namingStrategy == null) return propertyName;
             switch (namingStrategy)
             {
                 case SnakeCaseNamingStrategy _:
-                    propertyName = propertyName.Split(new[] {"_"}, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1, s.Length - 1))
-                        .Aggregate(string.Empty, (s1, s2) => s1 + s2).ToLowerInvariant();
+                    propertyName = propertyName.ToSnakeCase();
                     break;
+                    
                 case CamelCaseNamingStrategy _:
-                    propertyName = propertyName[0].ToString().ToUpperInvariant() + propertyName.Substring(1);
+                    propertyName = propertyName.ToCamelCase();
                     break;
             }
-            return prefixPropertyName + (prefixPropertyName != string.Empty ? "." : "") + propertyName;
+            return propertyName;
         }
 
 
         public static PropertyInfo GetProperty(Type type, string name, NamingStrategy namingStrategy = null)
         {
-            if (MappingJson2PropertyInfo.ContainsKey(type)) return MappingJson2PropertyInfo[type][name];
             lock (MappingJson2PropertyInfo)
             {
-                var knownTypes = new List<Type>();
-                MappingJson2PropertyInfo[type] = Build(type, string.Empty, knownTypes, namingStrategy);
+                if (MappingJson2PropertyInfo.ContainsKey(type)) return MappingJson2PropertyInfo[type][name];
+                MappingJson2PropertyInfo[type] = Build(type, namingStrategy);
                 return MappingJson2PropertyInfo[type][name];
             }
         }

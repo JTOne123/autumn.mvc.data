@@ -82,9 +82,9 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(
-                Expression.Property(parameter, property),
+                expressionValue.Expression,
                 Expression.Constant(null, typeof(object))), parameter);
         }
 
@@ -101,10 +101,44 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
             return Expression.Lambda<Func<T, bool>>(Expression.NotEqual(
-                Expression.Property(parameter, property),
+                expressionValue.Expression,
                 Expression.Constant(null, typeof(object))), parameter);
+        }
+
+        private class ExpressionValue
+        {
+            public PropertyInfo Property { get; set; }
+            public Expression Expression { get; set; }
+        }
+
+        private static ExpressionValue GetMemberExpressionValue<T>(ParameterExpression parameter, string selector,
+            NamingStrategy namingStrategy)
+        {
+            Expression lastMember = parameter;
+            PropertyInfo property = null;
+            var type = typeof(T);
+            if (selector.IndexOf(".", StringComparison.InvariantCulture) != -1)
+            {
+                foreach (var item in selector.Split('.'))
+                {
+                    property = CommonHelper.GetProperty(type, item, namingStrategy);
+                    type = property.PropertyType;
+                    lastMember = Expression.Property(lastMember, property);
+                }
+            }
+            else
+            {
+                property = CommonHelper.GetProperty(type, selector, namingStrategy);
+                lastMember = Expression.Property(lastMember, property);
+            }
+
+            return new ExpressionValue()
+            {
+                Property = property,
+                Expression = lastMember
+            };
         }
 
         /// <summary>
@@ -122,13 +156,14 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
-            var values = GetValues(property.PropertyType, arguments);
+
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
+            var values = GetValues(expressionValue.Property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
-
+         
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(
-                Expression.Property(parameter, property),
+                expressionValue.Expression,
                 Expression.Constant(values[0])), parameter);
         }
 
@@ -147,13 +182,13 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
-            var values = GetValues(property.PropertyType, arguments);
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
+            var values = GetValues(expressionValue.Property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
             return Expression.Lambda<Func<T, bool>>(Expression.NotEqual(
-                Expression.Property(parameter, property),
+                expressionValue.Expression,
                 Expression.Constant(values[0])), parameter);
         }
 
@@ -172,13 +207,13 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
-            var values = GetValues(property.PropertyType, arguments);
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
+            var values = GetValues(expressionValue.Property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
             return Expression.Lambda<Func<T, bool>>(Expression.LessThan(
-                Expression.Property(parameter, property),
+                expressionValue.Expression,
                 Expression.Constant(values[0])), parameter);
         }
 
@@ -197,13 +232,13 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
-            var values = GetValues(property.PropertyType, arguments);
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
+            var values = GetValues(expressionValue.Property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
             return Expression.Lambda<Func<T, bool>>(Expression.LessThanOrEqual(
-                Expression.Property(parameter, property),
+                expressionValue.Expression,
                 Expression.Constant(values[0])), parameter);
         }
 
@@ -222,13 +257,13 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
-            var values = GetValues(property.PropertyType, arguments);
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
+            var values = GetValues(expressionValue.Property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
             return Expression.Lambda<Func<T, bool>>(Expression.GreaterThan(
-                Expression.Property(parameter, property),
+                expressionValue.Expression,
                 Expression.Constant(values[0])), parameter);
         }
 
@@ -247,13 +282,13 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
-            var values = GetValues(property.PropertyType, arguments);
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
+            var values = GetValues(expressionValue.Property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
             return Expression.Lambda<Func<T, bool>>(Expression.GreaterThanOrEqual(
-                Expression.Property(parameter, property),
+                expressionValue.Expression,
                 Expression.Constant(values[0])), parameter);
         }
 
@@ -270,9 +305,9 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(
-                Expression.Property(parameter, property),
+                expressionValue.Expression,
                 Expression.Constant(true)), parameter);
         }
 
@@ -289,9 +324,9 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(
-                Expression.Property(parameter, property),
+                expressionValue.Expression,
                 Expression.Constant(false)), parameter);
         }
 
@@ -303,8 +338,9 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
-            var values = GetValues(property.PropertyType, arguments);
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
+            
+            var values = GetValues(expressionValue.Property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
@@ -329,7 +365,7 @@ namespace Autumn.Data.Rest.Queries
                 method = MethodStringStartsWith;
             }
             criteria = criteria.Replace("*", "").Replace(maskStar, "*");
-            return Expression.Lambda<Func<T, bool>>(Expression.Call(Expression.Property(parameter, property),
+            return Expression.Lambda<Func<T, bool>>(Expression.Call(expressionValue.Expression,
                 method,
                 Expression.Constant(criteria)), parameter);
         }
@@ -342,11 +378,12 @@ namespace Autumn.Data.Rest.Queries
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
-            var values = GetValues(property.PropertyType, arguments);
+            var expressionValue = GetMemberExpressionValue<T>(parameter, selector, namingStrategy);
+            var values = GetValues(expressionValue.Property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
-            return Expression.Lambda<Func<T, bool>>(Expression.Call(Expression.Constant(values), MethodListContains,
-                Expression.Property(parameter, property)));
+            return Expression.Lambda<Func<T, bool>>(
+                Expression.Call(Expression.Constant(values), MethodListContains,
+                    expressionValue.Expression), parameter);
         }
 
         /// <summary>
@@ -358,7 +395,7 @@ namespace Autumn.Data.Rest.Queries
             , RsqlParser.ArgumentsContext arguments)
         {
             return Expression.Lambda<Func<T, bool>>(
-                Expression.Not(GetInExpression<T>(parameter, selector, namingStrategy, arguments)));
+                Expression.Not(GetInExpression<T>(parameter, selector, namingStrategy, arguments)),parameter);
         }
 
         #endregion

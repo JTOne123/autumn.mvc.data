@@ -21,7 +21,7 @@ namespace Autumn.Data.Rest.Samples.Entities
         public string Email { get; set; }
 
         [BsonElement("address")]
-        public Address Adresse { get; set; }
+        public Address Address { get; set; }
         
         [BsonElement("count")]
         public int Count { get; set; }
