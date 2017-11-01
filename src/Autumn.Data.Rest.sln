@@ -9,6 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autumn.Data.Rest", "Autumn.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autumn.Data.Rest.MongoDB", "Autumn.Data.Rest.MongoDB\Autumn.Data.Rest.MongoDB.csproj", "{AD37364A-0CAD-461B-8E19-2249BCAE9AB2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autumn.Data.Rest.EF", "Autumn.Data.Rest.EF\Autumn.Data.Rest.EF.csproj", "{0EAA369D-8BBB-44B6-8C7B-7A8CB1F6105D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autumn.Data.Rest.Tests", "Autumn.Data.Rest.Tests\Autumn.Data.Rest.Tests.csproj", "{958A386D-9DEC-414D-8213-89292AACFEEA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Autumn.Data.Rest", "Autumn.Data.Rest", "{74CB3A01-9350-4F3C-8D7C-34B3F42559A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,8 +33,20 @@ Global
 		{AD37364A-0CAD-461B-8E19-2249BCAE9AB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD37364A-0CAD-461B-8E19-2249BCAE9AB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD37364A-0CAD-461B-8E19-2249BCAE9AB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EAA369D-8BBB-44B6-8C7B-7A8CB1F6105D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EAA369D-8BBB-44B6-8C7B-7A8CB1F6105D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EAA369D-8BBB-44B6-8C7B-7A8CB1F6105D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EAA369D-8BBB-44B6-8C7B-7A8CB1F6105D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{958A386D-9DEC-414D-8213-89292AACFEEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{958A386D-9DEC-414D-8213-89292AACFEEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{958A386D-9DEC-414D-8213-89292AACFEEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{958A386D-9DEC-414D-8213-89292AACFEEA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AD37364A-0CAD-461B-8E19-2249BCAE9AB1} = {74CB3A01-9350-4F3C-8D7C-34B3F42559A1}
+		{958A386D-9DEC-414D-8213-89292AACFEEA} = {74CB3A01-9350-4F3C-8D7C-34B3F42559A1}
 	EndGlobalSection
 EndGlobal

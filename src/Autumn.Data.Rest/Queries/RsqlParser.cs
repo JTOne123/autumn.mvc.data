@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Autumn.Data.Rest.Rsql {
+namespace Autumn.Data.Rest.Queries {
 using System;
 using System.Text;
 using System.Diagnostics;
@@ -31,6 +31,7 @@ using Antlr4.Runtime.Tree;
 using DFA = Antlr4.Runtime.Dfa.DFA;
 
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.6")]
+[System.CLSCompliant(false)]
 public partial class RsqlParser : Parser {
 	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
@@ -1117,4 +1118,4 @@ public partial class RsqlParser : Parser {
 
 
 }
-} // namespace Autumn.Data.Rest.Rsql
+} // namespace Autumn.Data.Rest.Queries

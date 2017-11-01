@@ -1,29 +1,29 @@
-﻿    using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Autumn.Data.Rest.Rsql.Exceptions;
-using Microsoft.Extensions.Caching.Memory;
+using Autumn.Data.Rest.Helpers;
+using Autumn.Data.Rest.Queries.Exceptions;
 using Newtonsoft.Json.Serialization;
 
-namespace Autumn.Data.Rest.Rsql
+namespace Autumn.Data.Rest.Queries
 {
     public static class RsqlHelper
     {
-        
-        private static readonly MethodInfo MethodStringContains=typeof(string).GetMethod("Contains",new[]{typeof(string)});
-        private static readonly MethodInfo MethodStringStartsWith=typeof(string).GetMethod("StartsWith",new[]{typeof(string)});
-        private static readonly MethodInfo MethodStringEndsWith=typeof(string).GetMethod("EndsWith",new[]{typeof(string)});
-        private static readonly MethodInfo MethodListContains = typeof(List<object>).GetMethod("Contains", new[] {typeof(object)});
-        private static readonly Dictionary<string,PropertyInfo> MappingJson2PropertyInfo=new Dictionary<string, PropertyInfo>();
-        
-        public static Expression<Func<T, bool>> True<T> ()  { return f => true;  }
-       
-        public static readonly MemoryCache QueriesCache = new MemoryCache(new MemoryCacheOptions(){ExpirationScanFrequency = TimeSpan.FromMinutes(5)});
+        private static readonly MethodInfo MethodStringContains =
+            typeof(string).GetMethod("Contains", new[] {typeof(string)});
+
+        private static readonly MethodInfo MethodStringStartsWith =
+            typeof(string).GetMethod("StartsWith", new[] {typeof(string)});
+
+        private static readonly MethodInfo MethodStringEndsWith =
+            typeof(string).GetMethod("EndsWith", new[] {typeof(string)});
+
+        private static readonly MethodInfo MethodListContains =
+            typeof(List<object>).GetMethod("Contains", new[] {typeof(object)});
 
         #region GetExpression 
-     
+
         /// <summary>
         /// create and expression
         /// </summary>
@@ -35,7 +35,7 @@ namespace Autumn.Data.Rest.Rsql
         public static Expression<Func<T, bool>> GetAndExpression<T>(ParameterExpression parameter,
             IRsqlVisitor<Expression<Func<T, bool>>> visitor, RsqlParser.AndContext context)
         {
-            if (context.constraint().Length == 0) return True<T>();
+            if (context.constraint().Length == 0) return CommonHelper.True<T>();
             var right = context.constraint()[0].Accept(visitor);
             if (context.constraint().Length == 1) return right;
             for (var i = 1; i < context.constraint().Length; i++)
@@ -45,8 +45,8 @@ namespace Autumn.Data.Rest.Rsql
             }
             return right;
         }
-        
-        
+
+
         /// <summary>
         /// create or expression
         /// </summary>
@@ -58,7 +58,7 @@ namespace Autumn.Data.Rest.Rsql
         public static Expression<Func<T, bool>> GetOrExpression<T>(ParameterExpression parameter,
             IRsqlVisitor<Expression<Func<T, bool>>> visitor, RsqlParser.OrContext context)
         {
-            if (context.and().Length == 0) return True<T>();
+            if (context.and().Length == 0) return CommonHelper.True<T>();
             var right = context.and()[0].Accept(visitor);
             if (context.and().Length == 1) return right;
             for (var i = 1; i < context.and().Length; i++)
@@ -82,7 +82,7 @@ namespace Autumn.Data.Rest.Rsql
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(
                 Expression.Property(parameter, property),
                 Expression.Constant(null, typeof(object))), parameter);
@@ -96,11 +96,12 @@ namespace Autumn.Data.Rest.Rsql
         /// <param name="namingStrategy"></param>
         /// <param name="arguments"></param>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetNotIsNullExpression<T>(ParameterExpression parameter, string selector,
+        public static Expression<Func<T, bool>> GetNotIsNullExpression<T>(ParameterExpression parameter,
+            string selector,
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
             return Expression.Lambda<Func<T, bool>>(Expression.NotEqual(
                 Expression.Property(parameter, property),
                 Expression.Constant(null, typeof(object))), parameter);
@@ -121,12 +122,12 @@ namespace Autumn.Data.Rest.Rsql
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
             var values = GetValues(property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
-            return Expression.Lambda<Func<T, bool>>( Expression.Equal(
+            return Expression.Lambda<Func<T, bool>>(Expression.Equal(
                 Expression.Property(parameter, property),
                 Expression.Constant(values[0])), parameter);
         }
@@ -146,12 +147,12 @@ namespace Autumn.Data.Rest.Rsql
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
             var values = GetValues(property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
-            return Expression.Lambda<Func<T, bool>>( Expression.NotEqual(
+            return Expression.Lambda<Func<T, bool>>(Expression.NotEqual(
                 Expression.Property(parameter, property),
                 Expression.Constant(values[0])), parameter);
         }
@@ -167,19 +168,20 @@ namespace Autumn.Data.Rest.Rsql
         /// <returns></returns>
         /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
         /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression<Func<T, bool>> GetLtExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
-            ,RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetLtExpression<T>(ParameterExpression parameter, string selector,
+            NamingStrategy namingStrategy
+            , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
             var values = GetValues(property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
-            
-            return Expression.Lambda<Func<T, bool>>( Expression.LessThan(
+
+            return Expression.Lambda<Func<T, bool>>(Expression.LessThan(
                 Expression.Property(parameter, property),
                 Expression.Constant(values[0])), parameter);
         }
-        
+
         /// <summary>
         /// create le expression
         /// </summary>
@@ -191,19 +193,20 @@ namespace Autumn.Data.Rest.Rsql
         /// <returns></returns>
         /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
         /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression<Func<T, bool>> GetLeExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
-            ,RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetLeExpression<T>(ParameterExpression parameter, string selector,
+            NamingStrategy namingStrategy
+            , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
             var values = GetValues(property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
-            
-            return Expression.Lambda<Func<T, bool>>( Expression.LessThanOrEqual(
+
+            return Expression.Lambda<Func<T, bool>>(Expression.LessThanOrEqual(
                 Expression.Property(parameter, property),
                 Expression.Constant(values[0])), parameter);
         }
-        
+
         /// <summary>
         /// create gt expression
         /// </summary>
@@ -215,15 +218,16 @@ namespace Autumn.Data.Rest.Rsql
         /// <returns></returns>
         /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
         /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression<Func<T, bool>> GetGtExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
-            ,RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetGtExpression<T>(ParameterExpression parameter, string selector,
+            NamingStrategy namingStrategy
+            , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
             var values = GetValues(property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
-     
-            return Expression.Lambda<Func<T, bool>>( Expression.GreaterThan(
+
+            return Expression.Lambda<Func<T, bool>>(Expression.GreaterThan(
                 Expression.Property(parameter, property),
                 Expression.Constant(values[0])), parameter);
         }
@@ -243,12 +247,12 @@ namespace Autumn.Data.Rest.Rsql
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
             var values = GetValues(property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
 
-            return Expression.Lambda<Func<T, bool>>( Expression.GreaterThanOrEqual(
+            return Expression.Lambda<Func<T, bool>>(Expression.GreaterThanOrEqual(
                 Expression.Property(parameter, property),
                 Expression.Constant(values[0])), parameter);
         }
@@ -262,11 +266,12 @@ namespace Autumn.Data.Rest.Rsql
         /// <param name="arguments"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetIsTrueExpression<T>(ParameterExpression parameter, string selector, NamingStrategy namingStrategy
-            ,RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetIsTrueExpression<T>(ParameterExpression parameter, string selector,
+            NamingStrategy namingStrategy
+            , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
-            return Expression.Lambda<Func<T, bool>>( Expression.Equal(
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
+            return Expression.Lambda<Func<T, bool>>(Expression.Equal(
                 Expression.Property(parameter, property),
                 Expression.Constant(true)), parameter);
         }
@@ -284,12 +289,12 @@ namespace Autumn.Data.Rest.Rsql
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
-            return Expression.Lambda<Func<T, bool>>( Expression.Equal(
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
+            return Expression.Lambda<Func<T, bool>>(Expression.Equal(
                 Expression.Property(parameter, property),
                 Expression.Constant(false)), parameter);
         }
-        
+
         /// <summary>
         /// create like expression
         /// </summary>
@@ -298,7 +303,7 @@ namespace Autumn.Data.Rest.Rsql
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
             var values = GetValues(property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
@@ -337,7 +342,7 @@ namespace Autumn.Data.Rest.Rsql
             NamingStrategy namingStrategy
             , RsqlParser.ArgumentsContext arguments)
         {
-            var property = GetProperty(typeof(T), selector, namingStrategy);
+            var property = CommonHelper.GetProperty(typeof(T), selector, namingStrategy);
             var values = GetValues(property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             return Expression.Lambda<Func<T, bool>>(Expression.Call(Expression.Constant(values), MethodListContains,
@@ -357,9 +362,9 @@ namespace Autumn.Data.Rest.Rsql
         }
 
         #endregion
-      
+
         #region GetValues
-        
+
         private static List<object> GetStringValues(RsqlParser.ArgumentsContext argumentsContext)
         {
             var items = new List<object>();
@@ -372,7 +377,7 @@ namespace Autumn.Data.Rest.Rsql
             }
             return items;
         }
-        
+
         private static List<object> GetShorts(RsqlParser.ArgumentsContext argumentsContext)
         {
             var items = new List<object>();
@@ -385,7 +390,7 @@ namespace Autumn.Data.Rest.Rsql
             }
             return items;
         }
-        
+
         private static List<object> GetInts(RsqlParser.ArgumentsContext argumentsContext)
         {
             var items = new List<object>();
@@ -398,7 +403,7 @@ namespace Autumn.Data.Rest.Rsql
             }
             return items;
         }
-        
+
         private static List<object> GetLongs(RsqlParser.ArgumentsContext argumentsContext)
         {
             var items = new List<object>();
@@ -411,7 +416,7 @@ namespace Autumn.Data.Rest.Rsql
             }
             return items;
         }
-        
+
         private static List<object> GetDoubles(RsqlParser.ArgumentsContext argumentsContext)
         {
             var items = new List<object>();
@@ -437,7 +442,7 @@ namespace Autumn.Data.Rest.Rsql
             }
             return items;
         }
-        
+
         private static List<object> GetDateTimes(RsqlParser.ArgumentsContext argumentsContext)
         {
             // TODO
@@ -449,7 +454,7 @@ namespace Autumn.Data.Rest.Rsql
             // TODO
             return null;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -473,27 +478,27 @@ namespace Autumn.Data.Rest.Rsql
             {
                 return GetDateTimeOffsets(argumentsContext);
             }
-           
+
             if (type == typeof(short) || type == typeof(short?))
             {
                 return GetShorts(argumentsContext);
             }
-            
+
             if (type == typeof(int) || type == typeof(int?))
             {
                 return GetInts(argumentsContext);
             }
-            
+
             if (type == typeof(long) || type == typeof(long?))
             {
                 return GetLongs(argumentsContext);
             }
-            
+
             if (type == typeof(double) || type == typeof(double?))
             {
                 return GetDoubles(argumentsContext);
             }
-            
+
             if (type == typeof(decimal) || type == typeof(decimal?))
             {
                 return GetDecimals(argumentsContext);
@@ -501,34 +506,6 @@ namespace Autumn.Data.Rest.Rsql
             return null;
         }
 
-        #endregion
-
-        #region GetProperty 
-        
-        private static PropertyInfo GetProperty(Type type, string name, NamingStrategy namingStrategy)
-        {
-            var key = string.Format("{0}|{1}", type.FullName, name);
-            if (!MappingJson2PropertyInfo.ContainsKey(key))
-            {
-                var propertyName = name;
-                if (namingStrategy != null)
-                {
-                    if (namingStrategy is SnakeCaseNamingStrategy)
-                    {
-                        propertyName = name.Split(new[] {"_"}, StringSplitOptions.RemoveEmptyEntries)
-                            .Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1, s.Length - 1))
-                            .Aggregate(string.Empty, (s1, s2) => s1 + s2);
-                    }
-                    if (namingStrategy is CamelCaseNamingStrategy)
-                    {
-                        propertyName = name[0].ToString().ToUpperInvariant() + name.Substring(1);
-                    }
-                }
-                MappingJson2PropertyInfo[key] = type.GetProperty(propertyName);
-            }
-            return MappingJson2PropertyInfo[key];
-        }
-        
         #endregion
     }
 }

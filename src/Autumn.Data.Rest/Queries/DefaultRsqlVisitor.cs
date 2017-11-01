@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using Newtonsoft.Json.Serialization;
 
-namespace Autumn.Data.Rest.Rsql
+namespace Autumn.Data.Rest.Queries
 {
     public class DefaultRsqlVisitor<T> : RsqlBaseVisitor<Expression<Func<T, bool>>>
     {

@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Net;
 using System.Threading.Tasks;
-using Autumn.Data.Rest.Commons;
+using Autumn.Data.Rest.Paginations;
 using Autumn.Data.Rest.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,7 +34,7 @@ namespace Autumn.Data.Rest.Controllers
 
 
         [HttpGet("")]
-        public virtual async Task<IActionResult> Find(Expression<Func<TU, bool>> filter, IPageable pageable)
+        public virtual async Task<IActionResult> Find(Expression<Func<TU, bool>> filter, Pageable<TU> pageable)
         {
             var result = await _repository.FindAsync(filter, pageable);
             return result.TotalElements == result.NumberOfElements

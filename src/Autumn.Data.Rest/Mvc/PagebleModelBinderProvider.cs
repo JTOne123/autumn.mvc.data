@@ -1,9 +1,8 @@
-﻿using System;
-using System.Data.Common;
+﻿using System.Linq.Expressions;
 using System.Reflection;
-using Autumn.Data.Rest.Commons;
+using Autumn.Data.Rest.Helpers;
+using Autumn.Data.Rest.Paginations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
 
@@ -14,14 +13,16 @@ namespace Autumn.Data.Rest.Mvc
         private readonly string _pageSizeField;
         private readonly string _pageNumberField;
         private readonly string _sortField;
+        private readonly NamingStrategy _namingStrategy;
 
         public PageableModelBinderProvider(IConfiguration configuration, NamingStrategy namingStrategy = null)
         {
             _pageSizeField = configuration.GetSection("Autumn.Data.Rest.Settings:Pageable_PageSize_Name").Value ?? "PageSize";
             _pageNumberField = configuration.GetSection("Autumn.Data.Rest.Settings:Pageable_PageNumber_Name").Value ?? "PageNumber";
             _sortField = configuration.GetSection("Autumn.Data.Rest.Settings:Pageable_Sort_Name").Value ?? "Sort";
-            if (namingStrategy == null) return;
-            var method = namingStrategy.GetType().GetMethod("ResolvePropertyName",BindingFlags.Default|BindingFlags.Instance|BindingFlags.NonPublic);
+            _namingStrategy = namingStrategy;
+            if (_namingStrategy == null) return;
+            var method = _namingStrategy.GetType().GetMethod("ResolvePropertyName",BindingFlags.Default|BindingFlags.Instance|BindingFlags.NonPublic);
             if (method == null) return;
             
             _pageSizeField = (string) method.Invoke(namingStrategy,new object[]{_pageSizeField});
@@ -31,9 +32,10 @@ namespace Autumn.Data.Rest.Mvc
 
         public IModelBinder GetBinder(ModelBinderProviderContext context)
         {
-            return context.Metadata.ModelType == typeof(IPageable)
-                ? new PageableModelBinder(_pageSizeField, _pageNumberField, _sortField)
-                : null;
+            if (!context.Metadata.ModelType.IsGenericType ||
+                context.Metadata.ModelType.GetGenericTypeDefinition() != typeof(Pageable<>)) return null;
+            return CommonHelper.GetPageableModelBinder(context.Metadata.ModelType, _pageSizeField, _pageNumberField,
+                _sortField, _namingStrategy);
         }
     }
 }

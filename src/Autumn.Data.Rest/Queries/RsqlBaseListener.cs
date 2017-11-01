@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Autumn.Data.Rest.Rsql {
+namespace Autumn.Data.Rest.Queries {
 
 using Antlr4.Runtime.Misc;
 using IErrorNode = Antlr4.Runtime.Tree.IErrorNode;
@@ -33,6 +33,7 @@ using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 /// of the available methods.
 /// </summary>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.6")]
+[System.CLSCompliant(false)]
 public partial class RsqlBaseListener : IRsqlListener {
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="RsqlParser.eval"/>.
@@ -240,4 +241,4 @@ public partial class RsqlBaseListener : IRsqlListener {
 	/// <remarks>The default implementation does nothing.</remarks>
 	public virtual void VisitErrorNode([NotNull] IErrorNode node) { }
 }
-} // namespace Autumn.Data.Rest.Rsql
+} // namespace Autumn.Data.Rest.Queries

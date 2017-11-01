@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Autumn.Data.Rest.Rsql {
+namespace Autumn.Data.Rest.Queries {
 using Antlr4.Runtime.Misc;
 using IParseTreeListener = Antlr4.Runtime.Tree.IParseTreeListener;
 using IToken = Antlr4.Runtime.IToken;
@@ -29,6 +29,7 @@ using IToken = Antlr4.Runtime.IToken;
 /// <see cref="RsqlParser"/>.
 /// </summary>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.6")]
+[System.CLSCompliant(false)]
 public interface IRsqlListener : IParseTreeListener {
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="RsqlParser.eval"/>.
@@ -191,4 +192,4 @@ public interface IRsqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitSelector([NotNull] RsqlParser.SelectorContext context);
 }
-} // namespace Autumn.Data.Rest.Rsql
+} // namespace Autumn.Data.Rest.Queries

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Autumn.Data.Rest.Commons;
+using Autumn.Data.Rest.Paginations;
 
 namespace Autumn.Data.Rest.Repositories
 {
@@ -11,6 +11,7 @@ namespace Autumn.Data.Rest.Repositories
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TId"></typeparam>
     public interface ICrudPageableRepositoryAsync<T, in TId>
+        where T : class
     {
         /// <summary>
         /// find enity by ID
@@ -25,7 +26,7 @@ namespace Autumn.Data.Rest.Repositories
         /// <param name="filter"></param>
         /// <param name="pageable"></param>
         /// <returns></returns>
-        Task<IPage<T>> FindAsync(Expression<Func<T, bool>> filter=null, IPageable pageable=null);
+        Task<Page<T>> FindAsync(Expression<Func<T, bool>> filter=null, Pageable<T> pageable=null);
 
         /// <summary>
         /// create entity

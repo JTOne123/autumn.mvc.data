@@ -4,7 +4,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Antlr4.Runtime;
-using Autumn.Data.Rest.Rsql;
+using Autumn.Data.Rest.Helpers;
+using Autumn.Data.Rest.Queries;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Serialization;
@@ -30,14 +31,14 @@ namespace Autumn.Data.Rest.Mvc
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             var queryCollection = bindingContext.ActionContext.HttpContext.Request.Query;
-            var eval = RsqlHelper.True<T>();
+            var eval = CommonHelper.True<T>();
             if (queryCollection.TryGetValue(_queryField, out var query))
             {
                 var hash = Hash(query[0]);
-                if (!RsqlHelper.QueriesCache.TryGetValue(hash, out eval))
+                if (!CommonHelper.QueriesCache.TryGetValue(hash, out eval))
                 {
                     eval = Build(query[0]);
-                    RsqlHelper.QueriesCache.Set(hash, eval);
+                    CommonHelper.QueriesCache.Set(hash, eval);
                 }
             }
             bindingContext.Result = ModelBindingResult.Success(eval);
@@ -56,7 +57,7 @@ namespace Autumn.Data.Rest.Mvc
                 md5.Initialize();
                 md5.ComputeHash(Encoding.UTF8.GetBytes(string.Format("{0}?{1}", typeof(T).FullName, query)));
                 var hash = md5.Hash;
-                var builder=new StringBuilder();
+                var builder = new StringBuilder();
                 foreach (var t in hash)
                 {
                     builder.Append(t.ToString("x2"));
@@ -81,4 +82,4 @@ namespace Autumn.Data.Rest.Mvc
             return visitor.VisitEval(eval);
         }
     }
-}        
+}

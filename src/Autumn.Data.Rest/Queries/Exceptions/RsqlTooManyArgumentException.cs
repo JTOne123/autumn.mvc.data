@@ -1,4 +1,4 @@
-﻿namespace Autumn.Data.Rest.Rsql.Exceptions
+﻿namespace Autumn.Data.Rest.Queries.Exceptions
 {
     public class RsqlTooManyArgumentException : RsqlArgumentException
     {

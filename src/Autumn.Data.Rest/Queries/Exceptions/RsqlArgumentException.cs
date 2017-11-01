@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Autumn.Data.Rest.Rsql.Exceptions
+namespace Autumn.Data.Rest.Queries.Exceptions
 {
     public class RsqlArgumentException : RsqlException<RsqlParser.ArgumentsContext>
     {

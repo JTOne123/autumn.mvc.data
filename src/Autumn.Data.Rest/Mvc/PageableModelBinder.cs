@@ -1,33 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection.Metadata;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Autumn.Data.Rest.Commons;
+using Autumn.Data.Rest.Helpers;
+using Autumn.Data.Rest.Paginations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Data.Rest.Mvc
 {
-    public class PageableModelBinder : IModelBinder
+    public class PageableModelBinder<T> : IModelBinder where T : class 
     {
         private readonly string _pageSizeField;
         private readonly string _pageNumberField;
         private readonly string _sortField;
-       
+        private readonly NamingStrategy _namingStrategy;
+
         /// <summary>
         /// class initializer
         /// </summary>
         /// <param name="pageSizeField"></param>
         /// <param name="pageNumberField"></param>
-        /// <param name="sortField"></param>
-        public PageableModelBinder(string pageSizeField, string pageNumberField, string sortField)
+        /// <param name="sortField"></param>µ
+        /// <param name="namingStrategy"></param>
+        public PageableModelBinder(string pageSizeField, string pageNumberField, string sortField,
+            NamingStrategy namingStrategy)
         {
             _pageSizeField = pageSizeField;
             _pageNumberField = pageNumberField;
             _sortField = sortField;
+            _namingStrategy = namingStrategy;
         }
-
 
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
@@ -43,36 +46,40 @@ namespace Autumn.Data.Rest.Mvc
                 int.TryParse(pageNumberString[0], out pageNumber);
             }
 
+            Sort<T> sort = null;
             if (queryCollection.TryGetValue(_sortField, out var sortStringValues))
             {
-                var sort = new List<Sort>();
+                var parameter = Expression.Parameter(typeof(T));
+
+                var orderBy = new List<Expression<Func<T, object>>>();
+                var orderDescendingBy = new List<Expression<Func<T, object>>>();
+     
                 foreach (var sortStringValue in sortStringValues)
                 {
-                    var property = sortStringValue;
-                    var propertyKeyDirection = property + ".dir";
+                    var property = CommonHelper.GetProperty<T>(sortStringValue, _namingStrategy);
+                    var valueInNameProperty = Expression.MakeMemberAccess(parameter, property);
+                    var expression = Expression.Convert(valueInNameProperty, typeof(object));
+                    var orderExpression = Expression.Lambda<Func<T, object>>(expression, parameter);
+                    var propertyKeyDirection = sortStringValue + ".dir";
+                    var isDescending = false;
                     if (queryCollection.ContainsKey(propertyKeyDirection))
                     {
-                        if (Enum.TryParse<SortDirection>(
-                            queryCollection[propertyKeyDirection][0].ToUpperInvariant(), true,
-                            out var direction))
-                        {
-                            if (direction == SortDirection.Asc)
-                            {
-                                sort.Add(Sort.Asc(property));
-                            }
-                            else
-                            {
-                                sort.Add(Sort.Desc(property));
-                            }
-                        }
+                        var sortDirection = queryCollection[propertyKeyDirection][0].ToLowerInvariant();
+                        isDescending = sortDirection == "desc";
+                    }
+                    if (isDescending)
+                    {
+                        orderDescendingBy.Add(orderExpression);
+                    }
+                    else
+                    {
+                        orderBy.Add(orderExpression);
                     }
                 }
-                bindingContext.Result = ModelBindingResult.Success(new Pageable(pageNumber, pageSize, sort.ToArray()));
+                sort = new Sort<T>(orderBy, orderDescendingBy);
             }
-            else
-            {
-                bindingContext.Result = ModelBindingResult.Success(new Pageable(pageNumber, pageSize, new Sort[] { }));
-            }
+
+            bindingContext.Result = ModelBindingResult.Success(new Pageable<T>(pageNumber, pageSize, sort));
             return Task.CompletedTask;
         }
     }

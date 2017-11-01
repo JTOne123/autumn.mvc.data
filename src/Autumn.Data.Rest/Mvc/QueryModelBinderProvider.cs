@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
+using Autumn.Data.Rest.Helpers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
@@ -10,7 +9,7 @@ namespace Autumn.Data.Rest.Mvc
 {
     public class QueryModelBinderProvider : IModelBinderProvider
     {
-        private static readonly Dictionary<Type, ConstructorInfo> _binderCacheTypes = new Dictionary<Type, ConstructorInfo>();
+        
         private readonly string _queryField;
         private readonly NamingStrategy _namingStrategy;
        
@@ -23,28 +22,12 @@ namespace Autumn.Data.Rest.Mvc
             if (method == null) return;
             _queryField = (string) method.Invoke(_namingStrategy,new object[]{_queryField});
         }
-        
+
         public IModelBinder GetBinder(ModelBinderProviderContext context)
         {
-            if (context.Metadata.ModelType.IsGenericType && context.Metadata.ModelType.GetGenericTypeDefinition()==typeof(Expression<>))
-            {
-                if (!_binderCacheTypes.ContainsKey(context.Metadata.ModelType))
-                {
-                    var entityType = context.Metadata.ModelType
-                        .GetGenericArguments()[0]
-                        .GetGenericArguments()[0];
-                    var binderTypeName = string.Format("{0}[[{2}, {3}]], {1}",
-                        typeof(QueryModelBinder<>).FullName,
-                        typeof(QueryModelBinder<>).Assembly.FullName,
-                        entityType.FullName,
-                        entityType.Assembly.FullName);
-                    var binderType =
-                        Type.GetType(binderTypeName);
-                    _binderCacheTypes[context.Metadata.ModelType] = binderType.GetConstructor(new Type[]{typeof(string),typeof(NamingStrategy)});
-                }
-                return (IModelBinder) _binderCacheTypes[context.Metadata.ModelType].Invoke(new object[]{_queryField,_namingStrategy});
-            }
-            return null;
+            if (!context.Metadata.ModelType.IsGenericType ||
+                context.Metadata.ModelType.GetGenericTypeDefinition() != typeof(Expression<>)) return null;
+            return CommonHelper.GetExpressionModelBinder(context.Metadata.ModelType, _queryField, _namingStrategy);
         }
     }
 }

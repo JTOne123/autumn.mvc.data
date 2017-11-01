@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Autumn.Data.Rest.Rsql {
+namespace Autumn.Data.Rest.Queries {
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using IToken = Antlr4.Runtime.IToken;
@@ -32,6 +32,7 @@ using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 /// </summary>
 /// <typeparam name="Result">The return type of the visit operation.</typeparam>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.6")]
+[System.CLSCompliant(false)]
 public partial class RsqlBaseVisitor<Result> : AbstractParseTreeVisitor<Result>, IRsqlVisitor<Result> {
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="RsqlParser.eval"/>.
@@ -194,4 +195,4 @@ public partial class RsqlBaseVisitor<Result> : AbstractParseTreeVisitor<Result>,
 	/// <return>The visitor result.</return>
 	public virtual Result VisitSelector([NotNull] RsqlParser.SelectorContext context) { return VisitChildren(context); }
 }
-} // namespace Autumn.Data.Rest.Rsql
+} // namespace Autumn.Data.Rest.Queries
