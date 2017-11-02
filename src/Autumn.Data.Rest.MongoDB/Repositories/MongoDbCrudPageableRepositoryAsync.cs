@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Autumn.Data.Rest.Helpers;
 using Autumn.Data.Rest.MongoDB.Entities;
+using Autumn.Data.Rest.MongoDB.Helpers;
 using Autumn.Data.Rest.Paginations;
 using Autumn.Data.Rest.Repositories;
 using MongoDB.Driver;
@@ -119,20 +120,6 @@ namespace Autumn.Data.Rest.MongoDB.Repositories
         {
             await Collection().InsertOneAsync(entity);
             return entity;
-        }
-
-        public async Task<T> UpdateAsync(T entity)
-        {
-            var update = new ObjectUpdateDefinition<T>(entity);
-            var where = Expression.Lambda<Func<T, bool>>(
-                Expression.Equal(
-                    Expression.Property(_parameter, _propertyId),
-                    Expression.Constant(_propertyId.GetValue(entity, null))
-                )
-            );
-
-            var filter = _filterDefinitionBuilder.Where(where);
-            return await Collection().FindOneAndUpdateAsync(filter, update);
         }
 
         public async Task<T> UpdateAsync(T entity, TId id)

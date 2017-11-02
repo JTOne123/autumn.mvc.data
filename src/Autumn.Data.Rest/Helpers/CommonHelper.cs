@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Autumn.Data.Rest.Mvc;
@@ -33,13 +32,8 @@ namespace Autumn.Data.Rest.Helpers
 
         #region GetProperty 
 
-        public static PropertyInfo GetProperty<T>(string name, NamingStrategy strategy = null)
-        {
-            return GetProperty(typeof(T), name, strategy);
-        }
 
-
-        private static Dictionary<string, PropertyInfo> Build(Type type, NamingStrategy namingStrategy = null)
+        private static Dictionary<string, PropertyInfo> Build(IReflect type, NamingStrategy namingStrategy = null)
         {
             var result = new Dictionary<string, PropertyInfo>();
             foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
@@ -53,7 +47,7 @@ namespace Autumn.Data.Rest.Helpers
         }
 
 
-        public static string GetJsonPropertyName(MemberInfo propertyInfo, 
+        private static string GetJsonPropertyName(MemberInfo propertyInfo, 
             NamingStrategy namingStrategy = null)
         {
             var propertyName = propertyInfo.Name;
@@ -77,7 +71,7 @@ namespace Autumn.Data.Rest.Helpers
         }
 
 
-        public static PropertyInfo GetProperty(Type type, string name, NamingStrategy namingStrategy = null)
+        private static PropertyInfo GetProperty(Type type, string name, NamingStrategy namingStrategy = null)
         {
             lock (MappingJson2PropertyInfo)
             {
@@ -167,5 +161,39 @@ namespace Autumn.Data.Rest.Helpers
         }
 
         #endregion
+        
+        public class ExpressionValue
+        {
+            public PropertyInfo Property { get; set; }
+            public Expression Expression { get; set; }
+        }
+
+        public static ExpressionValue GetMemberExpressionValue<T>(ParameterExpression parameter, string selector,
+            NamingStrategy namingStrategy)
+        {
+            Expression lastMember = parameter;
+            PropertyInfo property = null;
+            var type = typeof(T);
+            if (selector.IndexOf(".", StringComparison.InvariantCulture) != -1)
+            {
+                foreach (var item in selector.Split('.'))
+                {
+                    property = GetProperty(type, item, namingStrategy);
+                    type = property.PropertyType;
+                    lastMember = Expression.Property(lastMember, property);
+                }
+            }
+            else
+            {
+                property = GetProperty(type, selector, namingStrategy);
+                lastMember = Expression.Property(lastMember, property);
+            }
+
+            return new ExpressionValue()
+            {
+                Property = property,
+                Expression = lastMember
+            };
+        }
     }
 }

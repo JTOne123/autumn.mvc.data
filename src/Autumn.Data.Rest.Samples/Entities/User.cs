@@ -1,6 +1,7 @@
 ﻿using Autumn.Data.Rest.MongoDB.Entities;
 using MongoDB.Bson.Serialization.Attributes;
 using Autumn.Data.Rest.Samples.Repositories;
+using Newtonsoft.Json;
 
 namespace Autumn.Data.Rest.Samples.Entities
 {
@@ -21,8 +22,10 @@ namespace Autumn.Data.Rest.Samples.Entities
         public string Email { get; set; }
 
         [BsonElement("address")]
+        [JsonProperty("a")]
         public Address Address { get; set; }
         
+        [JsonIgnore]
         [BsonElement("count")]
         public int Count { get; set; }
     }

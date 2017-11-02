@@ -46,11 +46,7 @@ namespace Autumn.Data.Rest.Queries
         /// <returns></returns>
         public override Expression<Func<T, bool>> VisitConstraint(RsqlParser.ConstraintContext context)
         {
-            if (context.comparison() != null)
-            {
-                return context.comparison().Accept(this);
-            }
-            return null;
+            return context.comparison() != null ? context.comparison().Accept(this) : null;
         }
 
         /// <summary>

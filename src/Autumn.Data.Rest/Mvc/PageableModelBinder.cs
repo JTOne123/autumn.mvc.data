@@ -56,9 +56,10 @@ namespace Autumn.Data.Rest.Mvc
      
                 foreach (var sortStringValue in sortStringValues)
                 {
-                    var property = CommonHelper.GetProperty<T>(sortStringValue, _namingStrategy);
-                    var valueInNameProperty = Expression.MakeMemberAccess(parameter, property);
-                    var expression = Expression.Convert(valueInNameProperty, typeof(object));
+                    var expressionValue =
+                        CommonHelper.GetMemberExpressionValue<T>(parameter, sortStringValue, _namingStrategy);
+                    //var valueInNameProperty = Expression.MakeMemberAccess(expressionValue.Expression, expressionValue.Property);
+                    var expression = Expression.Convert(expressionValue.Expression, typeof(object));
                     var orderExpression = Expression.Lambda<Func<T, object>>(expression, parameter);
                     var propertyKeyDirection = sortStringValue + ".dir";
                     var isDescending = false;

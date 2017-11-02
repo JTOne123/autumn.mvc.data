@@ -39,13 +39,6 @@ namespace Autumn.Data.Rest.Repositories
         /// update entity
         /// </summary>
         /// <param name="entity"></param>
-        /// <returns></returns>
-        Task<T> UpdateAsync(T entity);
-
-        /// <summary>
-        /// update entity
-        /// </summary>
-        /// <param name="entity"></param>
         /// <param name="id"></param>
         /// <returns></returns>
         Task<T> UpdateAsync(T entity, TId id);

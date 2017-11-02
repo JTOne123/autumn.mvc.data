@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Text;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using System.Text;
 
 namespace Autumn.Data.Rest.Helpers
 {
@@ -29,8 +26,11 @@ namespace Autumn.Data.Rest.Helpers
                     case 1:
                         builder.Append(item[0].ToString().ToUpperInvariant());
                         break;
+                    default:
+                        builder.Append(item[0].ToString().ToUpperInvariant() + item.Substring(1));
+                        break;
                 }
-                builder.Append(item[0].ToString().ToUpperInvariant() + item.Substring(1));
+
             }
             return builder.ToString();
         }
@@ -38,7 +38,7 @@ namespace Autumn.Data.Rest.Helpers
         public static string ToSnakeCase(this string value)
         {
             if (string.IsNullOrWhiteSpace(value)) return value;
-            if (value.Length == 1) return value.ToUpperInvariant();
+            if (value.Length == 1) return value.ToLowerInvariant();
             var builder = new StringBuilder();
             foreach (var item in value)
             {

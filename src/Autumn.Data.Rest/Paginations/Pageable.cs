@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Autumn.Data.Rest.Paginations
+﻿namespace Autumn.Data.Rest.Paginations
 {
     public class Pageable<T> where T :class
     {

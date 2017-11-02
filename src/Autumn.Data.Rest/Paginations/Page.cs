@@ -26,7 +26,7 @@ namespace Autumn.Data.Rest.Paginations
             }
             else
             {
-                TotalElements = total.Value < (long) Content.Count ? (long) Content.Count : total.Value;
+                TotalElements = total.Value < (long) Content.Count ? Content.Count : total.Value;
             }
             HasContent = Content.Count > 0;
             if (HasContent)

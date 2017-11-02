@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Autumn.Data.Rest.MongoDB
+namespace Autumn.Data.Rest.MongoDB.Helpers
 {
     public static class MongoDbHelper
     {
