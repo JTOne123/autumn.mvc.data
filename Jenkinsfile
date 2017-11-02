@@ -16,6 +16,10 @@ node
 		stage('Unit Tests') {
 			sh 'dotnet test --configuration Release --no-build src/Autumn.Data.Rest.Tests/Autumn.Data.Rest.Tests.csproj'
 		}
+		
+		stage('Package') {
+			sh 'dotnet pack --no-build --output nupkgs src/Autumn.Data.Rest/Autumn.Data.Rest.csproj'
+		}
 	}
 	catch (err) 
 	{
