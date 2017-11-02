@@ -9,12 +9,12 @@ node
 		}
 		
 		stage('Build'){
-			sh 'dotnet restore src/Autumn.Data.Rest.sln'
-			sh 'dotnet build src/Autumn.Data.Rest.sln'
+			sh 'dotnet restore --verbosity d src/Autumn.Data.Rest.sln'
+			sh 'dotnet build --configuration Release --verbosity d src/Autumn.Data.Rest.sln'
 		}
 		
 		stage('Unit Tests') {
-			sh 'dotnet test --no-build -v src/Autumn.Data.Rest.Tests/Autumn.Data.Rest.Tests.csproj'
+			sh 'dotnet test --configuration Release --no-build --verbosity d src/Autumn.Data.Rest.Tests/Autumn.Data.Rest.Tests.csproj'
 		}
 	}
 	catch (err) 
