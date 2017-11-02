@@ -5,7 +5,7 @@ using Autumn.Data.Rest.Samples.Entities;
 
 namespace Autumn.Data.Rest.Samples.Repositories
 {
-    public interface IUserRepository : ICrudPageableRepositoryAsync<User,ObjectId>
+    public interface IUserRepository : ICrudPageableRepositoryAsync<User,string>
     {
         Task<User> FindByEmailAsync(string email);
     }

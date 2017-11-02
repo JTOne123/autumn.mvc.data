@@ -1,6 +1,7 @@
 ﻿using Autumn.Data.Rest.MongoDB.Entities;
 using MongoDB.Bson.Serialization.Attributes;
 using Autumn.Data.Rest.Samples.Repositories;
+using MongoDB.Bson;
 using Newtonsoft.Json;
 
 namespace Autumn.Data.Rest.Samples.Entities
@@ -9,6 +10,7 @@ namespace Autumn.Data.Rest.Samples.Entities
     [BsonCollection("users")]
     public class User : AbstractEntity
     {
+        
         [BsonElement("name")]
         public string Name { get; set; }
 

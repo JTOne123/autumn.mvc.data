@@ -8,7 +8,7 @@ using MongoDB.Bson;
 namespace Autumn.Data.Rest.Samples.Controllers
 {
     [Route("v1/users")]
-    public class UserController : RestRepositoryControllerAsync<IUserRepository,User,ObjectId>
+    public class UserController : RestRepositoryControllerAsync<IUserRepository,User,string>
     {
       
         public UserController(IUserRepository userRepository):base(userRepository){ }

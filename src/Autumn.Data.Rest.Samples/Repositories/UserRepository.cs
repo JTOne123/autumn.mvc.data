@@ -7,7 +7,7 @@ using Settings = Autumn.Data.Rest.Samples.Configurations.Settings;
 
 namespace Autumn.Data.Rest.Samples.Repositories
 {
-    public class UserRepository : MongoDbCrudPageableRepositoryAsync<User,ObjectId>, IUserRepository
+    public class UserRepository : MongoDbCrudPageableRepositoryAsync<User,string>, IUserRepository
     {
         public UserRepository(Settings settings) : base(settings.ConnectionString,settings.DatabaseName)
         {

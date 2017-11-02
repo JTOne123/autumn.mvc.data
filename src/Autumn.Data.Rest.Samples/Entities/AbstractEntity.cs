@@ -7,6 +7,7 @@ namespace Autumn.Data.Rest.Samples.Repositories
     {
         [BsonElement("_id")]
         [BsonId]
-        public ObjectId Id { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
     }
 }

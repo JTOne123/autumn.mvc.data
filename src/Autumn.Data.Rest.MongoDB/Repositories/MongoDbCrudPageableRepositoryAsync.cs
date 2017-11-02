@@ -62,6 +62,7 @@ namespace Autumn.Data.Rest.MongoDB.Repositories
                     Expression.Property(_parameter, propertyId),
                     Expression.Constant(id)
                 )
+                ,_parameter
             );
             return await Collection().Find(where).SingleOrDefaultAsync();
         }
@@ -129,7 +130,8 @@ namespace Autumn.Data.Rest.MongoDB.Repositories
                 Expression.Equal(
                     Expression.Property(_parameter, _propertyId),
                     Expression.Constant(id)
-                )
+                ),
+                _parameter
             );
 
             var filter = _filterDefinitionBuilder.Where(where);
@@ -143,6 +145,8 @@ namespace Autumn.Data.Rest.MongoDB.Repositories
                     Expression.Property(_parameter, _propertyId),
                     Expression.Constant(id)
                 )
+                ,
+                _parameter
             );
 
             var filter = _filterDefinitionBuilder.Where(where);
