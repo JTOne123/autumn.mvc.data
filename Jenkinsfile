@@ -13,8 +13,8 @@ node
 			sh 'dotnet build src/Autumn.Data.Rest.sln'
 		}
 		
-		stage('Test') {
-			sh 'dotnet test src/Autumn.Data.Rest.Tests/Autumn.Data.Rest.Tests.csproj'
+		stage('Unit Tests') {
+			sh 'dotnet test --no-build -v src/Autumn.Data.Rest.Tests/Autumn.Data.Rest.Tests.csproj'
 		}
 	}
 	catch (err) 
