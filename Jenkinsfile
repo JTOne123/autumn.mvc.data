@@ -2,6 +2,7 @@ node
 {
 	try
 	{
+	
 		currentBuild.result = "SUCCESS"
 		
 		stage('Checkout'){
@@ -17,9 +18,19 @@ node
 			sh 'dotnet test --configuration Release --no-build src/Autumn.Data.Rest.Tests/Autumn.Data.Rest.Tests.csproj'
 		}
 		
-		stage('Package') {
-			sh 'dotnet pack --no-build --output nupkgs src/Autumn.Data.Rest/Autumn.Data.Rest.csproj'
-		}
+		if (env.BRANCH_NAME=='master' || env.BRANCH_NAME=='staging') {
+			
+			stage('Package') 
+			{
+				sh 'dotnet pack --no-build --output nupkgs src/Autumn.Data.Rest/Autumn.Data.Rest.csproj'
+				sh 'dotnet pack --no-build --output nupkgs src/Autumn.Data.Rest.MongoDB/Autumn.Data.Rest.MongoDB.csproj'
+			}
+			
+			stage('Publish')
+			{
+				
+			}
+		}		
 	}
 	catch (err) 
 	{
