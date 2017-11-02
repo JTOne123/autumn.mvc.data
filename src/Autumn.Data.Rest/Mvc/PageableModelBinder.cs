@@ -58,7 +58,6 @@ namespace Autumn.Data.Rest.Mvc
                 {
                     var expressionValue =
                         CommonHelper.GetMemberExpressionValue<T>(parameter, sortStringValue, _namingStrategy);
-                    //var valueInNameProperty = Expression.MakeMemberAccess(expressionValue.Expression, expressionValue.Property);
                     var expression = Expression.Convert(expressionValue.Expression, typeof(object));
                     var orderExpression = Expression.Lambda<Func<T, object>>(expression, parameter);
                     var propertyKeyDirection = sortStringValue + ".dir";
