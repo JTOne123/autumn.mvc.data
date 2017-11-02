@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Autumn.Data.Rest.MongoDB.Repositories;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using Autumn.Data.Rest.Samples.Entities;
 using Settings = Autumn.Data.Rest.Samples.Configurations.Settings;
