@@ -14,7 +14,7 @@ node
 		}
 		
 		stage('Test') {
-			sh 'dotnet test src/Autumn.Data.Rest.sln'
+			sh 'dotnet test src/Autumn.Data.Rest.Tests/Autumn.Data.Rest.Tests.csproj'
 		}
 	}
 	catch (err) 
