@@ -8,9 +8,13 @@ node
 			checkout scm
 		}
 		
-		stage('Compile'){
+		stage('Build'){
 			sh 'dotnet restore src/Autumn.Data.Rest.sln'
 			sh 'dotnet build src/Autumn.Data.Rest.sln'
+		}
+		
+		stage('Test') {
+			sh 'dotnet test src/Autumn.Data.Rest.sln'
 		}
 	}
 	catch (err) 
