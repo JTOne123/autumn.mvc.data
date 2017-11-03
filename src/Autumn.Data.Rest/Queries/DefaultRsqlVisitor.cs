@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Autumn.Data.Rest.Helpers;
 using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Data.Rest.Queries
@@ -26,7 +27,7 @@ namespace Autumn.Data.Rest.Queries
         /// <returns></returns>
         public override Expression<Func<T, bool>> VisitOr(RsqlParser.OrContext context)
         {
-            return RsqlHelper.GetOrExpression(_parameter, this, context);
+            return RsqlHelper.GetOrExpression(this, context);
         }
 
         /// <summary>
@@ -36,7 +37,7 @@ namespace Autumn.Data.Rest.Queries
         /// <returns></returns>
         public override Expression<Func<T, bool>> VisitAnd(RsqlParser.AndContext context)
         {
-            return RsqlHelper.GetAndExpression(_parameter, this, context);
+            return RsqlHelper.GetAndExpression(this, context);
         }
 
         /// <summary>
@@ -56,22 +57,18 @@ namespace Autumn.Data.Rest.Queries
         /// <returns></returns>
         public override Expression<Func<T, bool>> VisitComparison(RsqlParser.ComparisonContext context)
         {
-            var selector = context.selector().GetText();
+            var selector = context.selector();
             var comparator = context.comparator().GetText().ToLowerInvariant();
             switch (comparator)
             {
                 case "=is-true=":
-                    return RsqlHelper.GetIsTrueExpression<T>(_parameter, selector, _namingStrategy,
-                        context.arguments());
+                    return RsqlHelper.GetIsTrueExpression<T>(_parameter, selector, _namingStrategy);
                 case "=is-false=":
-                    return RsqlHelper.GetIsFalseExpression<T>(_parameter, selector, _namingStrategy,
-                        context.arguments());
+                    return RsqlHelper.GetIsFalseExpression<T>(_parameter, selector, _namingStrategy);
                 case "=is-null=":
-                    return RsqlHelper.GetIsNullExpression<T>(_parameter, selector, _namingStrategy,
-                        context.arguments());
+                    return RsqlHelper.GetIsNullExpression<T>(_parameter, selector, _namingStrategy);
                 case "=is-not-null=":
-                    return RsqlHelper.GetNotIsNullExpression<T>(_parameter, selector, _namingStrategy,
-                        context.arguments());
+                    return RsqlHelper.GetNotIsNullExpression<T>(_parameter, selector, _namingStrategy);
                 case "==":
                 case "=eq=":
                     return RsqlHelper.GetEqExpression<T>(_parameter, selector, _namingStrategy, context.arguments());

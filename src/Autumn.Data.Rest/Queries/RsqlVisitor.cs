@@ -33,6 +33,12 @@ using IToken = Antlr4.Runtime.IToken;
 [System.CLSCompliant(false)]
 public interface IRsqlVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="RsqlParser.selector"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSelector([NotNull] RsqlParser.SelectorContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="RsqlParser.eval"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -93,18 +99,6 @@ public interface IRsqlVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitReserved([NotNull] RsqlParser.ReservedContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.unreserved"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitUnreserved([NotNull] RsqlParser.UnreservedContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.escaped"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitEscaped([NotNull] RsqlParser.EscapedContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="RsqlParser.single_quote"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -122,11 +116,5 @@ public interface IRsqlVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitValue([NotNull] RsqlParser.ValueContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.selector"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitSelector([NotNull] RsqlParser.SelectorContext context);
 }
 } // namespace Autumn.Data.Rest.Queries

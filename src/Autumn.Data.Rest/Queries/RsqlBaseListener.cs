@@ -36,6 +36,18 @@ using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 [System.CLSCompliant(false)]
 public partial class RsqlBaseListener : IRsqlListener {
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="RsqlParser.selector"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSelector([NotNull] RsqlParser.SelectorContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="RsqlParser.selector"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSelector([NotNull] RsqlParser.SelectorContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="RsqlParser.eval"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -156,30 +168,6 @@ public partial class RsqlBaseListener : IRsqlListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitReserved([NotNull] RsqlParser.ReservedContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="RsqlParser.unreserved"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterUnreserved([NotNull] RsqlParser.UnreservedContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="RsqlParser.unreserved"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitUnreserved([NotNull] RsqlParser.UnreservedContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="RsqlParser.escaped"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterEscaped([NotNull] RsqlParser.EscapedContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="RsqlParser.escaped"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitEscaped([NotNull] RsqlParser.EscapedContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="RsqlParser.single_quote"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -215,18 +203,6 @@ public partial class RsqlBaseListener : IRsqlListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitValue([NotNull] RsqlParser.ValueContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="RsqlParser.selector"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterSelector([NotNull] RsqlParser.SelectorContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="RsqlParser.selector"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitSelector([NotNull] RsqlParser.SelectorContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>

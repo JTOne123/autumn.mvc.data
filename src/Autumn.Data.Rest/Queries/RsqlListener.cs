@@ -32,6 +32,16 @@ using IToken = Antlr4.Runtime.IToken;
 [System.CLSCompliant(false)]
 public interface IRsqlListener : IParseTreeListener {
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="RsqlParser.selector"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSelector([NotNull] RsqlParser.SelectorContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="RsqlParser.selector"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSelector([NotNull] RsqlParser.SelectorContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="RsqlParser.eval"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -132,26 +142,6 @@ public interface IRsqlListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitReserved([NotNull] RsqlParser.ReservedContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="RsqlParser.unreserved"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterUnreserved([NotNull] RsqlParser.UnreservedContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="RsqlParser.unreserved"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitUnreserved([NotNull] RsqlParser.UnreservedContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="RsqlParser.escaped"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterEscaped([NotNull] RsqlParser.EscapedContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="RsqlParser.escaped"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitEscaped([NotNull] RsqlParser.EscapedContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="RsqlParser.single_quote"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -181,15 +171,5 @@ public interface IRsqlListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitValue([NotNull] RsqlParser.ValueContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="RsqlParser.selector"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterSelector([NotNull] RsqlParser.SelectorContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="RsqlParser.selector"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitSelector([NotNull] RsqlParser.SelectorContext context);
 }
 } // namespace Autumn.Data.Rest.Queries

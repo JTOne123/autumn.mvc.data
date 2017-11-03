@@ -40,19 +40,19 @@ public partial class RsqlParser : Parser {
 		T__9=10, T__10=11, T__11=12, LETTER=13, DIGIT=14, NUMBER=15, DATE=16, 
 		ALPHA=17, ANY=18;
 	public const int
-		RULE_eval = 0, RULE_or = 1, RULE_and = 2, RULE_constraint = 3, RULE_group = 4, 
-		RULE_comparison = 5, RULE_comparator = 6, RULE_comp_fiql = 7, RULE_comp_alt = 8, 
-		RULE_reserved = 9, RULE_unreserved = 10, RULE_escaped = 11, RULE_single_quote = 12, 
-		RULE_arguments = 13, RULE_value = 14, RULE_selector = 15;
+		RULE_selector = 0, RULE_eval = 1, RULE_or = 2, RULE_and = 3, RULE_constraint = 4, 
+		RULE_group = 5, RULE_comparison = 6, RULE_comparator = 7, RULE_comp_fiql = 8, 
+		RULE_comp_alt = 9, RULE_reserved = 10, RULE_single_quote = 11, RULE_arguments = 12, 
+		RULE_value = 13;
 	public static readonly string[] ruleNames = {
-		"eval", "or", "and", "constraint", "group", "comparison", "comparator", 
-		"comp_fiql", "comp_alt", "reserved", "unreserved", "escaped", "single_quote", 
-		"arguments", "value", "selector"
+		"selector", "eval", "or", "and", "constraint", "group", "comparison", 
+		"comparator", "comp_fiql", "comp_alt", "reserved", "single_quote", "arguments", 
+		"value"
 	};
 
 	private static readonly string[] _LiteralNames = {
-		null, "','", "';'", "'('", "')'", "'='", "'-'", "'>'", "'<'", "'''", "'~'", 
-		"' '", "'\\'"
+		null, "'''", "'('", "')'", "';'", "','", "'='", "'~'", "'<'", "'>'", "' '", 
+		"'-'", "'\\''"
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
@@ -87,6 +87,69 @@ public partial class RsqlParser : Parser {
 	{
 		Interpreter = new ParserATNSimulator(this, _ATN, decisionToDFA, sharedContextCache);
 	}
+	public partial class SelectorContext : ParserRuleContext {
+		public SelectorContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_selector; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IRsqlListener typedListener = listener as IRsqlListener;
+			if (typedListener != null) typedListener.EnterSelector(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IRsqlListener typedListener = listener as IRsqlListener;
+			if (typedListener != null) typedListener.ExitSelector(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IRsqlVisitor<TResult> typedVisitor = visitor as IRsqlVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitSelector(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public SelectorContext selector() {
+		SelectorContext _localctx = new SelectorContext(Context, State);
+		EnterRule(_localctx, 0, RULE_selector);
+		int _la;
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 29;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			do {
+				{
+				{
+				State = 28;
+				_la = TokenStream.LA(1);
+				if ( _la <= 0 || ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9))) != 0)) ) {
+				ErrorHandler.RecoverInline(this);
+				}
+				else {
+					ErrorHandler.ReportMatch(this);
+				    Consume();
+				}
+				}
+				}
+				State = 31;
+				ErrorHandler.Sync(this);
+				_la = TokenStream.LA(1);
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__10) | (1L << T__11) | (1L << LETTER) | (1L << DIGIT) | (1L << NUMBER) | (1L << DATE) | (1L << ALPHA) | (1L << ANY))) != 0) );
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
 	public partial class EvalContext : ParserRuleContext {
 		public OrContext or() {
 			return GetRuleContext<OrContext>(0);
@@ -114,11 +177,11 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public EvalContext eval() {
 		EvalContext _localctx = new EvalContext(Context, State);
-		EnterRule(_localctx, 0, RULE_eval);
+		EnterRule(_localctx, 2, RULE_eval);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 32; or();
+			State = 33; or();
 			}
 		}
 		catch (RecognitionException re) {
@@ -162,23 +225,23 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public OrContext or() {
 		OrContext _localctx = new OrContext(Context, State);
-		EnterRule(_localctx, 2, RULE_or);
+		EnterRule(_localctx, 4, RULE_or);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 34; and();
-			State = 39;
+			State = 35; and();
+			State = 40;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while (_la==T__0) {
+			while (_la==T__4) {
 				{
 				{
-				State = 35; Match(T__0);
-				State = 36; and();
+				State = 36; Match(T__4);
+				State = 37; and();
 				}
 				}
-				State = 41;
+				State = 42;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
@@ -225,23 +288,23 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public AndContext and() {
 		AndContext _localctx = new AndContext(Context, State);
-		EnterRule(_localctx, 4, RULE_and);
+		EnterRule(_localctx, 6, RULE_and);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 42; constraint();
-			State = 47;
+			State = 43; constraint();
+			State = 48;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while (_la==T__1) {
+			while (_la==T__3) {
 				{
 				{
-				State = 43; Match(T__1);
-				State = 44; constraint();
+				State = 44; Match(T__3);
+				State = 45; constraint();
 				}
 				}
-				State = 49;
+				State = 50;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
@@ -288,18 +351,18 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public ConstraintContext constraint() {
 		ConstraintContext _localctx = new ConstraintContext(Context, State);
-		EnterRule(_localctx, 6, RULE_constraint);
+		EnterRule(_localctx, 8, RULE_constraint);
 		try {
-			State = 52;
+			State = 53;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
-			case T__2:
+			case T__1:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 50; group();
+				State = 51; group();
 				}
 				break;
-			case T__5:
+			case T__10:
 			case T__11:
 			case LETTER:
 			case DIGIT:
@@ -309,7 +372,7 @@ public partial class RsqlParser : Parser {
 			case ANY:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 51; comparison();
+				State = 52; comparison();
 				}
 				break;
 			default:
@@ -354,13 +417,13 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public GroupContext group() {
 		GroupContext _localctx = new GroupContext(Context, State);
-		EnterRule(_localctx, 8, RULE_group);
+		EnterRule(_localctx, 10, RULE_group);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 54; Match(T__2);
-			State = 55; or();
-			State = 56; Match(T__3);
+			State = 55; Match(T__1);
+			State = 56; or();
+			State = 57; Match(T__2);
 			}
 		}
 		catch (RecognitionException re) {
@@ -407,19 +470,19 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public ComparisonContext comparison() {
 		ComparisonContext _localctx = new ComparisonContext(Context, State);
-		EnterRule(_localctx, 10, RULE_comparison);
+		EnterRule(_localctx, 12, RULE_comparison);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 58; selector();
-			State = 59; comparator();
-			State = 61;
+			State = 59; selector();
+			State = 60; comparator();
+			State = 62;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__2) | (1L << T__8) | (1L << NUMBER) | (1L << DATE))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << DIGIT) | (1L << NUMBER) | (1L << DATE))) != 0)) {
 				{
-				State = 60; arguments();
+				State = 61; arguments();
 				}
 			}
 
@@ -466,22 +529,22 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public ComparatorContext comparator() {
 		ComparatorContext _localctx = new ComparatorContext(Context, State);
-		EnterRule(_localctx, 12, RULE_comparator);
+		EnterRule(_localctx, 14, RULE_comparator);
 		try {
-			State = 65;
+			State = 66;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
-			case T__4:
+			case T__5:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 63; comp_fiql();
+				State = 64; comp_fiql();
 				}
 				break;
-			case T__6:
 			case T__7:
+			case T__8:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 64; comp_alt();
+				State = 65; comp_alt();
 				}
 				break;
 			default:
@@ -527,36 +590,36 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public Comp_fiqlContext comp_fiql() {
 		Comp_fiqlContext _localctx = new Comp_fiqlContext(Context, State);
-		EnterRule(_localctx, 14, RULE_comp_fiql);
+		EnterRule(_localctx, 16, RULE_comp_fiql);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 67; Match(T__4);
-			State = 76;
+			State = 68; Match(T__5);
+			State = 77;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==ALPHA) {
 				{
-				State = 68; Match(ALPHA);
-				State = 73;
+				State = 69; Match(ALPHA);
+				State = 74;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-				while (_la==T__5) {
+				while (_la==T__10) {
 					{
 					{
-					State = 69; Match(T__5);
-					State = 70; Match(ALPHA);
+					State = 70; Match(T__10);
+					State = 71; Match(ALPHA);
 					}
 					}
-					State = 75;
+					State = 76;
 					ErrorHandler.Sync(this);
 					_la = TokenStream.LA(1);
 				}
 				}
 			}
 
-			State = 78; Match(T__4);
+			State = 79; Match(T__5);
 			}
 		}
 		catch (RecognitionException re) {
@@ -594,26 +657,26 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public Comp_altContext comp_alt() {
 		Comp_altContext _localctx = new Comp_altContext(Context, State);
-		EnterRule(_localctx, 16, RULE_comp_alt);
+		EnterRule(_localctx, 18, RULE_comp_alt);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 80;
+			State = 81;
 			_la = TokenStream.LA(1);
-			if ( !(_la==T__6 || _la==T__7) ) {
+			if ( !(_la==T__7 || _la==T__8) ) {
 			ErrorHandler.RecoverInline(this);
 			}
 			else {
 				ErrorHandler.ReportMatch(this);
 			    Consume();
 			}
-			State = 82;
+			State = 83;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			if (_la==T__4) {
+			if (_la==T__5) {
 				{
-				State = 81; Match(T__4);
+				State = 82; Match(T__5);
 				}
 			}
 
@@ -654,117 +717,14 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public ReservedContext reserved() {
 		ReservedContext _localctx = new ReservedContext(Context, State);
-		EnterRule(_localctx, 18, RULE_reserved);
+		EnterRule(_localctx, 20, RULE_reserved);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 84;
+			State = 85;
 			_la = TokenStream.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10))) != 0)) ) {
-			ErrorHandler.RecoverInline(this);
-			}
-			else {
-				ErrorHandler.ReportMatch(this);
-			    Consume();
-			}
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			ErrorHandler.ReportError(this, re);
-			ErrorHandler.Recover(this, re);
-		}
-		finally {
-			ExitRule();
-		}
-		return _localctx;
-	}
-
-	public partial class UnreservedContext : ParserRuleContext {
-		public UnreservedContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_unreserved; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IRsqlListener typedListener = listener as IRsqlListener;
-			if (typedListener != null) typedListener.EnterUnreserved(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IRsqlListener typedListener = listener as IRsqlListener;
-			if (typedListener != null) typedListener.ExitUnreserved(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IRsqlVisitor<TResult> typedVisitor = visitor as IRsqlVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitUnreserved(this);
-			else return visitor.VisitChildren(this);
-		}
-	}
-
-	[RuleVersion(0)]
-	public UnreservedContext unreserved() {
-		UnreservedContext _localctx = new UnreservedContext(Context, State);
-		EnterRule(_localctx, 20, RULE_unreserved);
-		int _la;
-		try {
-			EnterOuterAlt(_localctx, 1);
-			{
-			State = 86;
-			_la = TokenStream.LA(1);
-			if ( _la <= 0 || ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10))) != 0)) ) {
-			ErrorHandler.RecoverInline(this);
-			}
-			else {
-				ErrorHandler.ReportMatch(this);
-			    Consume();
-			}
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			ErrorHandler.ReportError(this, re);
-			ErrorHandler.Recover(this, re);
-		}
-		finally {
-			ExitRule();
-		}
-		return _localctx;
-	}
-
-	public partial class EscapedContext : ParserRuleContext {
-		public EscapedContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_escaped; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IRsqlListener typedListener = listener as IRsqlListener;
-			if (typedListener != null) typedListener.EnterEscaped(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IRsqlListener typedListener = listener as IRsqlListener;
-			if (typedListener != null) typedListener.ExitEscaped(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IRsqlVisitor<TResult> typedVisitor = visitor as IRsqlVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitEscaped(this);
-			else return visitor.VisitChildren(this);
-		}
-	}
-
-	[RuleVersion(0)]
-	public EscapedContext escaped() {
-		EscapedContext _localctx = new EscapedContext(Context, State);
-		EnterRule(_localctx, 22, RULE_escaped);
-		int _la;
-		try {
-			EnterOuterAlt(_localctx, 1);
-			{
-			State = 88; Match(T__11);
-			State = 89;
-			_la = TokenStream.LA(1);
-			if ( _la <= 0 || (_la==T__11) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9))) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
 			}
 			else {
@@ -808,34 +768,45 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public Single_quoteContext single_quote() {
 		Single_quoteContext _localctx = new Single_quoteContext(Context, State);
-		EnterRule(_localctx, 24, RULE_single_quote);
+		EnterRule(_localctx, 22, RULE_single_quote);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 91; Match(T__8);
-			State = 95;
+			State = 87; Match(T__0);
+			State = 92;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << LETTER) | (1L << DIGIT) | (1L << NUMBER) | (1L << DATE) | (1L << ALPHA) | (1L << ANY))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << LETTER) | (1L << DIGIT) | (1L << NUMBER) | (1L << DATE) | (1L << ALPHA) | (1L << ANY))) != 0)) {
 				{
-				{
-				State = 92;
-				_la = TokenStream.LA(1);
-				if ( _la <= 0 || (_la==T__8) ) {
-				ErrorHandler.RecoverInline(this);
+				State = 90;
+				ErrorHandler.Sync(this);
+				switch ( Interpreter.AdaptivePredict(TokenStream,9,Context) ) {
+				case 1:
+					{
+					State = 88; Match(T__11);
+					}
+					break;
+				case 2:
+					{
+					State = 89;
+					_la = TokenStream.LA(1);
+					if ( _la <= 0 || (_la==T__0) ) {
+					ErrorHandler.RecoverInline(this);
+					}
+					else {
+						ErrorHandler.ReportMatch(this);
+					    Consume();
+					}
+					}
+					break;
 				}
-				else {
-					ErrorHandler.ReportMatch(this);
-				    Consume();
 				}
-				}
-				}
-				State = 97;
+				State = 94;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
-			State = 98; Match(T__8);
+			State = 95; Match(T__0);
 			}
 		}
 		catch (RecognitionException re) {
@@ -879,40 +850,41 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public ArgumentsContext arguments() {
 		ArgumentsContext _localctx = new ArgumentsContext(Context, State);
-		EnterRule(_localctx, 26, RULE_arguments);
+		EnterRule(_localctx, 24, RULE_arguments);
 		int _la;
 		try {
-			State = 112;
+			State = 109;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
-			case T__2:
+			case T__1:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 100; Match(T__2);
-				State = 101; value();
-				State = 106;
+				State = 97; Match(T__1);
+				State = 98; value();
+				State = 103;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-				while (_la==T__0) {
+				while (_la==T__4) {
 					{
 					{
-					State = 102; Match(T__0);
-					State = 103; value();
+					State = 99; Match(T__4);
+					State = 100; value();
 					}
 					}
-					State = 108;
+					State = 105;
 					ErrorHandler.Sync(this);
 					_la = TokenStream.LA(1);
 				}
-				State = 109; Match(T__3);
+				State = 106; Match(T__2);
 				}
 				break;
-			case T__8:
+			case T__0:
+			case DIGIT:
 			case NUMBER:
 			case DATE:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 111; value();
+				State = 108; value();
 				}
 				break;
 			default:
@@ -933,6 +905,7 @@ public partial class RsqlParser : Parser {
 	public partial class ValueContext : ParserRuleContext {
 		public ITerminalNode DATE() { return GetToken(RsqlParser.DATE, 0); }
 		public ITerminalNode NUMBER() { return GetToken(RsqlParser.NUMBER, 0); }
+		public ITerminalNode DIGIT() { return GetToken(RsqlParser.DIGIT, 0); }
 		public Single_quoteContext single_quote() {
 			return GetRuleContext<Single_quoteContext>(0);
 		}
@@ -959,92 +932,37 @@ public partial class RsqlParser : Parser {
 	[RuleVersion(0)]
 	public ValueContext value() {
 		ValueContext _localctx = new ValueContext(Context, State);
-		EnterRule(_localctx, 28, RULE_value);
+		EnterRule(_localctx, 26, RULE_value);
 		try {
-			State = 117;
+			State = 115;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case DATE:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 114; Match(DATE);
+				State = 111; Match(DATE);
 				}
 				break;
 			case NUMBER:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 115; Match(NUMBER);
+				State = 112; Match(NUMBER);
 				}
 				break;
-			case T__8:
+			case DIGIT:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 116; single_quote();
+				State = 113; Match(DIGIT);
+				}
+				break;
+			case T__0:
+				EnterOuterAlt(_localctx, 4);
+				{
+				State = 114; single_quote();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			ErrorHandler.ReportError(this, re);
-			ErrorHandler.Recover(this, re);
-		}
-		finally {
-			ExitRule();
-		}
-		return _localctx;
-	}
-
-	public partial class SelectorContext : ParserRuleContext {
-		public UnreservedContext[] unreserved() {
-			return GetRuleContexts<UnreservedContext>();
-		}
-		public UnreservedContext unreserved(int i) {
-			return GetRuleContext<UnreservedContext>(i);
-		}
-		public SelectorContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_selector; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IRsqlListener typedListener = listener as IRsqlListener;
-			if (typedListener != null) typedListener.EnterSelector(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IRsqlListener typedListener = listener as IRsqlListener;
-			if (typedListener != null) typedListener.ExitSelector(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IRsqlVisitor<TResult> typedVisitor = visitor as IRsqlVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitSelector(this);
-			else return visitor.VisitChildren(this);
-		}
-	}
-
-	[RuleVersion(0)]
-	public SelectorContext selector() {
-		SelectorContext _localctx = new SelectorContext(Context, State);
-		EnterRule(_localctx, 30, RULE_selector);
-		int _la;
-		try {
-			EnterOuterAlt(_localctx, 1);
-			{
-			State = 120;
-			ErrorHandler.Sync(this);
-			_la = TokenStream.LA(1);
-			do {
-				{
-				{
-				State = 119; unreserved();
-				}
-				}
-				State = 122;
-				ErrorHandler.Sync(this);
-				_la = TokenStream.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__5) | (1L << T__11) | (1L << LETTER) | (1L << DIGIT) | (1L << NUMBER) | (1L << DATE) | (1L << ALPHA) | (1L << ANY))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -1063,53 +981,50 @@ public partial class RsqlParser : Parser {
 	{
 	    StringBuilder sb = new StringBuilder();
 	    sb.Append("\x3\x430\xD6D1\x8206\xAD2D\x4417\xAEF1\x8D80\xAADD\x3\x14");
-		sb.Append("\x7F\x4\x2\t\x2\x4\x3\t\x3\x4\x4\t\x4\x4\x5\t\x5\x4\x6\t\x6");
-		sb.Append("\x4\a\t\a\x4\b\t\b\x4\t\t\t\x4\n\t\n\x4\v\t\v\x4\f\t\f\x4\r");
-		sb.Append("\t\r\x4\xE\t\xE\x4\xF\t\xF\x4\x10\t\x10\x4\x11\t\x11\x3\x2\x3");
-		sb.Append("\x2\x3\x3\x3\x3\x3\x3\a\x3(\n\x3\f\x3\xE\x3+\v\x3\x3\x4\x3\x4");
-		sb.Append("\x3\x4\a\x4\x30\n\x4\f\x4\xE\x4\x33\v\x4\x3\x5\x3\x5\x5\x5\x37");
-		sb.Append("\n\x5\x3\x6\x3\x6\x3\x6\x3\x6\x3\a\x3\a\x3\a\x5\a@\n\a\x3\b");
-		sb.Append("\x3\b\x5\b\x44\n\b\x3\t\x3\t\x3\t\x3\t\a\tJ\n\t\f\t\xE\tM\v");
-		sb.Append("\t\x5\tO\n\t\x3\t\x3\t\x3\n\x3\n\x5\nU\n\n\x3\v\x3\v\x3\f\x3");
-		sb.Append("\f\x3\r\x3\r\x3\r\x3\xE\x3\xE\a\xE`\n\xE\f\xE\xE\xE\x63\v\xE");
-		sb.Append("\x3\xE\x3\xE\x3\xF\x3\xF\x3\xF\x3\xF\a\xFk\n\xF\f\xF\xE\xFn");
-		sb.Append("\v\xF\x3\xF\x3\xF\x3\xF\x5\xFs\n\xF\x3\x10\x3\x10\x3\x10\x5");
-		sb.Append("\x10x\n\x10\x3\x11\x6\x11{\n\x11\r\x11\xE\x11|\x3\x11\x2\x2");
-		sb.Append("\x12\x2\x4\x6\b\n\f\xE\x10\x12\x14\x16\x18\x1A\x1C\x1E \x2\x6");
-		sb.Append("\x3\x2\t\n\x4\x2\x3\a\t\r\x3\x2\xE\xE\x3\x2\v\v|\x2\"\x3\x2");
-		sb.Append("\x2\x2\x4$\x3\x2\x2\x2\x6,\x3\x2\x2\x2\b\x36\x3\x2\x2\x2\n\x38");
-		sb.Append("\x3\x2\x2\x2\f<\x3\x2\x2\x2\xE\x43\x3\x2\x2\x2\x10\x45\x3\x2");
-		sb.Append("\x2\x2\x12R\x3\x2\x2\x2\x14V\x3\x2\x2\x2\x16X\x3\x2\x2\x2\x18");
-		sb.Append("Z\x3\x2\x2\x2\x1A]\x3\x2\x2\x2\x1Cr\x3\x2\x2\x2\x1Ew\x3\x2\x2");
-		sb.Append("\x2 z\x3\x2\x2\x2\"#\x5\x4\x3\x2#\x3\x3\x2\x2\x2$)\x5\x6\x4");
-		sb.Append("\x2%&\a\x3\x2\x2&(\x5\x6\x4\x2\'%\x3\x2\x2\x2(+\x3\x2\x2\x2");
-		sb.Append(")\'\x3\x2\x2\x2)*\x3\x2\x2\x2*\x5\x3\x2\x2\x2+)\x3\x2\x2\x2");
-		sb.Append(",\x31\x5\b\x5\x2-.\a\x4\x2\x2.\x30\x5\b\x5\x2/-\x3\x2\x2\x2");
-		sb.Append("\x30\x33\x3\x2\x2\x2\x31/\x3\x2\x2\x2\x31\x32\x3\x2\x2\x2\x32");
-		sb.Append("\a\x3\x2\x2\x2\x33\x31\x3\x2\x2\x2\x34\x37\x5\n\x6\x2\x35\x37");
-		sb.Append("\x5\f\a\x2\x36\x34\x3\x2\x2\x2\x36\x35\x3\x2\x2\x2\x37\t\x3");
-		sb.Append("\x2\x2\x2\x38\x39\a\x5\x2\x2\x39:\x5\x4\x3\x2:;\a\x6\x2\x2;");
-		sb.Append("\v\x3\x2\x2\x2<=\x5 \x11\x2=?\x5\xE\b\x2>@\x5\x1C\xF\x2?>\x3");
-		sb.Append("\x2\x2\x2?@\x3\x2\x2\x2@\r\x3\x2\x2\x2\x41\x44\x5\x10\t\x2\x42");
-		sb.Append("\x44\x5\x12\n\x2\x43\x41\x3\x2\x2\x2\x43\x42\x3\x2\x2\x2\x44");
-		sb.Append("\xF\x3\x2\x2\x2\x45N\a\a\x2\x2\x46K\a\x13\x2\x2GH\a\b\x2\x2");
-		sb.Append("HJ\a\x13\x2\x2IG\x3\x2\x2\x2JM\x3\x2\x2\x2KI\x3\x2\x2\x2KL\x3");
-		sb.Append("\x2\x2\x2LO\x3\x2\x2\x2MK\x3\x2\x2\x2N\x46\x3\x2\x2\x2NO\x3");
-		sb.Append("\x2\x2\x2OP\x3\x2\x2\x2PQ\a\a\x2\x2Q\x11\x3\x2\x2\x2RT\t\x2");
-		sb.Append("\x2\x2SU\a\a\x2\x2TS\x3\x2\x2\x2TU\x3\x2\x2\x2U\x13\x3\x2\x2");
-		sb.Append("\x2VW\t\x3\x2\x2W\x15\x3\x2\x2\x2XY\n\x3\x2\x2Y\x17\x3\x2\x2");
-		sb.Append("\x2Z[\a\xE\x2\x2[\\\n\x4\x2\x2\\\x19\x3\x2\x2\x2]\x61\a\v\x2");
-		sb.Append("\x2^`\n\x5\x2\x2_^\x3\x2\x2\x2`\x63\x3\x2\x2\x2\x61_\x3\x2\x2");
-		sb.Append("\x2\x61\x62\x3\x2\x2\x2\x62\x64\x3\x2\x2\x2\x63\x61\x3\x2\x2");
-		sb.Append("\x2\x64\x65\a\v\x2\x2\x65\x1B\x3\x2\x2\x2\x66g\a\x5\x2\x2gl");
-		sb.Append("\x5\x1E\x10\x2hi\a\x3\x2\x2ik\x5\x1E\x10\x2jh\x3\x2\x2\x2kn");
-		sb.Append("\x3\x2\x2\x2lj\x3\x2\x2\x2lm\x3\x2\x2\x2mo\x3\x2\x2\x2nl\x3");
-		sb.Append("\x2\x2\x2op\a\x6\x2\x2ps\x3\x2\x2\x2qs\x5\x1E\x10\x2r\x66\x3");
-		sb.Append("\x2\x2\x2rq\x3\x2\x2\x2s\x1D\x3\x2\x2\x2tx\a\x12\x2\x2ux\a\x11");
-		sb.Append("\x2\x2vx\x5\x1A\xE\x2wt\x3\x2\x2\x2wu\x3\x2\x2\x2wv\x3\x2\x2");
-		sb.Append("\x2x\x1F\x3\x2\x2\x2y{\x5\x16\f\x2zy\x3\x2\x2\x2{|\x3\x2\x2");
-		sb.Append("\x2|z\x3\x2\x2\x2|}\x3\x2\x2\x2}!\x3\x2\x2\x2\xF)\x31\x36?\x43");
-		sb.Append("KNT\x61lrw|");
+		sb.Append("x\x4\x2\t\x2\x4\x3\t\x3\x4\x4\t\x4\x4\x5\t\x5\x4\x6\t\x6\x4");
+		sb.Append("\a\t\a\x4\b\t\b\x4\t\t\t\x4\n\t\n\x4\v\t\v\x4\f\t\f\x4\r\t\r");
+		sb.Append("\x4\xE\t\xE\x4\xF\t\xF\x3\x2\x6\x2 \n\x2\r\x2\xE\x2!\x3\x3\x3");
+		sb.Append("\x3\x3\x4\x3\x4\x3\x4\a\x4)\n\x4\f\x4\xE\x4,\v\x4\x3\x5\x3\x5");
+		sb.Append("\x3\x5\a\x5\x31\n\x5\f\x5\xE\x5\x34\v\x5\x3\x6\x3\x6\x5\x6\x38");
+		sb.Append("\n\x6\x3\a\x3\a\x3\a\x3\a\x3\b\x3\b\x3\b\x5\b\x41\n\b\x3\t\x3");
+		sb.Append("\t\x5\t\x45\n\t\x3\n\x3\n\x3\n\x3\n\a\nK\n\n\f\n\xE\nN\v\n\x5");
+		sb.Append("\nP\n\n\x3\n\x3\n\x3\v\x3\v\x5\vV\n\v\x3\f\x3\f\x3\r\x3\r\x3");
+		sb.Append("\r\a\r]\n\r\f\r\xE\r`\v\r\x3\r\x3\r\x3\xE\x3\xE\x3\xE\x3\xE");
+		sb.Append("\a\xEh\n\xE\f\xE\xE\xEk\v\xE\x3\xE\x3\xE\x3\xE\x5\xEp\n\xE\x3");
+		sb.Append("\xF\x3\xF\x3\xF\x3\xF\x5\xFv\n\xF\x3\xF\x2\x2\x10\x2\x4\x6\b");
+		sb.Append("\n\f\xE\x10\x12\x14\x16\x18\x1A\x1C\x2\x5\x3\x2\x3\f\x3\x2\n");
+		sb.Append("\v\x3\x2\x3\x3y\x2\x1F\x3\x2\x2\x2\x4#\x3\x2\x2\x2\x6%\x3\x2");
+		sb.Append("\x2\x2\b-\x3\x2\x2\x2\n\x37\x3\x2\x2\x2\f\x39\x3\x2\x2\x2\xE");
+		sb.Append("=\x3\x2\x2\x2\x10\x44\x3\x2\x2\x2\x12\x46\x3\x2\x2\x2\x14S\x3");
+		sb.Append("\x2\x2\x2\x16W\x3\x2\x2\x2\x18Y\x3\x2\x2\x2\x1Ao\x3\x2\x2\x2");
+		sb.Append("\x1Cu\x3\x2\x2\x2\x1E \n\x2\x2\x2\x1F\x1E\x3\x2\x2\x2 !\x3\x2");
+		sb.Append("\x2\x2!\x1F\x3\x2\x2\x2!\"\x3\x2\x2\x2\"\x3\x3\x2\x2\x2#$\x5");
+		sb.Append("\x6\x4\x2$\x5\x3\x2\x2\x2%*\x5\b\x5\x2&\'\a\a\x2\x2\')\x5\b");
+		sb.Append("\x5\x2(&\x3\x2\x2\x2),\x3\x2\x2\x2*(\x3\x2\x2\x2*+\x3\x2\x2");
+		sb.Append("\x2+\a\x3\x2\x2\x2,*\x3\x2\x2\x2-\x32\x5\n\x6\x2./\a\x6\x2\x2");
+		sb.Append("/\x31\x5\n\x6\x2\x30.\x3\x2\x2\x2\x31\x34\x3\x2\x2\x2\x32\x30");
+		sb.Append("\x3\x2\x2\x2\x32\x33\x3\x2\x2\x2\x33\t\x3\x2\x2\x2\x34\x32\x3");
+		sb.Append("\x2\x2\x2\x35\x38\x5\f\a\x2\x36\x38\x5\xE\b\x2\x37\x35\x3\x2");
+		sb.Append("\x2\x2\x37\x36\x3\x2\x2\x2\x38\v\x3\x2\x2\x2\x39:\a\x4\x2\x2");
+		sb.Append(":;\x5\x6\x4\x2;<\a\x5\x2\x2<\r\x3\x2\x2\x2=>\x5\x2\x2\x2>@\x5");
+		sb.Append("\x10\t\x2?\x41\x5\x1A\xE\x2@?\x3\x2\x2\x2@\x41\x3\x2\x2\x2\x41");
+		sb.Append("\xF\x3\x2\x2\x2\x42\x45\x5\x12\n\x2\x43\x45\x5\x14\v\x2\x44");
+		sb.Append("\x42\x3\x2\x2\x2\x44\x43\x3\x2\x2\x2\x45\x11\x3\x2\x2\x2\x46");
+		sb.Append("O\a\b\x2\x2GL\a\x13\x2\x2HI\a\r\x2\x2IK\a\x13\x2\x2JH\x3\x2");
+		sb.Append("\x2\x2KN\x3\x2\x2\x2LJ\x3\x2\x2\x2LM\x3\x2\x2\x2MP\x3\x2\x2");
+		sb.Append("\x2NL\x3\x2\x2\x2OG\x3\x2\x2\x2OP\x3\x2\x2\x2PQ\x3\x2\x2\x2");
+		sb.Append("QR\a\b\x2\x2R\x13\x3\x2\x2\x2SU\t\x3\x2\x2TV\a\b\x2\x2UT\x3");
+		sb.Append("\x2\x2\x2UV\x3\x2\x2\x2V\x15\x3\x2\x2\x2WX\t\x2\x2\x2X\x17\x3");
+		sb.Append("\x2\x2\x2Y^\a\x3\x2\x2Z]\a\xE\x2\x2[]\n\x4\x2\x2\\Z\x3\x2\x2");
+		sb.Append("\x2\\[\x3\x2\x2\x2]`\x3\x2\x2\x2^\\\x3\x2\x2\x2^_\x3\x2\x2\x2");
+		sb.Append("_\x61\x3\x2\x2\x2`^\x3\x2\x2\x2\x61\x62\a\x3\x2\x2\x62\x19\x3");
+		sb.Append("\x2\x2\x2\x63\x64\a\x4\x2\x2\x64i\x5\x1C\xF\x2\x65\x66\a\a\x2");
+		sb.Append("\x2\x66h\x5\x1C\xF\x2g\x65\x3\x2\x2\x2hk\x3\x2\x2\x2ig\x3\x2");
+		sb.Append("\x2\x2ij\x3\x2\x2\x2jl\x3\x2\x2\x2ki\x3\x2\x2\x2lm\a\x5\x2\x2");
+		sb.Append("mp\x3\x2\x2\x2np\x5\x1C\xF\x2o\x63\x3\x2\x2\x2on\x3\x2\x2\x2");
+		sb.Append("p\x1B\x3\x2\x2\x2qv\a\x12\x2\x2rv\a\x11\x2\x2sv\a\x10\x2\x2");
+		sb.Append("tv\x5\x18\r\x2uq\x3\x2\x2\x2ur\x3\x2\x2\x2us\x3\x2\x2\x2ut\x3");
+		sb.Append("\x2\x2\x2v\x1D\x3\x2\x2\x2\x10!*\x32\x37@\x44LOU\\^iou");
 	    return sb.ToString();
 	}
 
