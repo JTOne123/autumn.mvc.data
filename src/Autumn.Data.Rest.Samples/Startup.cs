@@ -25,6 +25,7 @@ namespace Autumn.Data.Rest.Samples
         {
             
             var namingStrategy = new SnakeCaseNamingStrategy();
+            IMvcBuilder a;
             services.AddMvc(config =>
                     {
                         config.ModelBinderProviders.Insert(0,

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Autumn.Data.Rest.Helpers;
 using Autumn.Data.Rest.Queries.Exceptions;
 using Newtonsoft.Json.Serialization;
@@ -10,6 +12,10 @@ namespace Autumn.Data.Rest.Queries
 {
     public static class RsqlHelper
     {
+        
+        private static readonly Regex RegExYyyymmdd = new Regex(@"\d{4}-\d{2}-\d{2}");
+        private static readonly Regex RegYyyymmddhhmmss = new Regex(@"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}");
+        
         private static readonly MethodInfo MethodStringContains =
             typeof(string).GetMethod("Contains", new[] {typeof(string)});
 
@@ -129,10 +135,10 @@ namespace Autumn.Data.Rest.Queries
             var values = GetValues(expressionValue.Property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
-         
+     
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(
                 expressionValue.Expression,
-                Expression.Constant(values[0])), parameter);
+                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
@@ -157,7 +163,7 @@ namespace Autumn.Data.Rest.Queries
 
             return Expression.Lambda<Func<T, bool>>(Expression.NotEqual(
                 expressionValue.Expression,
-                Expression.Constant(values[0])), parameter);
+                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
@@ -182,7 +188,7 @@ namespace Autumn.Data.Rest.Queries
 
             return Expression.Lambda<Func<T, bool>>(Expression.LessThan(
                 expressionValue.Expression,
-                Expression.Constant(values[0])), parameter);
+                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
@@ -207,7 +213,7 @@ namespace Autumn.Data.Rest.Queries
 
             return Expression.Lambda<Func<T, bool>>(Expression.LessThanOrEqual(
                 expressionValue.Expression,
-                Expression.Constant(values[0])), parameter);
+                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
@@ -232,7 +238,7 @@ namespace Autumn.Data.Rest.Queries
 
             return Expression.Lambda<Func<T, bool>>(Expression.GreaterThan(
                 expressionValue.Expression,
-                Expression.Constant(values[0])), parameter);
+                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
@@ -257,7 +263,7 @@ namespace Autumn.Data.Rest.Queries
 
             return Expression.Lambda<Func<T, bool>>(Expression.GreaterThanOrEqual(
                 expressionValue.Expression,
-                Expression.Constant(values[0])), parameter);
+                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
@@ -335,7 +341,7 @@ namespace Autumn.Data.Rest.Queries
             criteria = criteria.Replace("*", "").Replace(maskStar, "*");
             return Expression.Lambda<Func<T, bool>>(Expression.Call(expressionValue.Expression,
                 method,
-                Expression.Constant(criteria)), parameter);
+                Expression.Constant(criteria,expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
@@ -350,7 +356,7 @@ namespace Autumn.Data.Rest.Queries
             var values = GetValues(expressionValue.Property.PropertyType, arguments);
             if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
             return Expression.Lambda<Func<T, bool>>(
-                Expression.Call(Expression.Constant(values), MethodListContains,
+                Expression.Call(Expression.Constant(values,expressionValue.Property.PropertyType), MethodListContains,
                     expressionValue.Expression), parameter);
         }
 
@@ -369,8 +375,11 @@ namespace Autumn.Data.Rest.Queries
 
         #endregion
 
+      
+        
         #region GetValues
 
+        
         private static List<object> GetStringValues(RsqlParser.ArgumentsContext argumentsContext)
         {
             var items = new List<object>();
@@ -422,7 +431,7 @@ namespace Autumn.Data.Rest.Queries
             }
             return items;
         }
-
+      
         private static List<object> GetDoubles(RsqlParser.ArgumentsContext argumentsContext)
         {
             var items = new List<object>();
@@ -443,7 +452,7 @@ namespace Autumn.Data.Rest.Queries
             {
                 if (valueContext.NUMBER() != null)
                 {
-                    items.Add(decimal.Parse(valueContext.NUMBER().GetText()));
+                    items.Add(decimal.Parse(valueContext.NUMBER().GetText(),CultureInfo.InvariantCulture));
                 }
             }
             return items;
@@ -451,14 +460,16 @@ namespace Autumn.Data.Rest.Queries
 
         private static List<object> GetDateTimes(RsqlParser.ArgumentsContext argumentsContext)
         {
-            // TODO
-            return null;
-        }
-
-        private static List<object> GetDateTimeOffsets(RsqlParser.ArgumentsContext argumentsContext)
-        {
-            // TODO
-            return null;
+            var items = new List<object>();
+            foreach (var valueContext in argumentsContext.value())
+            {
+                if (valueContext.DATE() != null)
+                {
+                    items.Add(DateTime.Parse(valueContext.DATE().GetText(), CultureInfo.InvariantCulture,
+                        DateTimeStyles.RoundtripKind));
+                }
+            }
+            return items;
         }
 
         /// <summary>
@@ -478,11 +489,6 @@ namespace Autumn.Data.Rest.Queries
             if (type == typeof(DateTime) || type == typeof(DateTime?))
             {
                 return GetDateTimes(argumentsContext);
-            }
-
-            if (type == typeof(DateTimeOffset) || type == typeof(DateTimeOffset?))
-            {
-                return GetDateTimeOffsets(argumentsContext);
             }
 
             if (type == typeof(short) || type == typeof(short?))

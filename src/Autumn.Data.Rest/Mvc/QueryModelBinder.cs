@@ -63,7 +63,7 @@ namespace Autumn.Data.Rest.Mvc
                     builder.Append(t.ToString("x2"));
                 }
                 return builder.ToString();
-            }
+            }    
         }
 
         /// <summary>

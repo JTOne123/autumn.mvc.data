@@ -70,7 +70,6 @@ namespace Autumn.Data.Rest.Helpers
             return propertyName;
         }
 
-
         private static PropertyInfo GetProperty(Type type, string name, NamingStrategy namingStrategy = null)
         {
             lock (MappingJson2PropertyInfo)
