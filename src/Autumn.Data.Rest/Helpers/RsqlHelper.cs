@@ -11,7 +11,6 @@ namespace Autumn.Data.Rest.Helpers
 {
     public static class RsqlHelper
     {
-        
         private static readonly MethodInfo MethodStringContains =
             typeof(string).GetMethod("Contains", new[] {typeof(string)});
 
@@ -36,6 +35,8 @@ namespace Autumn.Data.Rest.Helpers
         public static Expression<Func<T, bool>> GetAndExpression<T>(
             IRsqlVisitor<Expression<Func<T, bool>>> visitor, RsqlParser.AndContext context)
         {
+            if (visitor == null) throw new ArgumentException("visitor");
+            if (context == null) throw new ArgumentException("context");
             if (context.constraint().Length == 0) return CommonHelper.True<T>();
             var right = context.constraint()[0].Accept(visitor);
             if (context.constraint().Length == 1) return right;
@@ -58,6 +59,8 @@ namespace Autumn.Data.Rest.Helpers
         public static Expression<Func<T, bool>> GetOrExpression<T>(
             IRsqlVisitor<Expression<Func<T, bool>>> visitor, RsqlParser.OrContext context)
         {
+            if (visitor == null) throw new ArgumentException("visitor");
+            if (context == null) throw new ArgumentException("context");
             if (context.and().Length == 0) return CommonHelper.True<T>();
             var right = context.and()[0].Accept(visitor);
             if (context.and().Length == 1) return right;
@@ -73,15 +76,20 @@ namespace Autumn.Data.Rest.Helpers
         /// create is-null expression
         /// </summary>
         /// <param name="parameter"></param>
-        /// <param name="selector"></param>
+        /// <param name="context"></param>
         /// <param name="namingStrategy"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetIsNullExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy)
+        public static Expression<Func<T, bool>> GetIsNullExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy=null)
         {
-            var expressionValue = CommonHelper.GetMemberExpressionValue<T>(parameter, selector.GetText(), namingStrategy);
-            if (!expressionValue.Property.PropertyType.IsClass) throw new RsqlInvalidComparisonOperatorException(selector);
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (context == null) throw new ArgumentException("context");
+            var expressionValue =
+                CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
+            if (!expressionValue.Property.PropertyType.IsClass)
+                throw new RsqlComparisonInvalidComparatorSelectionException(context);
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(
                 expressionValue.Expression,
                 Expression.Constant(null, typeof(object))), parameter);
@@ -91,14 +99,16 @@ namespace Autumn.Data.Rest.Helpers
         /// create not-is-null expression
         /// </summary>
         /// <param name="parameter"></param>
-        /// <param name="selector"></param>
+        /// <param name="context"></param>
         /// <param name="namingStrategy"></param>
         /// <returns></returns>
         public static Expression<Func<T, bool>> GetNotIsNullExpression<T>(ParameterExpression parameter,
-            RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy)
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy=null)
         {
-            var expression = GetIsNullExpression<T>(parameter, selector, namingStrategy);
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (context == null) throw new ArgumentException("context");
+            var expression = GetIsNullExpression<T>(parameter, context, namingStrategy);
             var body = Expression.Not(expression.Body);
             return Expression.Lambda<Func<T, bool>>(body, parameter);
         }
@@ -107,194 +117,229 @@ namespace Autumn.Data.Rest.Helpers
         /// create eq expression
         /// </summary>
         /// <param name="parameter"></param>
-        /// <param name="selector"></param>
+        /// <param name="context"></param>
         /// <param name="namingStrategy"></param>
-        /// <param name="arguments"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
-        /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression<Func<T, bool>> GetEqExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy
-            , RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetEqExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy=null)
         {
-            var expressionValue = CommonHelper.GetMemberExpressionValue<T>(parameter, selector.GetText(), namingStrategy);
-            var values = GetValues(expressionValue.Property.PropertyType, arguments);
-            if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
-            if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
-     
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (context == null) throw new ArgumentException("context");
+            
+            var expressionValue =
+                CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
+            var values = GetValues(expressionValue.Property.PropertyType, context.arguments());
+            if (values == null || values.Count == 0) throw new RsqlComparisonNotEnoughtArgumentException(context);
+            if (values.Count > 1) throw new RsqlComparisonTooManyArgumentException(context);
+
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(
                 expressionValue.Expression,
-                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
+                Expression.Constant(values[0], expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
         /// create neq expression
         /// </summary>
         /// <param name="parameter"></param>
-        /// <param name="selector"></param>
+        /// <param name="context"></param>
         /// <param name="namingStrategy"></param>
-        /// <param name="arguments"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
-        /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression<Func<T, bool>> GetNeqExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy
-            , RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetNeqExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy=null)
         {
-            var expressionValue = CommonHelper.GetMemberExpressionValue<T>(parameter, selector.GetText(), namingStrategy);
-            var values = GetValues(expressionValue.Property.PropertyType, arguments);
-            if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
-            if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (context == null) throw new ArgumentException("context");
+            
+            var expressionValue =
+                CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
+            var values = GetValues(expressionValue.Property.PropertyType, context.arguments());
+            if (values == null || values.Count == 0) throw new RsqlComparisonNotEnoughtArgumentException(context);
+            if (values.Count > 1) throw new RsqlComparisonTooManyArgumentException(context);
 
             return Expression.Lambda<Func<T, bool>>(Expression.NotEqual(
                 expressionValue.Expression,
-                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
+                Expression.Constant(values[0], expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
         /// create lt expression
         /// </summary>
         /// <param name="parameter"></param>
-        /// <param name="selector"></param>
+        /// <param name="context"></param>
         /// <param name="namingStrategy"></param>
-        /// <param name="arguments"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
-        /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression<Func<T, bool>> GetLtExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy
-            , RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetLtExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy=null)
         {
-            var expressionValue = CommonHelper.GetMemberExpressionValue<T>(parameter, selector.GetText(), namingStrategy);
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (context == null) throw new ArgumentException("context");
+            
+            var expressionValue =
+                CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
             if (expressionValue.Property.PropertyType == typeof(string) ||
                 expressionValue.Property.PropertyType == typeof(bool) ||
                 expressionValue.Property.PropertyType == typeof(bool?))
             {
-                throw new RsqlInvalidComparisonOperatorException(selector);
+                throw new RsqlComparisonInvalidComparatorSelectionException(context);
             }
-         
-            var values = GetValues(expressionValue.Property.PropertyType, arguments);
-            if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
-            if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
+
+            var values = GetValues(expressionValue.Property.PropertyType, context.arguments());
+            if (values == null || values.Count == 0) throw new RsqlComparisonNotEnoughtArgumentException(context);
+            if (values.Count > 1) throw new RsqlComparisonTooManyArgumentException(context);
 
             return Expression.Lambda<Func<T, bool>>(Expression.LessThan(
                 expressionValue.Expression,
-                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
+                Expression.Constant(values[0], expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
         /// create le expression
         /// </summary>
         /// <param name="parameter"></param>
-        /// <param name="selector"></param>
+        /// <param name="context"></param>
         /// <param name="namingStrategy"></param>
-        /// <param name="arguments"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
-        /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression<Func<T, bool>> GetLeExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy
-            , RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetLeExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy=null)
         {
-            var expressionValue = CommonHelper.GetMemberExpressionValue<T>(parameter, selector.GetText(), namingStrategy);
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (context == null) throw new ArgumentException("context");
+            
+            var expressionValue =
+                CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
             if (expressionValue.Property.PropertyType == typeof(string) ||
                 expressionValue.Property.PropertyType == typeof(bool) ||
                 expressionValue.Property.PropertyType == typeof(bool?))
             {
-                throw new RsqlInvalidComparisonOperatorException(selector);
+                throw new RsqlComparisonInvalidComparatorSelectionException(context);
             }
-            var values = GetValues(expressionValue.Property.PropertyType, arguments);
-            if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
-            if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
-           
+
+            
+            if (expressionValue.Property.PropertyType == typeof(string) ||
+                expressionValue.Property.PropertyType == typeof(bool) ||
+                expressionValue.Property.PropertyType == typeof(bool?))
+            {
+                throw new RsqlComparisonInvalidComparatorSelectionException(context);
+            }
+            var values = GetValues(expressionValue.Property.PropertyType, context.arguments());
+            if (values == null || values.Count == 0) throw new RsqlComparisonNotEnoughtArgumentException(context);
+            if (values.Count > 1) throw new RsqlComparisonTooManyArgumentException(context);
+
             return Expression.Lambda<Func<T, bool>>(Expression.LessThanOrEqual(
                 expressionValue.Expression,
-                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
+                Expression.Constant(values[0], expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
         /// create gt expression
         /// </summary>
         /// <param name="parameter"></param>
-        /// <param name="selector"></param>
+        /// <param name="context"></param>
         /// <param name="namingStrategy"></param>
-        /// <param name="arguments"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
-        /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression<Func<T, bool>> GetGtExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy
-            , RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetGtExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy=null)
         {
-            var expressionValue = CommonHelper.GetMemberExpressionValue<T>(parameter, selector.GetText(), namingStrategy);
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (context == null) throw new ArgumentException("context");
+            
+            var expressionValue =
+                CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
             if (expressionValue.Property.PropertyType == typeof(string) ||
                 expressionValue.Property.PropertyType == typeof(bool) ||
                 expressionValue.Property.PropertyType == typeof(bool?))
             {
-                throw new RsqlInvalidComparisonOperatorException(selector);
+                throw new RsqlComparisonInvalidComparatorSelectionException(context);
             }
-            var values = GetValues(expressionValue.Property.PropertyType, arguments);
-            if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
-            if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
+
+            
+            if (expressionValue.Property.PropertyType == typeof(string) ||
+                expressionValue.Property.PropertyType == typeof(bool) ||
+                expressionValue.Property.PropertyType == typeof(bool?))
+            {
+                throw new RsqlComparisonInvalidComparatorSelectionException(context);
+            }
+            var values = GetValues(expressionValue.Property.PropertyType, context.arguments());
+            if (values == null || values.Count == 0) throw new RsqlComparisonNotEnoughtArgumentException(context);
+            if (values.Count > 1) throw new RsqlComparisonTooManyArgumentException(context);
 
             return Expression.Lambda<Func<T, bool>>(Expression.GreaterThan(
                 expressionValue.Expression,
-                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
+                Expression.Constant(values[0], expressionValue.Property.PropertyType)), parameter);
         }
-
+        
         /// <summary>
         /// create ge expression
         /// </summary>
         /// <param name="parameter"></param>
-        /// <param name="selector"></param>
+        /// <param name="context"></param>
         /// <param name="namingStrategy"></param>
-        /// <param name="arguments"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        /// <exception cref="RsqlNotEnoughtArgumentException"></exception>
-        /// <exception cref="RsqlTooManyArgumentException"></exception>
-        public static Expression<Func<T, bool>> GetGeExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy
-            , RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetGeExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy=null)
         {
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (context == null) throw new ArgumentException("context");
             
-            var expressionValue = CommonHelper.GetMemberExpressionValue<T>(parameter, selector.GetText(), namingStrategy);
+            var expressionValue =
+                CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
             if (expressionValue.Property.PropertyType == typeof(string) ||
                 expressionValue.Property.PropertyType == typeof(bool) ||
                 expressionValue.Property.PropertyType == typeof(bool?))
             {
-                throw new RsqlInvalidComparisonOperatorException(selector);
+                throw new RsqlComparisonInvalidComparatorSelectionException(context);
             }
-            var values = GetValues(expressionValue.Property.PropertyType, arguments);
-            if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
-            if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
-          
+
+            
+            if (expressionValue.Property.PropertyType == typeof(string) ||
+                expressionValue.Property.PropertyType == typeof(bool) ||
+                expressionValue.Property.PropertyType == typeof(bool?))
+            {
+                throw new RsqlComparisonInvalidComparatorSelectionException(context);
+            }
+            var values = GetValues(expressionValue.Property.PropertyType, context.arguments());
+            if (values == null || values.Count == 0) throw new RsqlComparisonNotEnoughtArgumentException(context);
+            if (values.Count > 1) throw new RsqlComparisonTooManyArgumentException(context);
+
             return Expression.Lambda<Func<T, bool>>(Expression.GreaterThanOrEqual(
                 expressionValue.Expression,
-                Expression.Constant(values[0],expressionValue.Property.PropertyType)), parameter);
+                Expression.Constant(values[0], expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
         /// create is-true expression
         /// </summary>
         /// <param name="parameter"></param>
-        /// <param name="selector"></param>
+        /// <param name="context"></param>
         /// <param name="namingStrategy"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetIsTrueExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy)
+        public static Expression<Func<T, bool>> GetIsTrueExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy=null)
         {
-            var expressionValue = CommonHelper.GetMemberExpressionValue<T>(parameter, selector.GetText(), namingStrategy);
+            
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (context == null) throw new ArgumentException("context");
+            
+            var expressionValue =
+                CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
             if (expressionValue.Property.PropertyType != typeof(bool) &&
                 expressionValue.Property.PropertyType != typeof(bool?))
             {
-                throw new RsqlInvalidComparisonOperatorException(selector);
+                throw new RsqlComparisonInvalidComparatorSelectionException(context);
             }
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(
                 expressionValue.Expression,
@@ -305,18 +350,24 @@ namespace Autumn.Data.Rest.Helpers
         /// create is-false expression
         /// </summary>
         /// <param name="parameter"></param>
-        /// <param name="selector"></param>
+        /// <param name="context"></param>
         /// <param name="namingStrategy"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetIsFalseExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
+        public static Expression<Func<T, bool>> GetIsFalseExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
             NamingStrategy namingStrategy)
         {
-            var expressionValue = CommonHelper.GetMemberExpressionValue<T>(parameter, selector.GetText(), namingStrategy);
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (context == null) throw new ArgumentException("context");
+            
+            var expressionValue =
+                CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
+            
             if (expressionValue.Property.PropertyType != typeof(bool) &&
                 expressionValue.Property.PropertyType != typeof(bool?))
             {
-                throw new RsqlInvalidComparisonOperatorException(selector);
+                throw new RsqlComparisonInvalidComparatorSelectionException(context);
             }
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(
                 expressionValue.Expression,
@@ -327,19 +378,19 @@ namespace Autumn.Data.Rest.Helpers
         /// create like expression
         /// </summary>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetLkExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy
-            , RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetLkExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy=null)
         {
-            var expressionValue = CommonHelper.GetMemberExpressionValue<T>(parameter, selector.GetText(), namingStrategy);
-            if (expressionValue.Property.PropertyType == typeof(bool) &&
-                expressionValue.Property.PropertyType == typeof(bool?))
+            var expressionValue =
+                CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
+            if (expressionValue.Property.PropertyType != typeof(string))
             {
-                throw new RsqlInvalidComparisonOperatorException(selector);
+                throw new RsqlComparisonInvalidComparatorSelectionException(context);
             }
-            var values = GetValues(expressionValue.Property.PropertyType, arguments);
-            if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
-            if (values.Count > 1) throw new RsqlTooManyArgumentException(arguments);
+            var values = GetValues(expressionValue.Property.PropertyType, context.arguments());
+            if (values == null || values.Count == 0) throw new RsqlComparisonNotEnoughtArgumentException(context);
+            if (values.Count > 1) throw new RsqlComparisonTooManyArgumentException(context);
 
             var criteria = Convert.ToString(values[0]);
             var maskStar = "{" + Guid.NewGuid().ToString() + "}";
@@ -364,22 +415,23 @@ namespace Autumn.Data.Rest.Helpers
             criteria = criteria.Replace("*", "").Replace(maskStar, "*");
             return Expression.Lambda<Func<T, bool>>(Expression.Call(expressionValue.Expression,
                 method,
-                Expression.Constant(criteria,expressionValue.Property.PropertyType)), parameter);
+                Expression.Constant(criteria, expressionValue.Property.PropertyType)), parameter);
         }
 
         /// <summary>
         /// create in expression
         /// </summary>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetInExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy
-            , RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetInExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy = null)
         {
-            var expressionValue = CommonHelper.GetMemberExpressionValue<T>(parameter, selector.GetText(), namingStrategy);
-            var values = GetValues(expressionValue.Property.PropertyType, arguments);
-            if (values == null || values.Count == 0) throw new RsqlNotEnoughtArgumentException(arguments);
+            var expressionValue =
+                CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
+            var values = GetValues(expressionValue.Property.PropertyType, context.arguments());
+            if (values == null || values.Count == 0) throw new RsqlComparisonNotEnoughtArgumentException(context);
             return Expression.Lambda<Func<T, bool>>(
-                Expression.Call(Expression.Constant(values,expressionValue.Property.PropertyType), MethodListContains,
+                Expression.Call(Expression.Constant(values, expressionValue.Property.PropertyType), MethodListContains,
                     expressionValue.Expression), parameter);
         }
 
@@ -387,22 +439,20 @@ namespace Autumn.Data.Rest.Helpers
         /// create out expression
         /// </summary>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetOutExpression<T>(ParameterExpression parameter, RsqlParser.SelectorContext selector,
-            NamingStrategy namingStrategy
-            , RsqlParser.ArgumentsContext arguments)
+        public static Expression<Func<T, bool>> GetOutExpression<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy=null)
         {
-            var expression = GetInExpression<T>(parameter, selector, namingStrategy, arguments);
+            var expression = GetInExpression<T>(parameter, context, namingStrategy);
             var body = Expression.Not(expression.Body);
             return Expression.Lambda<Func<T, bool>>(body, parameter);
         }
 
         #endregion
 
-      
-        
+
         #region GetValues
 
-        
         private static List<object> GetStringValues(RsqlParser.ArgumentsContext argumentsContext)
         {
             var items = new List<object>();
@@ -466,7 +516,7 @@ namespace Autumn.Data.Rest.Helpers
             }
             return items;
         }
-      
+
         private static List<object> GetDoubles(RsqlParser.ArgumentsContext argumentsContext)
         {
             var items = new List<object>();
@@ -474,16 +524,16 @@ namespace Autumn.Data.Rest.Helpers
             {
                 if (valueContext.DIGIT() != null)
                 {
-                    items.Add(double.Parse(valueContext.DIGIT().GetText(),CultureInfo.InvariantCulture));
+                    items.Add(double.Parse(valueContext.DIGIT().GetText(), CultureInfo.InvariantCulture));
                 }
                 if (valueContext.NUMBER() != null)
                 {
-                    items.Add(double.Parse(valueContext.NUMBER().GetText(),CultureInfo.InvariantCulture));
+                    items.Add(double.Parse(valueContext.NUMBER().GetText(), CultureInfo.InvariantCulture));
                 }
             }
             return items;
         }
-        
+
         private static List<object> GetFloats(RsqlParser.ArgumentsContext argumentsContext)
         {
             var items = new List<object>();
@@ -491,11 +541,11 @@ namespace Autumn.Data.Rest.Helpers
             {
                 if (valueContext.DIGIT() != null)
                 {
-                    items.Add(float.Parse(valueContext.DIGIT().GetText(),CultureInfo.InvariantCulture));
+                    items.Add(float.Parse(valueContext.DIGIT().GetText(), CultureInfo.InvariantCulture));
                 }
                 if (valueContext.NUMBER() != null)
                 {
-                    items.Add(float.Parse(valueContext.NUMBER().GetText(),CultureInfo.InvariantCulture));
+                    items.Add(float.Parse(valueContext.NUMBER().GetText(), CultureInfo.InvariantCulture));
                 }
             }
             return items;
@@ -508,11 +558,11 @@ namespace Autumn.Data.Rest.Helpers
             {
                 if (valueContext.DIGIT() != null)
                 {
-                    items.Add(decimal.Parse(valueContext.DIGIT().GetText(),CultureInfo.InvariantCulture));
+                    items.Add(decimal.Parse(valueContext.DIGIT().GetText(), CultureInfo.InvariantCulture));
                 }
                 if (valueContext.NUMBER() != null)
                 {
-                    items.Add(decimal.Parse(valueContext.NUMBER().GetText(),CultureInfo.InvariantCulture));
+                    items.Add(decimal.Parse(valueContext.NUMBER().GetText(), CultureInfo.InvariantCulture));
                 }
             }
             return items;
@@ -570,7 +620,7 @@ namespace Autumn.Data.Rest.Helpers
             {
                 return GetFloats(argumentsContext);
             }
-            
+
             if (type == typeof(double) || type == typeof(double?))
             {
                 return GetDoubles(argumentsContext);

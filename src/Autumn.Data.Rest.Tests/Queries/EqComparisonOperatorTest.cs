@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -6,43 +9,17 @@ using Antlr4.Runtime;
 using Autumn.Data.Rest.Helpers;
 using Autumn.Data.Rest.Queries;
 using Autumn.Data.Rest.Queries.Exceptions;
+using Castle.DynamicProxy.Generators.Emitters;
 using Newtonsoft.Json.Serialization;
 using Xunit;
 
 namespace Autumn.Data.Rest.Tests.Queries
 {
-    public class EqComparisonOperatorTest
+    public class EqComparisonOperatorTest : ComparisonTest
     {
 
         private static readonly NamingStrategy _camelCase = new CamelCaseNamingStrategy();
         private static readonly NamingStrategy _snakeCase = new SnakeCaseNamingStrategy();
-        
-    
-        private class Exemple
-        {
-            public string StringExemple { get; set; }
-            public DateTime? NullableDateTimeExemple { get; set; }
-            public DateTime DateTimeExemple { get; set; }
-            public int Int32Exemple { get; set; }
-            public int? NullableInt32Exemple { get; set; }
-            public short Int16Exemple { get; set; }
-            public short? NullableInt16Exemple { get; set; }
-            public long Int64Exemple { get; set; }
-            public long? NullableInt64Exemple { get; set; }
-        }
-        
-
-
-        private static Expression<Func<Exemple, bool>> Parse(string query, NamingStrategy namingStrategy=null)
-        {
-            var antlrInputStream = new AntlrInputStream(query);
-            var lexer = new RsqlLexer(antlrInputStream);
-            var commonTokenStream = new CommonTokenStream(lexer);
-            var parser = new RsqlParser(commonTokenStream);
-            var eval = parser.eval();
-            var visitor = new DefaultRsqlVisitor<Exemple>(namingStrategy);
-            return visitor.VisitEval(eval);
-        }
 
         /// <summary>
         /// test : StringExemple==
@@ -50,7 +27,17 @@ namespace Autumn.Data.Rest.Tests.Queries
         [Fact]
         public void EqNotEnougthArgumentExceptionTest()
         {
-            Assert.Throws<RsqlNotEnoughtArgumentException>(() => { Parse("StringExemple=="); });
+            var expected = new List<string>();
+            foreach (var p in typeof(Exemple).GetProperties())
+            {
+                expected.Add(p.Name + "==");
+                expected.Add(p.Name + "=eq=");
+            }
+
+            foreach (var item in expected)
+            {
+                Assert.Throws<RsqlComparisonNotEnoughtArgumentException>(() => { Parse(item); });
+            }
         }
 
         /// <summary>
@@ -59,29 +46,30 @@ namespace Autumn.Data.Rest.Tests.Queries
         [Fact]
         public void EqNotEnougthArgumentTest()
         {
-            Assert.Throws<RsqlTooManyArgumentException>(() => { Parse("StringExemple==('a','b')"); });
+            Assert.Throws<RsqlComparisonTooManyArgumentException>(() => { Parse("StringExemple==('a','b')"); });
+            Assert.Throws<RsqlComparisonTooManyArgumentException>(() => { Parse("StringExemple=eq=('a','b')"); });
         }
 
         /// <summary>
-        /// test : StringExemple=='test'
-        /// test : StringExemple=eq='test'
+        /// test : StringExemple==...
+        /// test : StringExemple=eq=...'
         /// </summary>
         [Fact]
         public void EqStringTest()
         {
             var parameter = Expression.Parameter(typeof(Exemple));
-
+            var argument = GetRandom<string>();
             var memberExpression = CommonHelper.GetMemberExpressionValue<Exemple>(parameter, "StringExemple", null);
 
             var actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Equal(
                 memberExpression.Expression,
-                Expression.Constant("test")), parameter);
+                Expression.Constant(argument)), parameter);
 
-            var expected = Parse("StringExemple=='test'");
+            var expected = Parse("StringExemple=='"+argument+"'");
             Assert.Equal(actual.ToString(), expected.ToString());
 
 
-            expected = Parse("StringExemple=eq='test'");
+            expected = Parse("StringExemple=eq='"+argument+"'");
             Assert.Equal(actual.ToString(), expected.ToString());
 
         }
@@ -171,7 +159,7 @@ namespace Autumn.Data.Rest.Tests.Queries
         [Fact]
         public void EqNullableInt16Test()
         {
-            Assert.True(EqNullableTest<short?>(1));
+            Assert.True(Eq<short?>(1));
         }
 
         /// <summary>
@@ -181,7 +169,7 @@ namespace Autumn.Data.Rest.Tests.Queries
         [Fact]
         public void EqInt16Test()
         {
-            Assert.True(EqNullableTest<short>(1));
+            Assert.True(Eq<short>(1));
         }
         
         /// <summary>
@@ -191,7 +179,7 @@ namespace Autumn.Data.Rest.Tests.Queries
         [Fact]
         public void EqNullableInt32Test()
         {
-            Assert.True(EqNullableTest<int?>(1));
+            Assert.True(Eq<int?>(1));
         }
 
         /// <summary>
@@ -201,7 +189,7 @@ namespace Autumn.Data.Rest.Tests.Queries
         [Fact]
         public void EqInt32Test()
         {
-            Assert.True(EqNullableTest(1));
+            Assert.True(Eq<int>(1));
         }
 
 
@@ -212,7 +200,7 @@ namespace Autumn.Data.Rest.Tests.Queries
         [Fact]
         public void EqNullableInt64Test()
         {
-            Assert.True(EqNullableTest<long?>(1));
+            Assert.True(Eq<long?>(1));
         }
 
         /// <summary>
@@ -222,14 +210,76 @@ namespace Autumn.Data.Rest.Tests.Queries
         [Fact]
         public void EqInt64Test()
         {
-            Assert.True(EqNullableTest<long>(1));
+            Assert.True(Eq<long>(1));
+        }
+        
+        
+        /// <summary>
+        /// test : NullableSingleExemple==...
+        /// test : NullableSingleExemple=eq=...
+        /// </summary>
+        [Fact]
+        public void EqNullableSingleTest()
+        {
+            Assert.True(Eq<float?>((float)1.5));
         }
 
-        private bool EqNullableTest<T>(T value, string valueToString=null)
+        /// <summary>
+        /// test : SingleExemple==...
+        /// test : SingleExemple=eq=...
+        /// </summary>
+        [Fact]
+        public void EqSingleTest()
+        {
+            Assert.True(Eq<float>((float)1.5));
+        }
+        
+        /// <summary>
+        /// test : NullableDoubleExemple==...
+        /// test : NullableDoubleExemple=eq=...
+        /// </summary>
+        [Fact]
+        public void EqNullableDoubleTest()
+        {
+            Assert.True(Eq<double?>((double)1.5));
+        }
+
+        /// <summary>
+        /// test : DoubleExemple==...
+        /// test : DoubleExemple=eq=...
+        /// </summary>
+        [Fact]
+        public void EqDoubleTest()
+        {
+            Assert.True(Eq<double>((double)1.5));
+        }
+        
+        
+        /// <summary>
+        /// test : NullableDecimalExemple==...
+        /// test : NullableDecimalExemple=eq=...
+        /// </summary>
+        [Fact]
+        public void EqNullableDecimalTest()
+        {
+            Assert.True(Eq<decimal?>((decimal)1.5));
+        }
+
+        /// <summary>
+        /// test : DecimalExemple==...
+        /// test : DecimalExemple=eq=...
+        /// </summary>
+        [Fact]
+        public void EqDecimalTest()
+        {
+            Assert.True(Eq<decimal>((decimal)1.5));
+        }
+        
+        private static bool Eq<T>(T value, string valueToString=null)
         {
             var type = typeof(T).IsGenericType ? typeof(T).GetGenericArguments()[0] : typeof(T);
             var propertyName = (typeof(T).IsGenericType ? "Nullable" : "") + type.Name + "Exemple";
-            var v = valueToString ?? value.ToString();
+            var v = valueToString ?? Convert.ToString(value,CultureInfo.InvariantCulture);
             var parameter = Expression.Parameter(typeof(Exemple));
             var memberExpression =
                 CommonHelper.GetMemberExpressionValue<Exemple>(parameter, propertyName, null);
@@ -241,7 +291,7 @@ namespace Autumn.Data.Rest.Tests.Queries
             var expected = Parse(propertyName + "==" + v);
             Assert.Equal(actual.ToString(), expected.ToString());
 
-            expected = Parse(propertyName + "=eq=1" + valueToString);
+            expected = Parse(propertyName + "=eq=" + v);
             Assert.Equal(actual.ToString(), expected.ToString());
             return true;
         }

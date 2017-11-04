@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using Autumn.Data.Rest.Helpers;
+using Autumn.Data.Rest.Queries.Exceptions;
 using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Data.Rest.Queries
@@ -57,45 +58,43 @@ namespace Autumn.Data.Rest.Queries
         /// <returns></returns>
         public override Expression<Func<T, bool>> VisitComparison(RsqlParser.ComparisonContext context)
         {
-            var selector = context.selector();
             var comparator = context.comparator().GetText().ToLowerInvariant();
             switch (comparator)
             {
                 case "=is-true=":
-                    return RsqlHelper.GetIsTrueExpression<T>(_parameter, selector, _namingStrategy);
+                    return RsqlHelper.GetIsTrueExpression<T>(_parameter, context, _namingStrategy);
                 case "=is-false=":
-                    return RsqlHelper.GetIsFalseExpression<T>(_parameter, selector, _namingStrategy);
+                    return RsqlHelper.GetIsFalseExpression<T>(_parameter, context, _namingStrategy);
                 case "=is-null=":
-                    return RsqlHelper.GetIsNullExpression<T>(_parameter, selector, _namingStrategy);
+                    return RsqlHelper.GetIsNullExpression<T>(_parameter, context, _namingStrategy);
                 case "=is-not-null=":
-                    return RsqlHelper.GetNotIsNullExpression<T>(_parameter, selector, _namingStrategy);
+                    return RsqlHelper.GetNotIsNullExpression<T>(_parameter, context, _namingStrategy);
                 case "==":
                 case "=eq=":
-                    return RsqlHelper.GetEqExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
+                    return RsqlHelper.GetEqExpression<T>(_parameter, context, _namingStrategy);
                 case "!=":
                 case "=neq=":
-                    return RsqlHelper.GetNeqExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
+                    return RsqlHelper.GetNeqExpression<T>(_parameter, context, _namingStrategy);
                 case "<":
                 case "=lt=":
-                    return RsqlHelper.GetLtExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
+                    return RsqlHelper.GetLtExpression<T>(_parameter, context, _namingStrategy);
                 case "<=":
                 case "=le=":
-                    return RsqlHelper.GetLeExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
+                    return RsqlHelper.GetLeExpression<T>(_parameter, context, _namingStrategy);
                 case ">":
                 case "=gt=":
-                    return RsqlHelper.GetGtExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
+                    return RsqlHelper.GetGtExpression<T>(_parameter, context, _namingStrategy);
                 case ">=":
                 case "=ge=":
-                    return RsqlHelper.GetGeExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
+                    return RsqlHelper.GetGeExpression<T>(_parameter, context, _namingStrategy);
                 case "=lk=":
-                    return RsqlHelper.GetLkExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
+                    return RsqlHelper.GetLkExpression<T>(_parameter, context, _namingStrategy);
                 case "=in=":
-                    return RsqlHelper.GetInExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
+                    return RsqlHelper.GetInExpression<T>(_parameter, context, _namingStrategy);
                 case "=out=":
-                    return RsqlHelper.GetOutExpression<T>(_parameter, selector, _namingStrategy, context.arguments());
+                    return RsqlHelper.GetOutExpression<T>(_parameter, context, _namingStrategy);
                 default:
-                    return Expression.Lambda<Func<T, bool>>(
-                        Expression.Equal(Expression.Constant(true), Expression.Constant(true)), _parameter);
+                    throw new RsqlComparisonUnknownComparatorException(context);
             }
         }
     }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Autumn.Data.Rest.Mvc;
+using Autumn.Data.Rest.Queries;
+using Autumn.Data.Rest.Queries.Exceptions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
@@ -12,8 +14,8 @@ namespace Autumn.Data.Rest.Helpers
 {
     public static class CommonHelper
     {
-        private static readonly Dictionary<Type, Dictionary<string,PropertyInfo>> MappingJson2PropertyInfo =
-            new Dictionary<Type, Dictionary<string,PropertyInfo>> ();
+        private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> MappingJson2PropertyInfo =
+            new Dictionary<Type, Dictionary<string, PropertyInfo>>();
 
         private static readonly Dictionary<Type, IModelBinder> ExpressionModelBinders =
             new Dictionary<Type, IModelBinder>();
@@ -32,7 +34,6 @@ namespace Autumn.Data.Rest.Helpers
 
         #region GetProperty 
 
-
         private static Dictionary<string, PropertyInfo> Build(IReflect type, NamingStrategy namingStrategy = null)
         {
             var result = new Dictionary<string, PropertyInfo>();
@@ -47,7 +48,7 @@ namespace Autumn.Data.Rest.Helpers
         }
 
 
-        private static string GetJsonPropertyName(MemberInfo propertyInfo, 
+        private static string GetJsonPropertyName(MemberInfo propertyInfo,
             NamingStrategy namingStrategy = null)
         {
             var propertyName = propertyInfo.Name;
@@ -62,7 +63,7 @@ namespace Autumn.Data.Rest.Helpers
                 case SnakeCaseNamingStrategy _:
                     propertyName = propertyName.ToSnakeCase();
                     break;
-                    
+
                 case CamelCaseNamingStrategy _:
                     propertyName = propertyName.ToCamelCase();
                     break;
@@ -160,39 +161,67 @@ namespace Autumn.Data.Rest.Helpers
         }
 
         #endregion
-        
+
         public class ExpressionValue
         {
             public PropertyInfo Property { get; set; }
             public Expression Expression { get; set; }
         }
 
-        public static ExpressionValue GetMemberExpressionValue<T>(ParameterExpression parameter, string selector,
-            NamingStrategy namingStrategy)
+        public static ExpressionValue GetMemberExpressionValue<T>(ParameterExpression parameter,
+            string selector,
+            NamingStrategy namingStrategy = null)
         {
-            Expression lastMember = parameter;
-            PropertyInfo property = null;
-            var type = typeof(T);
-            if (selector.IndexOf(".", StringComparison.InvariantCulture) != -1)
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (selector == null) throw new ArgumentException("selector");
+
+            try
             {
-                foreach (var item in selector.Split('.'))
+                Expression lastMember = parameter;
+                PropertyInfo property = null;
+                var type = typeof(T);
+                if (selector.IndexOf(".", StringComparison.InvariantCulture) != -1)
                 {
-                    property = GetProperty(type, item, namingStrategy);
-                    type = property.PropertyType;
+                    foreach (var item in selector.Split('.'))
+                    {
+                        property = GetProperty(type, item, namingStrategy);
+                        type = property.PropertyType;
+                        lastMember = Expression.Property(lastMember, property);
+                    }
+                }
+                else
+                {
+                    property = GetProperty(type, selector, namingStrategy);
                     lastMember = Expression.Property(lastMember, property);
                 }
-            }
-            else
-            {
-                property = GetProperty(type, selector, namingStrategy);
-                lastMember = Expression.Property(lastMember, property);
-            }
 
-            return new ExpressionValue()
+                return new ExpressionValue()
+                {
+                    Property = property,
+                    Expression = lastMember
+                };
+            }
+            catch (Exception e)
             {
-                Property = property,
-                Expression = lastMember
-            };
+                throw new Exception(string.Format("Invalid  Property {0}", selector), e);
+            }
+        }
+
+
+        public static ExpressionValue GetMemberExpressionValue<T>(ParameterExpression parameter,
+            RsqlParser.ComparisonContext context,
+            NamingStrategy namingStrategy = null)
+        {
+            if (parameter == null) throw new ArgumentException("parameter");
+            if (context == null) throw new ArgumentException("context");
+            try
+            {
+                return GetMemberExpressionValue<T>(parameter, context.selector().GetText(), namingStrategy);
+            }
+            catch (Exception e)
+            {
+                throw new RsqlComparisonInvalidComparatorSelectionException(context, e);
+            }
         }
     }
 }

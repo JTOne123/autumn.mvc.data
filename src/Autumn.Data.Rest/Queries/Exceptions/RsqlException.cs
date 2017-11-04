@@ -6,14 +6,11 @@ namespace Autumn.Data.Rest.Queries.Exceptions
     {
         public T Origin { get; }
 
-        public RsqlException(T origin, string message) : base(message)
+        protected RsqlException(T origin, string message, Exception innerException = null) : base(message, innerException)
         {
             Origin = origin;
         }
-        
-        public RsqlException(Exception innerException) : base(innerException?.Message, innerException)
-        {
-            
-        }
     }
+
+
 }
