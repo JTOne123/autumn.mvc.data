@@ -8,18 +8,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Autumn.Data.Rest.Controllers
 {
-    public class RestRepositoryControllerAsync<T, TU, TId> : Controller
-        where T : ICrudPageableRepositoryAsync<TU, TId>
-        where TU : class
+    public class RestRepositoryControllerAsync<T,TId> : Controller
+        where T : class 
     {
-        private readonly T _repository;
+        private readonly ICrudPageableRepositoryAsync<T,TId> _repository;
 
-        protected T Repository()
+        protected ICrudPageableRepositoryAsync<T,TId> Repository()
         {
             return _repository;
         }
 
-        public RestRepositoryControllerAsync(T repository)
+        public RestRepositoryControllerAsync(ICrudPageableRepositoryAsync<T,TId> repository)
         {
             _repository = repository;
         }
@@ -34,7 +33,7 @@ namespace Autumn.Data.Rest.Controllers
 
 
         [HttpGet("")]
-        public virtual async Task<IActionResult> Find(Expression<Func<TU, bool>> filter, Pageable<TU> pageable)
+        public virtual async Task<IActionResult> Find(Expression<Func<T, bool>> filter, Pageable<T> pageable)
         {
             var result = await _repository.FindAsync(filter, pageable);
             return result.TotalElements == result.NumberOfElements
@@ -43,7 +42,7 @@ namespace Autumn.Data.Rest.Controllers
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> Post([FromBody] TU entity)
+        public virtual async Task<IActionResult> Post([FromBody] T entity)
         {
             var result = await _repository.CreateAsync(entity);
             return Created(string.Empty, result);
@@ -59,7 +58,7 @@ namespace Autumn.Data.Rest.Controllers
         }
 
         [HttpPut("{id}")]
-        public virtual async Task<IActionResult> Put([FromBody] TU entity, TId id)
+        public virtual async Task<IActionResult> Put([FromBody] T entity, TId id)
         {
             var result = await _repository.FindOneAsync(id);
             if (result == null) return NoContent();

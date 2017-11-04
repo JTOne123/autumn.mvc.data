@@ -3,8 +3,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using Autumn.Data.Rest.Configurations;
+using Autumn.Data.Rest.Entities;
 using Autumn.Data.Rest.Helpers;
-using Autumn.Data.Rest.MongoDB.Entities;
 using Autumn.Data.Rest.MongoDB.Helpers;
 using Autumn.Data.Rest.Paginations;
 using Autumn.Data.Rest.Repositories;
@@ -12,7 +13,7 @@ using MongoDB.Driver;
 
 namespace Autumn.Data.Rest.MongoDB.Repositories
 {
-    public abstract class MongoDbCrudPageableRepositoryAsync<T,TId> : ICrudPageableRepositoryAsync<T,TId> 
+    public class MongoDbCrudPageableRepositoryAsync<T,TId> : ICrudPageableRepositoryAsync<T,TId> 
         where T :class
     {
         private readonly IMongoClient _client;
@@ -37,19 +38,19 @@ namespace Autumn.Data.Rest.MongoDB.Repositories
             return _collection;
         }
 
-        protected MongoDbCrudPageableRepositoryAsync(string connectionString,string database)
+        public MongoDbCrudPageableRepositoryAsync(AutumnSettings settings)
         {
             _parameter = Expression.Parameter(typeof(T));
             _filterDefinitionBuilder=new FilterDefinitionBuilder<T>();
-            _client = new MongoClient(connectionString);
-            _database = _client.GetDatabase(database);
+            _client = new MongoClient(settings.ConnectionString);
+            _database = _client.GetDatabase(settings.DatabaseName);
             _propertyId = MongoDbHelper.GetId<T>();
             var collectionName = typeof(T).Name.ToLowerInvariant();
-            var collectionAttribute = (BsonCollectionAttribute)
-                typeof(T).GetCustomAttribute(typeof(BsonCollectionAttribute));
+            var collectionAttribute = (EntityAttribute)
+                typeof(T).GetCustomAttribute(typeof(EntityAttribute));
             if (collectionAttribute != null)
             {
-                collectionName = collectionAttribute.CollectionName;
+                collectionName = collectionAttribute.Name;
             }
             _collection = _database.GetCollection<T>(collectionName);
         }

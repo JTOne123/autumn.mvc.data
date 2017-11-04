@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Autumn.Data.Rest.Entities;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Autumn.Data.Rest.MongoDB.Helpers
@@ -16,7 +17,7 @@ namespace Autumn.Data.Rest.MongoDB.Helpers
             {
                 if (Ids.ContainsKey(typeof(T))) return Ids[typeof(T)];
                 var propertyInfo = typeof(T).GetProperties()
-                    .Single(p => p.GetCustomAttribute<BsonIdAttribute>() != null);
+                    .Single(p => p.GetCustomAttribute<IdAttribute>() != null);
                 Ids.Add(typeof(T), propertyInfo);
                 return Ids[typeof(T)];
             }

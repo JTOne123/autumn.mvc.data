@@ -16,4 +16,10 @@
     <ProjectReference Include="..\Autumn.Data.Rest.MongoDB\Autumn.Data.Rest.MongoDB.csproj" />
     <ProjectReference Include="..\Autumn.Data.Rest\Autumn.Data.Rest.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Configurations" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Repositories\UserRepository.cs" />
+  </ItemGroup>
 </Project>

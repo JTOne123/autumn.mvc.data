@@ -15,7 +15,7 @@ namespace Autumn.Data.Rest.Mvc
        
         public QueryModelBinderProvider(IConfiguration configuration, NamingStrategy namingStrategy = null)
         {
-            _queryField = configuration.GetSection("Autumn.Data.Rest.Settings:Query_Name").Value ?? "Query";
+            _queryField = configuration.GetSection("Autumn.Data.Rest:Query_Name").Value ?? "Query";
             _namingStrategy = namingStrategy;
             if (_namingStrategy == null) return;
             var method = _namingStrategy.GetType().GetMethod("ResolvePropertyName",BindingFlags.Default|BindingFlags.Instance|BindingFlags.NonPublic);

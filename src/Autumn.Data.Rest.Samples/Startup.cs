@@ -1,13 +1,12 @@
-﻿using Autumn.Data.Rest;
+﻿using Autumn.Data.Rest.MongoDB.Repositories;
 using Autumn.Data.Rest.Mvc;
+using Autumn.Data.Rest.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
-using Autumn.Data.Rest.Samples.Configurations;
-using Autumn.Data.Rest.Samples.Repositories;
 
 namespace Autumn.Data.Rest.Samples
 {
@@ -18,14 +17,14 @@ namespace Autumn.Data.Rest.Samples
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             
             var namingStrategy = new SnakeCaseNamingStrategy();
-            IMvcBuilder a;
+
             services.AddMvc(config =>
                     {
                         config.ModelBinderProviders.Insert(0,
@@ -43,22 +42,15 @@ namespace Autumn.Data.Rest.Samples
                 });
 
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "My API", Version = "v1"}));
-
-            var settings = new Settings()
-            {
-                ConnectionString = Configuration.GetSection("Settings:ConnectionString").Value,
-                DatabaseName = Configuration.GetSection("Settings:DatabaseName").Value
-            };
-
-
-            services.AddSingleton(settings);
-            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddAutumn(Configuration);
+            services.AddScoped(typeof(ICrudPageableRepositoryAsync<,>), typeof(MongoDbCrudPageableRepositoryAsync<,>));
         }
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseAutumn();
             if (!env.IsProduction())
             {
                 app.UseDeveloperExceptionPage();

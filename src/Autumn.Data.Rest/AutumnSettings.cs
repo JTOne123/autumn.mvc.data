@@ -1,6 +1,6 @@
-﻿namespace Autumn.Data.Rest.Samples.Configurations
+﻿namespace Autumn.Data.Rest.Configurations
 {
-    public class Settings
+    public class AutumnSettings
     {
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
