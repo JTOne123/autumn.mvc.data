@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace Autumn.Data.Rest.Samples.Entities
 {
     [BsonIgnoreExtraElements]
-    [Entity(Name = "users")]
+    [Entity(Name = "users",Version = "v1")]
     public class User : AbstractEntity
     {
         
@@ -15,19 +15,5 @@ namespace Autumn.Data.Rest.Samples.Entities
 
         [BsonElement("username")]
         public string UserName { get; set; }
-
-        [BsonElement("password")]
-        public string Password { get; set; }
-
-        [BsonElement("email")]
-        public string Email { get; set; }
-
-        [BsonElement("address")]
-        [JsonProperty("a")]
-        public Address Address { get; set; }
-        
-        [JsonIgnore]
-        [BsonElement("count")]
-        public int Count { get; set; }
     }
 }

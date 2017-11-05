@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Autumn.Data.Rest.Controllers
 {
+    [RepositoryControllerNameConvention]
     public class RepositoryControllerAsync<T,TId> : Controller, IRepositoryControllerAsync<T,TId>
         where T : class 
     {

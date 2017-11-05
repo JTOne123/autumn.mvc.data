@@ -17,9 +17,9 @@
     <ProjectReference Include="..\Autumn.Data.Rest\Autumn.Data.Rest.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Configurations" />
+    <Compile Remove="Repositories\UserRepository.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Repositories\UserRepository.cs" />
+    <Compile Remove="Controllers\UserController.cs" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,6 @@
-﻿using Autumn.Data.Rest.Configurations;
+﻿using System.Reflection;
+using Autumn.Data.Rest.Configurations;
+using Autumn.Data.Rest.Controllers;
 using Autumn.Data.Rest.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
@@ -8,9 +10,15 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class AutumnServiceCollectionExtensions
     {
+        /// <summary>
+        /// add autumn configuration
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
         public static void AddAutumn(this IServiceCollection services, IConfiguration configuration)
         {
             var settings = BuildSettings(configuration);
+            RepositoryControllerNameConvention.Settings = settings;
 
             var mvcBuilder = services.AddMvc(config =>
             {
@@ -27,9 +35,19 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SerializerSettings.ContractResolver = contractResolver;
             });
 
+            mvcBuilder.ConfigureApplicationPartManager(p =>
+            {
+                p.FeatureProviders.Add(new RespositoryControllerFeatureProvider(Assembly.GetEntryAssembly(), settings));
+            });
+
             services.AddSingleton(settings);
         }
 
+        /// <summary>
+        /// build autumn settings
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <returns></returns>
         private static AutumnSettings BuildSettings(IConfiguration configuration)
         {
             var result = new AutumnSettings()
@@ -41,15 +59,26 @@ namespace Microsoft.Extensions.DependencyInjection
             var namingStrategySettings = configuration.GetSection("Autumn.Data.Rest:NamingStrategy").Value;
             if (!string.IsNullOrWhiteSpace(namingStrategySettings))
             {
-                switch (namingStrategySettings.ToUpperInvariant())
+                if (namingStrategySettings.ToUpperInvariant() == "SNAKE_CASE")
                 {
-                    case "SNAKE_CASE":
-                        result.NamingStrategy = new SnakeCaseNamingStrategy();
-                        break;
-                    case "CAMEL_CASE":
-                        result.NamingStrategy = new CamelCaseNamingStrategy();
-                        break;
+                    result.NamingStrategy = new SnakeCaseNamingStrategy();
                 }
+                else if (namingStrategySettings.ToUpperInvariant() == "CAMEL_CASE")
+                {
+                    result.NamingStrategy = new CamelCaseNamingStrategy();
+                }
+            }
+
+            var defaultVersion = configuration.GetSection("Autumn.Data.Rest:ApiVersion").Value;
+            if (!string.IsNullOrWhiteSpace(defaultVersion))
+            {
+                result.ApiVersion = defaultVersion;
+            }
+            
+            var controllerPluralize = configuration.GetSection("Autumn.Data.Rest:PluralizeController").Value;
+            if (!string.IsNullOrWhiteSpace(controllerPluralize))
+            {
+                result.PluralizeController = bool.Parse(controllerPluralize);
             }
             
             return result;

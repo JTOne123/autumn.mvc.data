@@ -16,9 +16,9 @@ namespace Autumn.Data.Rest.Mvc
 
         public PageableModelBinderProvider(IConfiguration configuration, NamingStrategy namingStrategy = null)
         {
-            _pageSizeField = configuration.GetSection("Autumn.Data.Rest:Pageable_PageSize_Name").Value ?? "PageSize";
-            _pageNumberField = configuration.GetSection("Autumn.Data.Rest:Pageable_PageNumber_Name").Value ?? "PageNumber";
-            _sortField = configuration.GetSection("Autumn.Data.Rest:Pageable_Sort_Name").Value ?? "Sort";
+            _pageSizeField = configuration.GetSection("Autumn.Data.Rest:PageSizeParameterName").Value ?? "PageSize";
+            _pageNumberField = configuration.GetSection("Autumn.Data.Rest:PageNumberParameterName").Value ?? "PageNumber";
+            _sortField = configuration.GetSection("Autumn.Data.Rest:SortParameterName").Value ?? "Sort";
             _namingStrategy = namingStrategy;
             if (_namingStrategy == null) return;
             var method = _namingStrategy.GetType().GetMethod("ResolvePropertyName",BindingFlags.Default|BindingFlags.Instance|BindingFlags.NonPublic);
