@@ -1,4 +1,5 @@
-Inline-style: 
-![alt text](https://github.com/gwendallg/autumn.data.rest/blob/develop/doc/maple-leaf.png "Logo Title Text 1")
+<p align="center">
+ <img src="https://github.com/gwendallg/autumn.data.rest/blob/develop/doc/maple-leaf.png" width="50%" height="50%">
+</p>
 
 # Autumn.Data.Rest
