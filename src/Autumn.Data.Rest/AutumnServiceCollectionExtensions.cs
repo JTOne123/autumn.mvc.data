@@ -50,38 +50,37 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         private static AutumnSettings BuildSettings(IConfiguration configuration)
         {
-            var result = new AutumnSettings()
-            {
-                ConnectionString = configuration.GetSection("Autumn.Data.Rest:ConnectionString").Value,
-                DatabaseName = configuration.GetSection("Autumn.Data.Rest:DatabaseName").Value
-            };
+            AutumnSettings.Instance.ConnectionString =
+                configuration.GetSection("Autumn.Data.Rest:ConnectionString").Value;
+
+            AutumnSettings.Instance.DatabaseName =
+                configuration.GetSection("Autumn.Data.Rest:DatabaseName").Value;
 
             var namingStrategySettings = configuration.GetSection("Autumn.Data.Rest:NamingStrategy").Value;
             if (!string.IsNullOrWhiteSpace(namingStrategySettings))
             {
                 if (namingStrategySettings.ToUpperInvariant() == "SNAKE_CASE")
                 {
-                    result.NamingStrategy = new SnakeCaseNamingStrategy();
+                    AutumnSettings.Instance.NamingStrategy = new SnakeCaseNamingStrategy();
                 }
                 else if (namingStrategySettings.ToUpperInvariant() == "CAMEL_CASE")
                 {
-                    result.NamingStrategy = new CamelCaseNamingStrategy();
+                    AutumnSettings.Instance.NamingStrategy = new CamelCaseNamingStrategy();
                 }
             }
 
             var defaultVersion = configuration.GetSection("Autumn.Data.Rest:ApiVersion").Value;
             if (!string.IsNullOrWhiteSpace(defaultVersion))
             {
-                result.ApiVersion = defaultVersion;
+                AutumnSettings.Instance.ApiVersion = defaultVersion;
             }
-            
+
             var controllerPluralize = configuration.GetSection("Autumn.Data.Rest:PluralizeController").Value;
             if (!string.IsNullOrWhiteSpace(controllerPluralize))
             {
-                result.PluralizeController = bool.Parse(controllerPluralize);
+                AutumnSettings.Instance.PluralizeController = bool.Parse(controllerPluralize);
             }
-            
-            return result;
+            return AutumnSettings.Instance;
         }
     }
 }
