@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -18,6 +19,7 @@ namespace Autumn.Data.Rest.Samples
         }
 
         private IConfiguration Configuration { get; }
+        private ILoggerFactory LoggerFactory { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -29,9 +31,9 @@ namespace Autumn.Data.Rest.Samples
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            app.UseAutumn();
+            app.UseAutumn(loggerFactory);
             if (!env.IsProduction())
             {
                 app.UseDeveloperExceptionPage();

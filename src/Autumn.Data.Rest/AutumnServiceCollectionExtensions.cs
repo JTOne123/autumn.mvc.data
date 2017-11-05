@@ -1,8 +1,12 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
+using Autumn.Data.Rest;
 using Autumn.Data.Rest.Configurations;
 using Autumn.Data.Rest.Controllers;
 using Autumn.Data.Rest.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 
@@ -10,6 +14,30 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class AutumnServiceCollectionExtensions
     {
+
+        private static ILogger _logger;
+
+        
+        private static string Logo()
+        {
+            return string.Format(@"               //               
+             `+syo`             
+     .`     `ossyys`     `.     
+     /o+-` .osssyyys- `:oy/     
+     +ssssosssssyyyyyyyyyyo     
+    /sssssssssssyyyyyyyyyyy/    
+ -/ossssssssssshdyyyyyyyyyyys+-           ___      __    __  .___________. __    __  .___  ___. .__   __. 
+  :ossssssssyssNNyyhyyyyyyyys:`          /   \    |  |  |  | |           ||  |  |  | |   \/   | |  \ |  | 
+    :osssssdNmhNNdmNdyyyyys:            /  ^  \   |  |  |  | `---|  |----`|  |  |  | |  \  /  | |   \|  |    
+     .osssssydNNNNmhyyyyys.            /  /_\  \  |  |  |  |     |  |     |  |  |  | |  |\/|  | |  . `  | 
+   `/ossssssssyNNhyyyyyyyyy/`         /  _____  \ |  `--'  |     |  |     |  `--'  | |  |  |  | |  |\   | 
+  `/osssssssss+NNoyyyyyyyyys+`       /__/     \__\ \______/      |__|      \______/  |__|  |__| |__| \__| 
+     .:ossss/..NN..oyyyyy/.     
+       `+s/.  .NN.  .oyo`       
+         `    .NN.    .         							Version : {0}
+              .NN.","0.0.1");
+        }
+
         /// <summary>
         /// add autumn configuration
         /// </summary>
@@ -17,6 +45,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration"></param>
         public static void AddAutumn(this IServiceCollection services, IConfiguration configuration)
         {
+            _logger = ApplicationLogging.CreateLogger<AutumnSettings>();
+            _logger.LogInformation(Logo());
             var settings = BuildSettings(configuration);
             RepositoryControllerNameConvention.Settings = settings;
 
@@ -50,6 +80,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         private static AutumnSettings BuildSettings(IConfiguration configuration)
         {
+
             AutumnSettings.Instance.ConnectionString =
                 configuration.GetSection("Autumn.Data.Rest:ConnectionString").Value;
 
@@ -80,6 +111,19 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 AutumnSettings.Instance.PluralizeController = bool.Parse(controllerPluralize);
             }
+
+            _logger.LogInformation(JsonConvert.SerializeObject(
+                new
+                {
+                    ConnectionString=AutumnSettings.Instance.ConnectionString,
+                    Database = AutumnSettings.Instance.DatabaseName,
+                    ApiVersion = AutumnSettings.Instance.ApiVersion,
+                    PluralizeController = AutumnSettings.Instance.PluralizeController,
+                    NamingStrategy = (AutumnSettings.Instance.NamingStrategy != null)
+                        ? AutumnSettings.Instance.NamingStrategy.GetType().Name
+                        : ""
+                }
+                , Formatting.Indented));
             return AutumnSettings.Instance;
         }
     }
