@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Autumn.Data.Rest.Controllers
 {
-    public class RestRepositoryControllerAsync<T,TId> : Controller
+    public class RepositoryControllerAsync<T,TId> : Controller, IRepositoryControllerAsync<T,TId>
         where T : class 
     {
         private readonly ICrudPageableRepositoryAsync<T,TId> _repository;
@@ -18,7 +18,7 @@ namespace Autumn.Data.Rest.Controllers
             return _repository;
         }
 
-        public RestRepositoryControllerAsync(ICrudPageableRepositoryAsync<T,TId> repository)
+        public RepositoryControllerAsync(ICrudPageableRepositoryAsync<T,TId> repository)
         {
             _repository = repository;
         }

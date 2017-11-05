@@ -30,7 +30,7 @@ namespace Autumn.Data.Rest.Middlewares
 
         private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            var code = HttpStatusCode.InternalServerError; // 500 if unexpected
+            var code = HttpStatusCode.InternalServerError;
             object o = null;
             if (exception is RsqlComparisonException comparisonException)
             {

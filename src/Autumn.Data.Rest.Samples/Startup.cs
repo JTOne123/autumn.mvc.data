@@ -22,27 +22,8 @@ namespace Autumn.Data.Rest.Samples
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
-            var namingStrategy = new SnakeCaseNamingStrategy();
-
-            services.AddMvc(config =>
-                    {
-                        config.ModelBinderProviders.Insert(0,
-                            new PageableModelBinderProvider(Configuration, namingStrategy));
-                        config.ModelBinderProviders.Insert(1,
-                            new QueryModelBinderProvider(Configuration, namingStrategy));
-                    }
-                )
-                .AddJsonOptions(options =>
-                {
-                    options.SerializerSettings.ContractResolver = new DefaultContractResolver
-                    {
-                        NamingStrategy = namingStrategy
-                    };
-                });
-
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "My API", Version = "v1"}));
             services.AddAutumn(Configuration);
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "My API", Version = "v1"}));
             services.AddScoped(typeof(ICrudPageableRepositoryAsync<,>), typeof(MongoDbCrudPageableRepositoryAsync<,>));
         }
 

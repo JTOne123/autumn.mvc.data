@@ -30,7 +30,6 @@ namespace Autumn.Data.Rest.Helpers
                         builder.Append(item[0].ToString().ToUpperInvariant() + item.Substring(1));
                         break;
                 }
-
             }
             return builder.ToString();
         }

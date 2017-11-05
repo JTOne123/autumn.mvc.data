@@ -95,18 +95,9 @@ namespace Autumn.Data.Rest.Helpers
                     .GetGenericArguments()[0]
                     .GetGenericArguments()[0];
 
-                var binderBaseType = typeof(QueryModelBinder<>);
-
-                var binderTypeName = string.Format("{0}[[{2}, {3}]], {1}",
-                    binderBaseType.FullName,
-                    binderBaseType.Assembly.FullName,
-                    entityType.FullName,
-                    entityType.Assembly.FullName);
-
-                var modelBinderType = Type.GetType(binderTypeName);
+                var modelBinderType = typeof(QueryModelBinder<>).MakeGenericType(entityType);
                 var constructorInfo = modelBinderType.GetConstructor(new[]
                     {typeof(string), typeof(NamingStrategy)});
-
 
                 ExpressionModelBinders.Add(
                     type,
@@ -135,15 +126,9 @@ namespace Autumn.Data.Rest.Helpers
                 var entityType = type
                     .GetGenericArguments()[0];
 
-                var binderBaseType = typeof(PageableModelBinder<>);
-
-                var binderTypeName = string.Format("{0}[[{2}, {3}]], {1}",
-                    binderBaseType.FullName,
-                    binderBaseType.Assembly.FullName,
-                    entityType.FullName,
-                    entityType.Assembly.FullName);
-
-                var modelBinderType = Type.GetType(binderTypeName);
+                var modelBinderType = typeof(PageableModelBinder<>)
+                    .MakeGenericType(entityType);
+                
                 var constructorInfo = modelBinderType.GetConstructor(new[]
                     {typeof(string), typeof(string), typeof(string), typeof(NamingStrategy)});
 

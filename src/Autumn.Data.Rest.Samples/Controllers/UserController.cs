@@ -6,7 +6,7 @@ using Autumn.Data.Rest.Samples.Entities;
 namespace Autumn.Data.Rest.Samples.Controllers
 {
     [Route("v1/users")]
-    public class UserController : RestRepositoryControllerAsync<User, string>
+    public class UserController : RepositoryControllerAsync<User, string>
     {
         public UserController(ICrudPageableRepositoryAsync<User, string> repository) : base(repository)
         {
