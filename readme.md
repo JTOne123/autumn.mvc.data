@@ -1,5 +1,4 @@
-# Autumn.Data.Rest
-
 Inline-style: 
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+![alt text](https://github.com/gwendallg/autumn.data.rest/blob/develop/doc/maple-leaf.png "Logo Title Text 1")
 
+# Autumn.Data.Rest
