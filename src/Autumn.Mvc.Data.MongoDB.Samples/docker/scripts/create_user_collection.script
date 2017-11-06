@@ -1,0 +1,30 @@
+faker.locale = "en"
+
+const STEPCOUNT = 10; //total  10 * 100 = 10000
+
+function isRandomBlank(blankWeight) {
+    return Math.random() * 100 <= blankWeight;
+};
+
+for (let i = 0; i < 10000; i++) {
+    db.getCollection("user").insertMany(
+        _.times(STEPCOUNT, () => {
+            return {
+                "name": faker.name.findName(),
+                "username": faker.internet.userName(),
+                "email": faker.internet.email(),
+                "address": {
+                    "street": faker.address.streetName(),
+                    "suite": faker.address.secondaryAddress(),
+                    "city": faker.address.city(),
+                    "zipcode": faker.address.zipCode()
+                },
+                "phone": faker.phone.phoneNumber(),
+                "website": faker.internet.domainName(),
+                "company": faker.company.companyName()
+            }
+        })
+    )
+
+    console.log(`${(i + 1) * STEPCOUNT} docs inserted`);
+}
