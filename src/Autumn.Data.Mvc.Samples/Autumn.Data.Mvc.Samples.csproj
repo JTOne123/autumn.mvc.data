@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.1" />
+    <PackageReference Include="AutoMapper" Version="6.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Repositories\UserRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Controllers\UserController.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Autumn.Data.Mvc.MongoDB\Autumn.Data.Mvc.MongoDB.csproj" />
+    <ProjectReference Include="..\Autumn.Data.Mvc\Autumn.Data.Mvc.csproj" />
+  </ItemGroup>
+</Project>

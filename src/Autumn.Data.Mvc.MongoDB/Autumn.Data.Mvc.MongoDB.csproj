@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Antlr4" Version="4.6.4" />
+    <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Autumn.Data.Mvc\Autumn.Data.Mvc.csproj" />
+  </ItemGroup>
+</Project>
