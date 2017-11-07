@@ -6,7 +6,7 @@ namespace Autumn.Mvc.Data.Models.Queries.Exceptions
     {
         public RsqlComparisonUnknownSelectorException(RsqlParser.ComparisonContext origin,
             Exception innerException = null) : base(origin,
-            "Unknown selector", innerException)
+            string.Format("Unknown selector : '{0}'",origin.selector().GetText()) , innerException)
         {
         }
     }

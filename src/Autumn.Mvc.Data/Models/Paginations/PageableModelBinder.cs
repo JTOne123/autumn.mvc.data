@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Autumn.Mvc.Data.Models.Helpers;
+using Autumn.Mvc.Data.Models.Paginations.Exceptions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json.Serialization;
 
@@ -37,12 +38,32 @@ namespace Autumn.Mvc.Data.Models.Paginations
             var pageSize = 100;
             if (queryCollection.TryGetValue(_pageSizeField, out var pageSizeString))
             {
-                int.TryParse(pageSizeString[0], out pageSize);
+                if (int.TryParse(pageSizeString[0], out pageSize))
+                {
+                    if (pageSize < 0)
+                    {
+                        throw new OutOfRangePageSizeException(bindingContext,pageSize);
+                    }
+                }
+                else
+                {
+                    throw new InvalidPageSizeValueException(bindingContext, pageSizeString[0]);
+                }
             }
             var pageNumber = 0;
             if (queryCollection.TryGetValue(_pageNumberField, out var pageNumberString))
             {
-                int.TryParse(pageNumberString[0], out pageNumber);
+                if (int.TryParse(pageNumberString[0], out pageNumber))
+                {
+                    if (pageNumber < 0)
+                    {
+                        throw new OutOfRangePageNumberException(bindingContext, pageNumber);
+                    }
+                }
+                else
+                {
+                    throw new InvalidPageNumberValueException(bindingContext, pageNumberString[0]);
+                }
             }
 
             Sort<T> sort = null;
@@ -55,16 +76,28 @@ namespace Autumn.Mvc.Data.Models.Paginations
      
                 foreach (var sortStringValue in sortStringValues)
                 {
-                    var expressionValue =
-                        CommonHelper.GetMemberExpressionValue<T>(parameter, sortStringValue, _namingStrategy);
+                    CommonHelper.ExpressionValue expressionValue;
+                    try
+                    {
+                        expressionValue =
+                            CommonHelper.GetMemberExpressionValue<T>(parameter, sortStringValue, _namingStrategy);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new UnknownSortException(bindingContext, sortStringValue, e);
+                    }
                     var expression = Expression.Convert(expressionValue.Expression, typeof(object));
                     var orderExpression = Expression.Lambda<Func<T, object>>(expression, parameter);
                     var propertyKeyDirection = sortStringValue + ".dir";
                     var isDescending = false;
                     if (queryCollection.ContainsKey(propertyKeyDirection))
                     {
-                        var sortDirection = queryCollection[propertyKeyDirection][0].ToLowerInvariant();
-                        isDescending = sortDirection == "desc";
+                        var sortDirection = queryCollection[propertyKeyDirection][0];
+                        if (sortDirection.ToLowerInvariant() != "asc" && sortDirection.ToLowerInvariant() != "desc")
+                        {
+                            throw new InvalidSortDirectionException(bindingContext, sortDirection);
+                        }
+                        isDescending = sortDirection.ToLowerInvariant()  == "desc";
                     }
                     if (isDescending)
                     {

@@ -2,7 +2,7 @@
 
 namespace Autumn.Mvc.Data.Models.Queries.Exceptions
 {
-    public class RsqlException<T> : Exception
+    public abstract class RsqlException<T> : AutumnException
     {
         public T Origin { get; }
 
@@ -11,6 +11,5 @@ namespace Autumn.Mvc.Data.Models.Queries.Exceptions
             Origin = origin;
         }
     }
-
 
 }

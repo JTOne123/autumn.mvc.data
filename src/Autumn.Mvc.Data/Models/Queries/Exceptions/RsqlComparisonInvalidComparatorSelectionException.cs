@@ -6,7 +6,7 @@ namespace Autumn.Mvc.Data.Models.Queries.Exceptions
     {
         public RsqlComparisonInvalidComparatorSelectionException(RsqlParser.ComparisonContext origin,
             Exception innerException = null) : base(origin,
-            "Invalid comparator selector", innerException)
+            string.Format("Invalid selector : {0}",origin.selector().GetText()), innerException)
         {
         }
     }

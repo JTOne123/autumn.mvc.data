@@ -6,7 +6,7 @@ namespace Autumn.Mvc.Data.Models.Queries.Exceptions
     {
         public RsqlComparisonUnknownComparatorException(RsqlParser.ComparisonContext origin,
             Exception innerException = null) : base(origin,
-            "Unknown comparator", innerException)
+            string.Format("Unknown comparator : {0}",origin.comparator().GetText()), innerException)
         {
         }
     }

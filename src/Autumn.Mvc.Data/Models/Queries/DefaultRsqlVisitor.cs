@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Antlr4.Runtime.Tree;
 using Autumn.Mvc.Data.Models.Queries.Exceptions;
 using Autumn.Mvc.Models.Helpers;
 using Newtonsoft.Json.Serialization;
@@ -49,6 +50,11 @@ namespace Autumn.Mvc.Data.Models.Queries
         public override Expression<Func<T, bool>> VisitConstraint(RsqlParser.ConstraintContext context)
         {
             return context.comparison() != null ? context.comparison().Accept(this) : null;
+        }
+
+        public override Expression<Func<T, bool>> VisitErrorNode(IErrorNode node)
+        {
+            throw new RsqlErrorNodeException(node);
         }
 
         /// <summary>

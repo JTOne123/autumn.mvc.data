@@ -77,7 +77,7 @@ namespace Autumn.Mvc.Data.Models.Helpers
             {
                 if (MappingJson2PropertyInfo.ContainsKey(type)) return MappingJson2PropertyInfo[type][name];
                 MappingJson2PropertyInfo[type] = Build(type, namingStrategy);
-                return MappingJson2PropertyInfo[type][name];
+                return MappingJson2PropertyInfo[type].ContainsKey(name) ? MappingJson2PropertyInfo[type][name] : null;
             }
         }
 
@@ -160,38 +160,38 @@ namespace Autumn.Mvc.Data.Models.Helpers
             if (parameter == null) throw new ArgumentException("parameter");
             if (selector == null) throw new ArgumentException("selector");
 
-            try
+            Expression lastMember = parameter;
+            PropertyInfo property = null;
+            var type = typeof(T);
+            if (selector.IndexOf(".", StringComparison.InvariantCulture) != -1)
             {
-                Expression lastMember = parameter;
-                PropertyInfo property = null;
-                var type = typeof(T);
-                if (selector.IndexOf(".", StringComparison.InvariantCulture) != -1)
+                foreach (var item in selector.Split('.'))
                 {
-                    foreach (var item in selector.Split('.'))
+                    property = GetProperty(type, item, namingStrategy);
+                    if (property == null)
                     {
-                        property = GetProperty(type, item, namingStrategy);
-                        type = property.PropertyType;
-                        lastMember = Expression.Property(lastMember, property);
+                        throw new Exception(string.Format("Invalid property {0}", selector));
                     }
-                }
-                else
-                {
-                    property = GetProperty(type, selector, namingStrategy);
+                    type = property.PropertyType;
                     lastMember = Expression.Property(lastMember, property);
                 }
-
-                return new ExpressionValue()
-                {
-                    Property = property,
-                    Expression = lastMember
-                };
             }
-            catch (Exception e)
+            else
             {
-                throw new Exception(string.Format("Invalid  Property {0}", selector), e);
+                property = GetProperty(type, selector, namingStrategy);
+                if (property == null)
+                {
+                    throw new Exception(string.Format("Invalid property {0}", selector));
+                }
+                lastMember = Expression.Property(lastMember, property);
             }
-        }
 
+            return new ExpressionValue()
+            {
+                Property = property,
+                Expression = lastMember
+            };
+        }
 
         public static ExpressionValue GetMemberExpressionValue<T>(ParameterExpression parameter,
             RsqlParser.ComparisonContext context,

@@ -14,7 +14,4 @@
   <ItemGroup>
     <None Remove="generate-source.sh" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\Paginations\Exceptions" />
-  </ItemGroup>
 </Project>

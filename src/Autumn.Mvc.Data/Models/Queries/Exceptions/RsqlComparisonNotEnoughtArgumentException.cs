@@ -6,7 +6,7 @@ namespace Autumn.Mvc.Data.Models.Queries.Exceptions
     {
         public RsqlComparisonNotEnoughtArgumentException(RsqlParser.ComparisonContext origin,
             Exception innerException = null) : base(origin,
-            "Not enougth argument", innerException)
+            string.Format("Not enought argument : {0}",origin.selector().GetText())    , innerException)
         {
         }
     }
