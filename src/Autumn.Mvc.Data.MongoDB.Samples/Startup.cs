@@ -22,8 +22,10 @@ namespace Autumn.Mvc.Data.Samples
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutumn(Configuration);
+            services.AddAutumnMongo();
+            
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Info {Title = "My API", Version = "v1"}));
-            services.AddScoped(typeof(ICrudPageableRepositoryAsync<,>), typeof(MongoCrudPageableRepositoryAsync<,>));
+            
         }
 
 

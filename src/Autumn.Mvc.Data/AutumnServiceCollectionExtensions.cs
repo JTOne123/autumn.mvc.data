@@ -9,6 +9,7 @@ using Autumn.Mvc.Data.Models;
 using Autumn.Mvc.Data.Models.Helpers;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Models.Queries;
+using Autumn.Mvc.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
@@ -78,7 +79,6 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             BuildRoutes(settings);
-
             services.AddSingleton(settings);
         }
 
