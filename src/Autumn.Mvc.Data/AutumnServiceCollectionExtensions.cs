@@ -1,9 +1,16 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Autumn.Mvc.Data;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
+using Autumn.Mvc.Data.Models;
+using Autumn.Mvc.Data.Models.Helpers;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Models.Queries;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -48,7 +55,7 @@ namespace Microsoft.Extensions.DependencyInjection
             _logger = ApplicationLogging.CreateLogger<AutumnSettings>();
             _logger.LogInformation(Logo());
             var settings = BuildSettings(configuration);
-            RepositoryControllerNameConvention.Settings = settings;
+            settings.EntityAssembly = settings.EntityAssembly ?? Assembly.GetCallingAssembly();
 
             var mvcBuilder = services.AddMvc(config =>
             {
@@ -67,10 +74,50 @@ namespace Microsoft.Extensions.DependencyInjection
 
             mvcBuilder.ConfigureApplicationPartManager(p =>
             {
-                p.FeatureProviders.Add(new RespositoryControllerFeatureProvider(Assembly.GetEntryAssembly(), settings));
+                p.FeatureProviders.Add(new RespositoryControllerFeatureProvider(settings));
             });
 
+            BuildRoutes(settings);
+
             services.AddSingleton(settings);
+        }
+
+        private static void BuildRoutes(AutumnSettings settings)
+        {
+            settings.Routes =new Dictionary<Type, AttributeRouteModel>();
+            var baseType = typeof(RepositoryControllerAsync<,>);
+            foreach (var type in settings.EntityAssembly.GetTypes())
+            {
+                var entityAttribute = type.GetCustomAttribute<EntityAttribute>();
+                if (entityAttribute == null) continue;
+                var idType = type.GetProperties().SingleOrDefault(p => p.GetCustomAttribute<IdAttribute>() != null)
+                    ?.PropertyType;
+                if (idType == null) continue;
+                var name = entityAttribute.Name;
+                switch (settings.NamingStrategy)
+                {
+                    case SnakeCaseNamingStrategy _:
+                        name = name.ToSnakeCase();
+                        break;
+                    case CamelCaseNamingStrategy _:
+                        name = name.ToCamelCase();
+                        break;
+                }
+                if (settings.PluralizeController && !name.EndsWith("s"))
+                {
+                    name = name + "s";
+                }
+                var version = entityAttribute.Version ?? settings.ApiVersion;
+                if (!string.IsNullOrEmpty(version))
+                {
+                    name = version + "/" + name;
+                }
+                var controllerType = baseType.MakeGenericType(type, idType);
+                var attributeRouteModel = new AttributeRouteModel(new RouteAttribute(name));
+                settings.Routes.Add(controllerType, attributeRouteModel);
+                _logger.LogInformation("Autumn Path Controller : {0} => [ {1}.{2}, {3}.{4}  ]", name, type.Namespace,
+                    type.Name, idType.Namespace, idType.Name);
+            }
         }
 
         /// <summary>
