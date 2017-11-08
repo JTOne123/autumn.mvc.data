@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 namespace Autumn.Mvc.Data.MongoDB.Samples.Models
 {
     [BsonIgnoreExtraElements]
-    [Entity(Name = "user")]
+    [Entity(Name = "user",Version = "v3")]
     public class UserV2 : AbstractEntity
     {
         

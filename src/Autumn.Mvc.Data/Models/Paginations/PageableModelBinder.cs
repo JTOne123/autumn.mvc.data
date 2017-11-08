@@ -21,7 +21,7 @@ namespace Autumn.Mvc.Data.Models.Paginations
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             var queryCollection = bindingContext.ActionContext.HttpContext.Request.Query;
-            var pageSize = 100;
+            var pageSize = _autumnSettings.DefaultPageSize;
             if (queryCollection.TryGetValue(_autumnSettings.PageSizeFieldName, out var pageSizeString))
             {
                 if (int.TryParse(pageSizeString[0], out pageSize))

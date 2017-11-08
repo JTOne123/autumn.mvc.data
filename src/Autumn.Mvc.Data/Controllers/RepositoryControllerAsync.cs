@@ -26,16 +26,15 @@ namespace Autumn.Mvc.Data.Controllers
         }
 
         [HttpGet("{id}")]
-        public virtual async Task<IActionResult> FindById(TId id)
+        public virtual async Task<IActionResult> GetById(TId id)
         {
             var result = await _repository.FindOneAsync(id);
             if (result == null) return NotFound();
             return Ok(result);
         }
-
-           
+         
         [HttpGet("")]
-        public virtual async Task<IActionResult> Find(Expression<Func<T, bool>> filter, Pageable<T> pageable)
+        public virtual async Task<IActionResult> Get(Expression<Func<T, bool>> filter, Pageable<T> pageable)
         {
             var result = await _repository.FindAsync(filter, pageable);
             return result.TotalElements == result.NumberOfElements

@@ -1,8 +1,10 @@
-﻿using Autumn.Mvc.Data.Configurations;
+﻿using System.Globalization;
+using System.Linq;
+using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.SwaggerGen;    
 namespace Autumn.Mvc.Data
 {
     public class AutumnOperationFilter : IOperationFilter
@@ -15,29 +17,41 @@ namespace Autumn.Mvc.Data
             if (!actionDescriptor.ControllerTypeInfo.IsGenericType &&
                 actionDescriptor.ControllerTypeInfo.GetGenericTypeDefinition() !=
                 typeof(RepositoryControllerAsync<,>)) return;
-            if (actionDescriptor.ActionName != "Find") return;
+
+            operation.Consumes.Clear();
+            if (new[] {"POST", "PUT", "PATCH"}.Contains(context.ApiDescription.HttpMethod))
+            {
+                operation.Consumes.Add("application/json");
+            }
             
-            operation.Produces.Add("application/json");
-            
+            if (actionDescriptor.ActionName != "Get") return;
             operation.Parameters.Clear();
             var parameter = new NonBodyParameter
             {
                 Type = "string",
-                In = AutumnSettings.Instance.QueryFieldName,
+                In = "query",
                 Name = AutumnSettings.Instance.QueryFieldName
             };
             operation.Parameters.Add(parameter);
+            
             parameter = new NonBodyParameter
             {
-                In = AutumnSettings.Instance.PageSizeFieldName,
+                In = "query",
                 Type = "integer",
+                Minimum = 0,
+                Format = "int32",
+                Default = AutumnSettings.Instance.DefaultPageSize,    
                 Name = AutumnSettings.Instance.PageSizeFieldName
             };
             operation.Parameters.Add(parameter);
+            
             parameter = new NonBodyParameter
             {
-                In = AutumnSettings.Instance.PageNumberFieldName,
+                In = "query",
                 Type = "integer",
+                Minimum = 0,
+                Format = "int32",
+                Default = 0,
                 Name = AutumnSettings.Instance.PageNumberFieldName
             };
             operation.Parameters.Add(parameter);

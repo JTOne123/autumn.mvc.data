@@ -83,9 +83,13 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info {Title = "My API", Version = "v1"});
+                foreach (var version in settings.ApiVersions)
+                {
+                    c.SwaggerDoc(version,new Info {Title = "", Version = version});
+                }
+                //c.SwaggerDoc("v1", new Info {Title = "My API", Version = "v1"});
                 c.OperationFilter<AutumnOperationFilter>();
-            });
+              });
         }
 
         private static void BuildRoutes(AutumnSettings settings)
@@ -187,7 +191,12 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             settings.PageNumberFieldName = settings.PageNumberFieldName.ToCase(settings.NamingStrategy);
 
-
+            var defaultPageSizeSettings = configuration.GetSection("Autumn.Data.Mvc:DefaultPageSize").Value;
+            if (int.TryParse(defaultPageSizeSettings, out var defaultPageSize))
+            {
+                settings.DefaultPageSize = defaultPageSize;
+            }
+            
             var defaultVersion = configuration.GetSection("Autumn.Data.Mvc:DefaultApiVersion").Value;
             if (!string.IsNullOrWhiteSpace(defaultVersion))
             {
