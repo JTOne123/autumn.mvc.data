@@ -30,7 +30,7 @@ namespace Autumn.Mvc.Data.Models.Queries
 
             foreach (var item in expected)
             {
-                Assert.Throws<RsqlComparisonNotEnoughtArgumentException>(() => { Parse(item); });
+                Assert.Throws<QueryComparisonNotEnoughtArgumentException>(() => { Parse(item); });
             }
         }
 
@@ -40,8 +40,8 @@ namespace Autumn.Mvc.Data.Models.Queries
         [Fact]
         public void EqNotEnougthArgumentTest()
         {
-            Assert.Throws<RsqlComparisonTooManyArgumentException>(() => { Parse("StringExemple==('a','b')"); });
-            Assert.Throws<RsqlComparisonTooManyArgumentException>(() => { Parse("StringExemple=eq=('a','b')"); });
+            Assert.Throws<QueryComparisonTooManyArgumentException>(() => { Parse("StringExemple==('a','b')"); });
+            Assert.Throws<QueryComparisonTooManyArgumentException>(() => { Parse("StringExemple=eq=('a','b')"); });
         }
 
         /// <summary>
@@ -185,7 +185,6 @@ namespace Autumn.Mvc.Data.Models.Queries
         {
             Assert.True(Eq<int>(1));
         }
-
 
         /// <summary>
         /// test : NullableInt64Exemple==1

@@ -66,11 +66,11 @@ namespace Autumn.Mvc.Data.Models.Queries
         private Expression<Func<T, bool>> Build(string query)
         {
             var antlrInputStream = new AntlrInputStream(query);
-            var lexer = new RsqlLexer(antlrInputStream);
+            var lexer = new QueryLexer(antlrInputStream);
             var commonTokenStream = new CommonTokenStream(lexer);
-            var parser = new RsqlParser(commonTokenStream);
+            var parser = new QueryParser(commonTokenStream);
             var eval = parser.eval();
-            var visitor = new DefaultRsqlVisitor<T>(_autumnSettings.NamingStrategy);
+            var visitor = new DefaultQueryVisitor<T>(_autumnSettings.NamingStrategy);
             return visitor.VisitEval(eval);
         }
     }

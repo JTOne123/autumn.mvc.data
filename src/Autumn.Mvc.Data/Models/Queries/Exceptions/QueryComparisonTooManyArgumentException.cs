@@ -2,9 +2,9 @@
 
 namespace Autumn.Mvc.Data.Models.Queries.Exceptions
 {
-    public class RsqlComparisonTooManyArgumentException : RsqlComparisonException
+    public class QueryComparisonTooManyArgumentException : QueryComparisonException
     {
-        public RsqlComparisonTooManyArgumentException(RsqlParser.ComparisonContext origin,
+        public QueryComparisonTooManyArgumentException(QueryParser.ComparisonContext origin,
             Exception innerException = null) : base(origin,string.Format("Too many arguments : {0}",origin.selector().GetText()), innerException)
         {
         }

@@ -18,8 +18,8 @@ namespace Autumn.Mvc.Data.Models.Queries
         [Fact]
         public void LtNotEnougthArgumentExceptionTest()
         {
-            Assert.Throws<RsqlComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple<"); });
-            Assert.Throws<RsqlComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple=lt="); });
+            Assert.Throws<QueryComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple<"); });
+            Assert.Throws<QueryComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple=lt="); });
         }
 
         /// <summary>
@@ -29,8 +29,8 @@ namespace Autumn.Mvc.Data.Models.Queries
         [Fact]
         public void LtTooManyArgumentExceptionTest()
         {
-            Assert.Throws<RsqlComparisonTooManyArgumentException>(() => { Parse("Int32Exemple<(1,2)"); });
-            Assert.Throws<RsqlComparisonTooManyArgumentException>(() => { Parse("Int32Exemple=lt=(1,2)"); });
+            Assert.Throws<QueryComparisonTooManyArgumentException>(() => { Parse("Int32Exemple<(1,2)"); });
+            Assert.Throws<QueryComparisonTooManyArgumentException>(() => { Parse("Int32Exemple=lt=(1,2)"); });
         }
 
         /// <summary>
@@ -44,32 +44,32 @@ namespace Autumn.Mvc.Data.Models.Queries
         [Fact]
         public void LtInvalidComparatorSelectionExceptionTest()
         {
-            Assert.Throws<RsqlComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
             {
                  Parse("StringExemple<'"+GetRandom<string>()+"'");
             });
 
-            Assert.Throws<RsqlComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
             {
                 Parse("StringExemple=lt="+GetRandom<string>()+"'");
             });
             
-            Assert.Throws<RsqlComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
             {
                 Parse("BooleanExemple<true");
             });
 
-            Assert.Throws<RsqlComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
             {
                 Parse("BooleanExemple=lt=true");
             });
             
-            Assert.Throws<RsqlComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
             {
                 Parse("NullableBooleanExemple<true");
             });
 
-            Assert.Throws<RsqlComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
             {
                 Parse("NullableBooleanExemple=lt=true");
             });

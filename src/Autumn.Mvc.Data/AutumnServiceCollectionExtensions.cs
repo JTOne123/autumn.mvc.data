@@ -85,11 +85,10 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 foreach (var version in settings.ApiVersions)
                 {
-                    c.SwaggerDoc(version,new Info {Title = "", Version = version});
+                    c.SwaggerDoc(version, new Info {Title = "api", Version = version});
                 }
-                //c.SwaggerDoc("v1", new Info {Title = "My API", Version = "v1"});
                 c.OperationFilter<AutumnOperationFilter>();
-              });
+            });
         }
 
         private static void BuildRoutes(AutumnSettings settings)
@@ -202,6 +201,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 AutumnSettings.Instance.DefaultApiVersion = defaultVersion;
             }
+            AutumnSettings.Instance.DefaultApiVersion = AutumnSettings.Instance.DefaultApiVersion ?? "v1";
 
             var controllerPluralize = configuration.GetSection("Autumn.Data.Mvc:PluralizeController").Value;
             if (!string.IsNullOrWhiteSpace(controllerPluralize))

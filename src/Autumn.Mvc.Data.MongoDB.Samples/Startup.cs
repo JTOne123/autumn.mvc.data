@@ -23,9 +23,6 @@ namespace Autumn.Mvc.Data.Samples
         {
             services.AddAutumn(Configuration);
             services.AddAutumnMongo();
-
-           
-
         }
 
 

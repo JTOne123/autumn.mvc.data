@@ -2,9 +2,9 @@
 
 namespace Autumn.Mvc.Data.Models.Queries.Exceptions
 {
-    public class RsqlComparisonUnknownComparatorException : RsqlComparisonException
+    public class QueryComparisonUnknownComparatorException : QueryComparisonException
     {
-        public RsqlComparisonUnknownComparatorException(RsqlParser.ComparisonContext origin,
+        public QueryComparisonUnknownComparatorException(QueryParser.ComparisonContext origin,
             Exception innerException = null) : base(origin,
             string.Format("Unknown comparator : {0}",origin.comparator().GetText()), innerException)
         {

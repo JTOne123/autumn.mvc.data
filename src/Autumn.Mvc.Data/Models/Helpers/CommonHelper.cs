@@ -188,7 +188,7 @@ namespace Autumn.Mvc.Data.Models.Helpers
         }
 
         public static ExpressionValue GetMemberExpressionValue<T>(ParameterExpression parameter,
-            RsqlParser.ComparisonContext context,
+            QueryParser.ComparisonContext context,
             NamingStrategy namingStrategy = null)
         {
             if (parameter == null) throw new ArgumentException("parameter");
@@ -199,7 +199,7 @@ namespace Autumn.Mvc.Data.Models.Helpers
             }
             catch (Exception e)
             {
-                throw new RsqlComparisonInvalidComparatorSelectionException(context, e);
+                throw new QueryComparisonInvalidComparatorSelectionException(context, e);
             }
         }
     }

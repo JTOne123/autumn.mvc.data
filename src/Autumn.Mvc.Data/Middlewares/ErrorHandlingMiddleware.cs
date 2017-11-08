@@ -43,7 +43,7 @@ namespace Autumn.Mvc.Data.Middlewares
         private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             object o = null;
-            if (exception is RsqlComparisonException comparisonException)
+            if (exception is QueryComparisonException comparisonException)
             {
                 o = new
                 {

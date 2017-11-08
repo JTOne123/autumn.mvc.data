@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from Rsql.g by ANTLR 4.6
+// Generated from Query.g by ANTLR 4.6
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -26,95 +26,101 @@ using IToken = Antlr4.Runtime.IToken;
 
 /// <summary>
 /// This interface defines a complete generic visitor for a parse tree produced
-/// by <see cref="RsqlParser"/>.
+/// by <see cref="QueryParser"/>.
 /// </summary>
 /// <typeparam name="Result">The return type of the visit operation.</typeparam>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.6")]
 [System.CLSCompliant(false)]
-public interface IRsqlVisitor<Result> : IParseTreeVisitor<Result> {
+public interface IQueryVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.selector"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.selector"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitSelector([NotNull] RsqlParser.SelectorContext context);
+	Result VisitSelector([NotNull] QueryParser.SelectorContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.eval"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.eval"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitEval([NotNull] RsqlParser.EvalContext context);
+	Result VisitEval([NotNull] QueryParser.EvalContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.or"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.or"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitOr([NotNull] RsqlParser.OrContext context);
+	Result VisitOr([NotNull] QueryParser.OrContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.and"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.and"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitAnd([NotNull] RsqlParser.AndContext context);
+	Result VisitAnd([NotNull] QueryParser.AndContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.constraint"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.constraint"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitConstraint([NotNull] RsqlParser.ConstraintContext context);
+	Result VisitConstraint([NotNull] QueryParser.ConstraintContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.group"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.group"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitGroup([NotNull] RsqlParser.GroupContext context);
+	Result VisitGroup([NotNull] QueryParser.GroupContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.comparison"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.comparison"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitComparison([NotNull] RsqlParser.ComparisonContext context);
+	Result VisitComparison([NotNull] QueryParser.ComparisonContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.comparator"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.comparator"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitComparator([NotNull] RsqlParser.ComparatorContext context);
+	Result VisitComparator([NotNull] QueryParser.ComparatorContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.comp_fiql"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.comp_fiql"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitComp_fiql([NotNull] RsqlParser.Comp_fiqlContext context);
+	Result VisitComp_fiql([NotNull] QueryParser.Comp_fiqlContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.comp_alt"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.comp_alt"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitComp_alt([NotNull] RsqlParser.Comp_altContext context);
+	Result VisitComp_alt([NotNull] QueryParser.Comp_altContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.reserved"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.reserved"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitReserved([NotNull] RsqlParser.ReservedContext context);
+	Result VisitReserved([NotNull] QueryParser.ReservedContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.single_quote"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.unreserved"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitSingle_quote([NotNull] RsqlParser.Single_quoteContext context);
+	Result VisitUnreserved([NotNull] QueryParser.UnreservedContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.arguments"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.single_quote"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitArguments([NotNull] RsqlParser.ArgumentsContext context);
+	Result VisitSingle_quote([NotNull] QueryParser.Single_quoteContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="RsqlParser.value"/>.
+	/// Visit a parse tree produced by <see cref="QueryParser.arguments"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitValue([NotNull] RsqlParser.ValueContext context);
+	Result VisitArguments([NotNull] QueryParser.ArgumentsContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="QueryParser.value"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitValue([NotNull] QueryParser.ValueContext context);
 }
 } // namespace Autumn.Mvc.Data.Models.Queries
