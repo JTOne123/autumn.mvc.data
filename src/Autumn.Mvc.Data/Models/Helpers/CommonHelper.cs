@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Models.Queries;
 using Autumn.Mvc.Data.Models.Queries.Exceptions;
@@ -85,8 +86,7 @@ namespace Autumn.Mvc.Data.Models.Helpers
 
         #region GetExpressionModelBinder
 
-        public static IModelBinder GetExpressionModelBinder(Type type, string queryField,
-            NamingStrategy namingStrategy)
+        public static IModelBinder GetExpressionModelBinder(Type type, AutumnSettings autumnSettings)
         {
             lock (ExpressionModelBinders)
             {
@@ -96,15 +96,13 @@ namespace Autumn.Mvc.Data.Models.Helpers
                     .GetGenericArguments()[0];
 
                 var modelBinderType = typeof(QueryModelBinder<>).MakeGenericType(entityType);
-                var constructorInfo = modelBinderType.GetConstructor(new[]
-                    {typeof(string), typeof(NamingStrategy)});
+                var constructorInfo = modelBinderType.GetConstructor(new [] {typeof(AutumnSettings)});
 
                 ExpressionModelBinders.Add(
                     type,
                     (IModelBinder) constructorInfo.Invoke(new object[]
                     {
-                        queryField,
-                        namingStrategy
+                        autumnSettings
                     })
                 );
 
@@ -116,9 +114,7 @@ namespace Autumn.Mvc.Data.Models.Helpers
 
         #region GetPageableModelBinder
 
-        public static IModelBinder GetPageableModelBinder(Type type, string pageSizeField,
-            string pageNumberField, string sortField,
-            NamingStrategy namingStrategy)
+        public static IModelBinder GetPageableModelBinder(Type type, AutumnSettings autumnSettings)
         {
             lock (PageableModelBinders)
             {
@@ -128,16 +124,14 @@ namespace Autumn.Mvc.Data.Models.Helpers
 
                 var modelBinderType = typeof(PageableModelBinder<>)
                     .MakeGenericType(entityType);
-                
+
                 var constructorInfo = modelBinderType.GetConstructor(new[]
-                    {typeof(string), typeof(string), typeof(string), typeof(NamingStrategy)});
+                    {typeof(AutumnSettings)});
 
                 PageableModelBinders.Add(type,
                     (IModelBinder) constructorInfo.Invoke(new object[]
                     {
-                        pageSizeField,
-                        pageNumberField, sortField,
-                        namingStrategy
+                        autumnSettings
                     })
                 );
 

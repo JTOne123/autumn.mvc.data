@@ -2,41 +2,27 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Models.Helpers;
 using Autumn.Mvc.Data.Models.Paginations.Exceptions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Models.Paginations
 {
-    public class PageableModelBinder<T> : IModelBinder where T : class 
+    public class PageableModelBinder<T> : IModelBinder where T : class
     {
-        private readonly string _pageSizeField;
-        private readonly string _pageNumberField;
-        private readonly string _sortField;
-        private readonly NamingStrategy _namingStrategy;
+        private readonly AutumnSettings _autumnSettings;
 
-        /// <summary>
-        /// class initializer
-        /// </summary>
-        /// <param name="pageSizeField"></param>
-        /// <param name="pageNumberField"></param>
-        /// <param name="sortField"></param>µ
-        /// <param name="namingStrategy"></param>
-        public PageableModelBinder(string pageSizeField, string pageNumberField, string sortField,
-            NamingStrategy namingStrategy)
+        public PageableModelBinder(AutumnSettings autumnSettings)
         {
-            _pageSizeField = pageSizeField;
-            _pageNumberField = pageNumberField;
-            _sortField = sortField;
-            _namingStrategy = namingStrategy;
+            _autumnSettings = autumnSettings;
         }
 
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             var queryCollection = bindingContext.ActionContext.HttpContext.Request.Query;
             var pageSize = 100;
-            if (queryCollection.TryGetValue(_pageSizeField, out var pageSizeString))
+            if (queryCollection.TryGetValue(_autumnSettings.PageSizeFieldName, out var pageSizeString))
             {
                 if (int.TryParse(pageSizeString[0], out pageSize))
                 {
@@ -51,7 +37,7 @@ namespace Autumn.Mvc.Data.Models.Paginations
                 }
             }
             var pageNumber = 0;
-            if (queryCollection.TryGetValue(_pageNumberField, out var pageNumberString))
+            if (queryCollection.TryGetValue(_autumnSettings.PageNumberFieldName, out var pageNumberString))
             {
                 if (int.TryParse(pageNumberString[0], out pageNumber))
                 {
@@ -67,7 +53,7 @@ namespace Autumn.Mvc.Data.Models.Paginations
             }
 
             Sort<T> sort = null;
-            if (queryCollection.TryGetValue(_sortField, out var sortStringValues))
+            if (queryCollection.TryGetValue(_autumnSettings.SortFieldName, out var sortStringValues))
             {
                 var parameter = Expression.Parameter(typeof(T));
 
@@ -80,7 +66,7 @@ namespace Autumn.Mvc.Data.Models.Paginations
                     try
                     {
                         expressionValue =
-                            CommonHelper.GetMemberExpressionValue<T>(parameter, sortStringValue, _namingStrategy);
+                            CommonHelper.GetMemberExpressionValue<T>(parameter, sortStringValue, _autumnSettings.NamingStrategy);
                     }
                     catch (Exception e)
                     {

@@ -9,13 +9,13 @@ using Autumn.Mvc.Data.Models;
 using Autumn.Mvc.Data.Models.Helpers;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Models.Queries;
-using Autumn.Mvc.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Swashbuckle.AspNetCore.Swagger;
 
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -61,9 +61,9 @@ namespace Microsoft.Extensions.DependencyInjection
             var mvcBuilder = services.AddMvc(config =>
             {
                 config.ModelBinderProviders.Insert(0,
-                    new PageableModelBinderProvider(configuration, settings.NamingStrategy));
+                    new PageableModelBinderProvider(settings));
                 config.ModelBinderProviders.Insert(1,
-                    new QueryModelBinderProvider(configuration, settings.NamingStrategy));
+                    new QueryModelBinderProvider(settings));
             });
 
             var contractResolver = new DefaultContractResolver() {NamingStrategy = settings.NamingStrategy};
@@ -80,6 +80,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
             BuildRoutes(settings);
             services.AddSingleton(settings);
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info {Title = "My API", Version = "v1"});
+                c.OperationFilter<AutumnOperationFilter>();
+            });
         }
 
         private static void BuildRoutes(AutumnSettings settings)
@@ -107,10 +113,14 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     name = name + "s";
                 }
-                var version = entityAttribute.Version ?? settings.ApiVersion;
+                var version = entityAttribute.Version ?? settings.DefaultApiVersion;
                 if (!string.IsNullOrEmpty(version))
                 {
                     name = version + "/" + name;
+                    if (!settings.ApiVersions.Contains(version))
+                    {
+                        settings.ApiVersions.Add(version);
+                    }
                 }
                 var controllerType = baseType.MakeGenericType(type, idType);
                 var attributeRouteModel = new AttributeRouteModel(new RouteAttribute(name));
@@ -128,10 +138,12 @@ namespace Microsoft.Extensions.DependencyInjection
         private static AutumnSettings BuildSettings(IConfiguration configuration)
         {
 
-            AutumnSettings.Instance.ConnectionString =
+            var settings = AutumnSettings.Instance;
+            
+            settings.ConnectionString =
                 configuration.GetSection("Autumn.Data.Mvc:ConnectionString").Value;
 
-            AutumnSettings.Instance.DatabaseName =
+            settings.DatabaseName =
                 configuration.GetSection("Autumn.Data.Mvc:DatabaseName").Value;
 
             var namingStrategySettings = configuration.GetSection("Autumn.Data.Mvc:NamingStrategy").Value;
@@ -139,18 +151,47 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 if (namingStrategySettings.ToUpperInvariant() == "SNAKE_CASE")
                 {
-                    AutumnSettings.Instance.NamingStrategy = new SnakeCaseNamingStrategy();
+                    settings.NamingStrategy = new SnakeCaseNamingStrategy();
                 }
                 else if (namingStrategySettings.ToUpperInvariant() == "CAMEL_CASE")
                 {
-                    AutumnSettings.Instance.NamingStrategy = new CamelCaseNamingStrategy();
+                    settings.NamingStrategy = new CamelCaseNamingStrategy();
                 }
             }
+            
+            var queryFieldNameSettings = configuration.GetSection("Autumn.Data.Mvc:QueryFieldName").Value;
+            if (!string.IsNullOrWhiteSpace(queryFieldNameSettings))
+            {
+                settings.QueryFieldName = queryFieldNameSettings;
+            }
+            settings.QueryFieldName = settings.QueryFieldName.ToCase(settings.NamingStrategy);
+            
+            var sortFieldNameSettings = configuration.GetSection("Autumn.Data.Mvc:SortFieldName").Value;
+            if (!string.IsNullOrWhiteSpace(sortFieldNameSettings))
+            {
+                settings.SortFieldName = sortFieldNameSettings;
+            }
+            settings.SortFieldName = settings.SortFieldName.ToCase(settings.NamingStrategy);
+            
+            var pageSizeFieldNameSettings = configuration.GetSection("Autumn.Data.Mvc:PageSizeFieldName").Value;
+            if (!string.IsNullOrWhiteSpace(pageSizeFieldNameSettings))
+            {
+                settings.PageSizeFieldName = pageSizeFieldNameSettings;
+            }
+            settings.PageSizeFieldName = settings.PageSizeFieldName.ToCase(settings.NamingStrategy);
+            
+            var pageNumberFieldNameSettings = configuration.GetSection("Autumn.Data.Mvc:PageNumberFieldName").Value;
+            if (!string.IsNullOrWhiteSpace(pageNumberFieldNameSettings))
+            {
+                settings.SortFieldName = pageNumberFieldNameSettings;
+            }
+            settings.PageNumberFieldName = settings.PageNumberFieldName.ToCase(settings.NamingStrategy);
 
-            var defaultVersion = configuration.GetSection("Autumn.Data.Mvc:ApiVersion").Value;
+
+            var defaultVersion = configuration.GetSection("Autumn.Data.Mvc:DefaultApiVersion").Value;
             if (!string.IsNullOrWhiteSpace(defaultVersion))
             {
-                AutumnSettings.Instance.ApiVersion = defaultVersion;
+                AutumnSettings.Instance.DefaultApiVersion = defaultVersion;
             }
 
             var controllerPluralize = configuration.GetSection("Autumn.Data.Mvc:PluralizeController").Value;
@@ -164,7 +205,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     ConnectionString=AutumnSettings.Instance.ConnectionString,
                     Database = AutumnSettings.Instance.DatabaseName,
-                    ApiVersion = AutumnSettings.Instance.ApiVersion,
+                    DefaultApiVersion = AutumnSettings.Instance.DefaultApiVersion,
                     PluralizeController = AutumnSettings.Instance.PluralizeController,
                     NamingStrategy = (AutumnSettings.Instance.NamingStrategy != null)
                         ? AutumnSettings.Instance.NamingStrategy.GetType().Name

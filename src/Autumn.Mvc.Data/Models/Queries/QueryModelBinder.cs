@@ -4,34 +4,27 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Antlr4.Runtime;
+using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Models.Helpers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Models.Queries
 {
     public class QueryModelBinder<T> : IModelBinder
     {
-        private readonly string _queryField;
-        private readonly NamingStrategy _namingStrategy;
-
-        /// <summary>
-        /// class initializer
-        /// </summary>
-        /// <param name="queryField"></param>
-        /// <param name="namingStrategy"></param>
-        public QueryModelBinder(string queryField, NamingStrategy namingStrategy)
+        private readonly AutumnSettings _autumnSettings;
+   
+        public QueryModelBinder(AutumnSettings autumnSettings)
         {
-            _queryField = queryField;
-            _namingStrategy = namingStrategy;
+            _autumnSettings = autumnSettings;
         }
 
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             var queryCollection = bindingContext.ActionContext.HttpContext.Request.Query;
             var eval = CommonHelper.True<T>();
-            if (queryCollection.TryGetValue(_queryField, out var query))
+            if (queryCollection.TryGetValue(_autumnSettings.QueryFieldName, out var query))
             {
                 var hash = Hash(query[0]);
                 if (!CommonHelper.QueriesCache.TryGetValue(hash, out eval))
@@ -77,7 +70,7 @@ namespace Autumn.Mvc.Data.Models.Queries
             var commonTokenStream = new CommonTokenStream(lexer);
             var parser = new RsqlParser(commonTokenStream);
             var eval = parser.eval();
-            var visitor = new DefaultRsqlVisitor<T>(_namingStrategy);
+            var visitor = new DefaultRsqlVisitor<T>(_autumnSettings.NamingStrategy);
             return visitor.VisitEval(eval);
         }
     }

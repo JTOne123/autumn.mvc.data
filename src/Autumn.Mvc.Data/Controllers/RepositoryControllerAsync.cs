@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Autumn.Mvc.Data.Controllers
 {
@@ -32,7 +33,7 @@ namespace Autumn.Mvc.Data.Controllers
             return Ok(result);
         }
 
-
+           
         [HttpGet("")]
         public virtual async Task<IActionResult> Find(Expression<Func<T, bool>> filter, Pageable<T> pageable)
         {

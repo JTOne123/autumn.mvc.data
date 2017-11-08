@@ -10,7 +10,10 @@ namespace Microsoft.AspNetCore.Builder
         {
             if (app == null)
                 throw new ArgumentNullException(nameof(app));
-            return app.UseMiddleware(typeof(ErrorHandlingMiddleware));
+            app.UseSwagger();
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"); });
+            return app.UseMiddleware(typeof(ErrorHandlingMiddleware))
+            .UseMvc();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Models.Helpers
 {
@@ -9,6 +10,19 @@ namespace Autumn.Mvc.Data.Models.Helpers
             if (string.IsNullOrWhiteSpace(value)) return value;
             if (value.Length == 1) return value.ToLowerInvariant();
             return value[0].ToString().ToLower() + value.Substring(1);
+        }
+
+        public static string ToCase(this string value, NamingStrategy namingStrategy)
+        {
+            if (namingStrategy is CamelCaseNamingStrategy)
+            {
+                return ToCamelCase(value);
+            }
+            if (namingStrategy is SnakeCaseNamingStrategy)
+            {
+                return ToSnakeCase(value);
+            }
+            return value;
         }
 
         public static string ToPascalCase(this string value)
