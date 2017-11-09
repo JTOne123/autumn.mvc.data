@@ -478,6 +478,18 @@ namespace Autumn.Mvc.Data.Models.Queries
             return items;
         }
         
+        private static List<object> GetDateTimeOffsets(QueryParser.ArgumentsContext argumentsContext)
+        {
+            var items = new List<object>();
+            foreach (var valueContext in argumentsContext.value())
+            {
+                items.Add(DateTimeOffset.Parse(valueContext.GetText(), CultureInfo.InvariantCulture,
+                    DateTimeStyles.RoundtripKind));
+            }
+            return items;
+        }
+        
+        
         private static List<object> GetBooleans(QueryParser.ArgumentsContext argumentsContext)
         {
             var items = new List<object>();
@@ -570,6 +582,11 @@ namespace Autumn.Mvc.Data.Models.Queries
             if (type == typeof(byte) || type == typeof(byte?))
             {
                 return GetBytes(argumentsContext);
+            }
+            
+            if (type == typeof(DateTimeOffset) || type == typeof(DateTimeOffset?))
+            {
+                return GetDateTimeOffsets(argumentsContext);
             }
             return null;
         }
