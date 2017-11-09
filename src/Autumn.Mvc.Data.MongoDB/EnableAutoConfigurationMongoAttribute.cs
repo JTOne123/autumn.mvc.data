@@ -13,7 +13,7 @@ namespace Autumn.Mvc.Data.MongoDB
             IConfiguration configuration)
         {
            
-            var connectionString = configuration.GetSection("Autumn.Data.Mvc:MongoDB:ConnectionString").Value;
+                var connectionString = configuration.GetSection("Autumn.Data.Mvc:MongoDB:ConnectionString").Value;
             var databaseName = configuration.GetSection("Autumn.Data.Mvc:MongoDB:DatabaseName").Value;
 
             serviceCollection.AddSingleton(new AutumnMongoSettings()

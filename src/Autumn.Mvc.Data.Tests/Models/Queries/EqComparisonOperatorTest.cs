@@ -59,11 +59,11 @@ namespace Autumn.Mvc.Data.Models.Queries
                 memberExpression.Expression,
                 Expression.Constant(argument)), parameter);
 
-            var expected = Parse("StringExemple=='"+argument+"'");
+            var expected = Parse("StringExemple=="+argument);
             Assert.Equal(actual.ToString(), expected.ToString());
 
 
-            expected = Parse("StringExemple=eq='"+argument+"'");
+            expected = Parse("StringExemple=eq="+argument);
             Assert.Equal(actual.ToString(), expected.ToString());
 
         }

@@ -484,7 +484,7 @@ public partial class QueryParser : Parser {
 			State = 64;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__10) | (1L << T__11) | (1L << T__12) | (1L << LETTER) | (1L << ALPHA) | (1L << ANY))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__12) | (1L << LETTER) | (1L << ALPHA) | (1L << ANY))) != 0)) {
 				{
 				State = 63; arguments();
 				}
@@ -795,7 +795,7 @@ public partial class QueryParser : Parser {
 			{
 			State = 91;
 			_la = TokenStream.LA(1);
-			if ( _la <= 0 || ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9))) != 0)) ) {
+			if ( _la <= 0 || ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8))) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
 			}
 			else {
@@ -950,6 +950,7 @@ public partial class QueryParser : Parser {
 				}
 				break;
 			case T__0:
+			case T__9:
 			case T__10:
 			case T__11:
 			case T__12:
@@ -1023,7 +1024,7 @@ public partial class QueryParser : Parser {
 				State = 120;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__10) | (1L << T__11) | (1L << T__12) | (1L << LETTER) | (1L << ALPHA) | (1L << ANY))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__12) | (1L << LETTER) | (1L << ALPHA) | (1L << ANY))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -1055,7 +1056,7 @@ public partial class QueryParser : Parser {
 		sb.Append("n\n\xF\f\xF\xE\xFq\v\xF\x3\xF\x3\xF\x3\xF\x5\xFv\n\xF\x3\x10");
 		sb.Append("\x6\x10y\n\x10\r\x10\xE\x10z\x3\x10\x2\x2\x11\x2\x4\x6\b\n\f");
 		sb.Append("\xE\x10\x12\x14\x16\x18\x1A\x1C\x1E\x2\x6\x3\x2\x3\f\x3\x2\n");
-		sb.Append("\v\x3\x2\x4\f\x3\x2\x3\x3|\x2!\x3\x2\x2\x2\x4%\x3\x2\x2\x2\x6");
+		sb.Append("\v\x3\x2\x4\v\x3\x2\x3\x3|\x2!\x3\x2\x2\x2\x4%\x3\x2\x2\x2\x6");
 		sb.Append("\'\x3\x2\x2\x2\b/\x3\x2\x2\x2\n\x39\x3\x2\x2\x2\f;\x3\x2\x2");
 		sb.Append("\x2\xE?\x3\x2\x2\x2\x10\x46\x3\x2\x2\x2\x12U\x3\x2\x2\x2\x14");
 		sb.Append("W\x3\x2\x2\x2\x16[\x3\x2\x2\x2\x18]\x3\x2\x2\x2\x1A_\x3\x2\x2");
