@@ -7,9 +7,11 @@ using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Models;
 using Autumn.Mvc.Data.Models.Helpers;
 using Autumn.Mvc.Data.Models.Paginations;
+using Autumn.Mvc.Data.MongoDB.Configurations;
+using Autumn.Mvc.Data.Repositories;
 using MongoDB.Driver;
 
-namespace Autumn.Mvc.Data.Repositories
+namespace Autumn.Mvc.Data.MongoDB.Repositories
 {
     public class MongoCrudPageableRepositoryAsync<T,TId> : ICrudPageableRepositoryAsync<T,TId> 
         where T :class
@@ -36,7 +38,7 @@ namespace Autumn.Mvc.Data.Repositories
             return _collection;
         }
 
-        public MongoCrudPageableRepositoryAsync(AutumnSettings settings)
+        public MongoCrudPageableRepositoryAsync(AutumnMongoSettings settings)
         {
             _parameter = Expression.Parameter(typeof(T));
             _filterDefinitionBuilder=new FilterDefinitionBuilder<T>();

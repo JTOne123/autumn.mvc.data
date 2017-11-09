@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -53,8 +52,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration"></param>
         public static void AddAutumn(this IServiceCollection services, IConfiguration configuration)
         {
-            _logger = ApplicationLogging.CreateLogger<AutumnSettings>();
+            _logger = ApplicationLogging.CreateLogger("AutumnConfiguration");
             _logger.LogInformation(Logo());
+
+            // load custom extension
+            EnableAutoConfigurationAttribute.Initialize(Assembly.GetCallingAssembly());
+
             var settings = BuildSettings(configuration);
             settings.EntityAssembly = settings.EntityAssembly ?? Assembly.GetCallingAssembly();
 
@@ -88,6 +91,12 @@ namespace Microsoft.Extensions.DependencyInjection
                     c.SwaggerDoc(version, new Info {Title = "api", Version = version});
                 }
                 c.OperationFilter<AutumnOperationFilter>();
+            });
+
+            EnableAutoConfigurationAttribute.Configurations.ForEach(c =>
+            {
+                _logger.LogInformation("Load extension {0} ... ", c.GetType().Name);
+                c.ConfigureServices(services, ApplicationLogging.LoggerFactory, configuration);
             });
         }
 
@@ -128,7 +137,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 var controllerType = baseType.MakeGenericType(type, idType);
                 var attributeRouteModel = new AttributeRouteModel(new RouteAttribute(name));
                 settings.Routes.Add(controllerType, attributeRouteModel);
-                _logger.LogInformation("Autumn Path Controller : {0} => [ {1}.{2}, {3}.{4}  ]", name, type.Namespace,
+                _logger.LogTrace("Autumn Path Controller : {0} => [ {1}.{2}, {3}.{4}  ]", name, type.Namespace,
                     type.Name, idType.Namespace, idType.Name);
             }
         }
@@ -142,23 +151,19 @@ namespace Microsoft.Extensions.DependencyInjection
         {
 
             var settings = AutumnSettings.Instance;
-            
-            settings.ConnectionString =
-                configuration.GetSection("Autumn.Data.Mvc:ConnectionString").Value;
-
-            settings.DatabaseName =
-                configuration.GetSection("Autumn.Data.Mvc:DatabaseName").Value;
-
             var namingStrategySettings = configuration.GetSection("Autumn.Data.Mvc:NamingStrategy").Value;
             if (!string.IsNullOrWhiteSpace(namingStrategySettings))
             {
-                if (namingStrategySettings.ToUpperInvariant() == "SNAKE_CASE")
+                if (namingStrategySettings.ToUpperInvariant() != "SNAKE_CASE")
+                {
+                    if (namingStrategySettings.ToUpperInvariant() == "CAMEL_CASE")
+                    {
+                        settings.NamingStrategy = new CamelCaseNamingStrategy();
+                    }
+                }
+                else
                 {
                     settings.NamingStrategy = new SnakeCaseNamingStrategy();
-                }
-                else if (namingStrategySettings.ToUpperInvariant() == "CAMEL_CASE")
-                {
-                    settings.NamingStrategy = new CamelCaseNamingStrategy();
                 }
             }
             
@@ -208,19 +213,6 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 AutumnSettings.Instance.PluralizeController = bool.Parse(controllerPluralize);
             }
-
-            _logger.LogInformation(JsonConvert.SerializeObject(
-                new
-                {
-                    ConnectionString=AutumnSettings.Instance.ConnectionString,
-                    Database = AutumnSettings.Instance.DatabaseName,
-                    DefaultApiVersion = AutumnSettings.Instance.DefaultApiVersion,
-                    PluralizeController = AutumnSettings.Instance.PluralizeController,
-                    NamingStrategy = (AutumnSettings.Instance.NamingStrategy != null)
-                        ? AutumnSettings.Instance.NamingStrategy.GetType().Name
-                        : ""
-                }
-                , Formatting.Indented));
             return AutumnSettings.Instance;
         }
     }

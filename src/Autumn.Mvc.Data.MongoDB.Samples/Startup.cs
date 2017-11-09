@@ -1,13 +1,13 @@
-﻿using Autumn.Mvc.Data.Repositories;
+﻿using Autumn.Mvc.Data.MongoDB;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace Autumn.Mvc.Data.Samples
 {
+    [EnableAutoConfigurationMongo]
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -22,9 +22,7 @@ namespace Autumn.Mvc.Data.Samples
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutumn(Configuration);
-            services.AddAutumnMongo();
         }
-
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -33,7 +31,7 @@ namespace Autumn.Mvc.Data.Samples
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseAutumn(loggerFactory);
+            app.UseAutumn(env, loggerFactory);
         }
     }
 }
