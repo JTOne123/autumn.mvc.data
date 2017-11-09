@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Autumn.Mvc.Data.Controllers
 {

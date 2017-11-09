@@ -4,7 +4,7 @@ using Autumn.Mvc.Data.Controllers;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;    
-namespace Autumn.Mvc.Data
+namespace Autumn.Mvc.Data.Swagger
 {
     public class AutumnOperationFilter : IOperationFilter
 

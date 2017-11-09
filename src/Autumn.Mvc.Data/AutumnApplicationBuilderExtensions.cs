@@ -17,16 +17,6 @@ namespace Microsoft.AspNetCore.Builder
                 throw new ArgumentNullException(nameof(app));
 
             var result = app;
-            result = result.UseSwagger();
-            result = result.UseSwaggerUI(c =>
-            {
-                foreach (var version in AutumnSettings.Instance.ApiVersions)
-                {
-                    c.SwaggerEndpoint(string.Format("/swagger/{0}/swagger.json", version),
-                        string.Format("API {0}", version));
-                }
-            });
-
             result = result
                 .UseMiddleware(typeof(ErrorHandlingMiddleware));
 

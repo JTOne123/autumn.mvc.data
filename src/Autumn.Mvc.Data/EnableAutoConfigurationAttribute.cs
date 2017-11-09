@@ -45,7 +45,7 @@ namespace Autumn.Mvc.Data
         }
         
         public int Order { get; set; }
-
+       
         public virtual void ConfigureServices(IServiceCollection serviceCollection, ILoggerFactory loggerFactory,
             IConfiguration configuration)
         {

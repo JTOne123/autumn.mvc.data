@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Autumn.Mvc.Data.MongoDB\Autumn.Mvc.Data.MongoDB.csproj" />
+    <ProjectReference Include="..\Autumn.Mvc.Data.Swagger\Autumn.Mvc.Data.Swagger.csproj" />
     <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
   </ItemGroup>
   <ItemGroup>

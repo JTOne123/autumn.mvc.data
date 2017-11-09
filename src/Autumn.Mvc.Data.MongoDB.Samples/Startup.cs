@@ -1,4 +1,5 @@
 ﻿using Autumn.Mvc.Data.MongoDB;
+using Autumn.Mvc.Data.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace Autumn.Mvc.Data.Samples
 {
     [EnableAutoConfigurationMongo]
+    [EnableAutoConfigurationSwagger]
     public class Startup
     {
         public Startup(IConfiguration configuration)

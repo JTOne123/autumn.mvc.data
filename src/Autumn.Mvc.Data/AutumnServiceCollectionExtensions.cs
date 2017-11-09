@@ -14,8 +14,6 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
-using Swashbuckle.AspNetCore.Swagger;
-
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -84,15 +82,6 @@ namespace Microsoft.Extensions.DependencyInjection
             BuildRoutes(settings);
             services.AddSingleton(settings);
 
-            services.AddSwaggerGen(c =>
-            {
-                foreach (var version in settings.ApiVersions)
-                {
-                    c.SwaggerDoc(version, new Info {Title = "api", Version = version});
-                }
-                c.OperationFilter<AutumnOperationFilter>();
-            });
-
             EnableAutoConfigurationAttribute.Configurations.ForEach(c =>
             {
                 _logger.LogInformation("Load extension {0} ... ", c.GetType().Name);
@@ -149,7 +138,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         private static AutumnSettings BuildSettings(IConfiguration configuration)
         {
-
             var settings = AutumnSettings.Instance;
             var namingStrategySettings = configuration.GetSection("Autumn.Data.Mvc:NamingStrategy").Value;
             if (!string.IsNullOrWhiteSpace(namingStrategySettings))
