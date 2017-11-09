@@ -9,23 +9,23 @@ using Microsoft.AspNetCore.Mvc;
 namespace Autumn.Mvc.Data.Controllers
 {
     [RepositoryControllerNameConvention]
-    public class RepositoryControllerAsync<T,TId> : Controller, IRepositoryControllerAsync<T,TId>
-        where T : class 
+    public class RepositoryControllerAsync<TEntity,TKey> : Controller, IRepositoryControllerAsync<TEntity,TKey>
+        where TEntity : class 
     {
-        private readonly ICrudPageableRepositoryAsync<T,TId> _repository;
+        private readonly ICrudPageableRepositoryAsync<TEntity,TKey> _repository;
 
-        protected ICrudPageableRepositoryAsync<T,TId> Repository()
+        protected ICrudPageableRepositoryAsync<TEntity,TKey> Repository()
         {
             return _repository;
         }
 
-        public RepositoryControllerAsync(ICrudPageableRepositoryAsync<T,TId> repository)
+        public RepositoryControllerAsync(ICrudPageableRepositoryAsync<TEntity,TKey> repository)
         {
             _repository = repository;
         }
 
         [HttpGet("{id}")]
-        public virtual async Task<IActionResult> GetById(TId id)
+        public virtual async Task<IActionResult> GetById(TKey id)
         {
             var result = await _repository.FindOneAsync(id);
             if (result == null) return NotFound();
@@ -33,7 +33,7 @@ namespace Autumn.Mvc.Data.Controllers
         }
          
         [HttpGet("")]
-        public virtual async Task<IActionResult> Get(Expression<Func<T, bool>> filter, Pageable<T> pageable)
+        public virtual async Task<IActionResult> Get(Expression<Func<TEntity, bool>> filter, Pageable<TEntity> pageable)
         {
             var result = await _repository.FindAsync(filter, pageable);
             return result.TotalElements == result.NumberOfElements
@@ -42,14 +42,14 @@ namespace Autumn.Mvc.Data.Controllers
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> Post([FromBody] T entity)
+        public virtual async Task<IActionResult> Post([FromBody] TEntity entity)
         {
             var result = await _repository.CreateAsync(entity);
             return Created(string.Empty, result);
         }
         
         [HttpDelete("{id}")]
-        public virtual async Task<IActionResult> Delete(TId id)
+        public virtual async Task<IActionResult> Delete(TKey id)
         {
             var result = await _repository.FindOneAsync(id);
             if (result == null) return NoContent();
@@ -58,7 +58,7 @@ namespace Autumn.Mvc.Data.Controllers
         }
 
         [HttpPut("{id}")]
-        public virtual async Task<IActionResult> Put([FromBody] T entity, TId id)
+        public virtual async Task<IActionResult> Put([FromBody] TEntity entity, TKey id)
         {
             var result = await _repository.FindOneAsync(id);
             if (result == null) return NoContent();

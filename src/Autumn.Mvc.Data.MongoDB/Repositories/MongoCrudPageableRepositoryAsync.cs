@@ -3,7 +3,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Models;
 using Autumn.Mvc.Data.Models.Helpers;
 using Autumn.Mvc.Data.Models.Paginations;
@@ -13,14 +12,14 @@ using MongoDB.Driver;
 
 namespace Autumn.Mvc.Data.MongoDB.Repositories
 {
-    public class MongoCrudPageableRepositoryAsync<T,TId> : ICrudPageableRepositoryAsync<T,TId> 
-        where T :class
+    public class MongoCrudPageableRepositoryAsync<TEntity,TKey> : ICrudPageableRepositoryAsync<TEntity,TKey> 
+        where TEntity :class
     {
         private readonly IMongoClient _client;
         private readonly IMongoDatabase _database;
-        private readonly IMongoCollection<T> _collection;
+        private readonly IMongoCollection<TEntity> _collection;
         private readonly ParameterExpression _parameter;
-        private readonly FilterDefinitionBuilder<T> _filterDefinitionBuilder;
+        private readonly FilterDefinitionBuilder<TEntity> _filterDefinitionBuilder;
         private readonly PropertyInfo _propertyId;
         
         protected IMongoClient Client()
@@ -33,32 +32,32 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
             return _database;
         }
 
-        protected IMongoCollection<T> Collection()
+        protected IMongoCollection<TEntity> Collection()
         {
             return _collection;
         }
 
         public MongoCrudPageableRepositoryAsync(AutumnMongoSettings settings)
         {
-            _parameter = Expression.Parameter(typeof(T));
-            _filterDefinitionBuilder=new FilterDefinitionBuilder<T>();
+            _parameter = Expression.Parameter(typeof(TEntity));
+            _filterDefinitionBuilder=new FilterDefinitionBuilder<TEntity>();
             _client = new MongoClient(settings.ConnectionString);
             _database = _client.GetDatabase(settings.DatabaseName);
-            _propertyId = IdAttribute.GetId<T>();
-            var collectionName = typeof(T).Name.ToLowerInvariant();
+            _propertyId = IdAttribute.GetId<TEntity>();
+            var collectionName = typeof(TEntity).Name.ToLowerInvariant();
             var collectionAttribute = (EntityAttribute)
-                typeof(T).GetCustomAttribute(typeof(EntityAttribute));
+                typeof(TEntity).GetCustomAttribute(typeof(EntityAttribute));
             if (collectionAttribute != null)
             {
                 collectionName = collectionAttribute.Name;
             }
-            _collection = _database.GetCollection<T>(collectionName);
+            _collection = _database.GetCollection<TEntity>(collectionName);
         }
 
-        public async Task<T> FindOneAsync(TId id)
+        public async Task<TEntity> FindOneAsync(TKey id)
         {
-            var propertyId = IdAttribute.GetId<T>();
-            var where = Expression.Lambda<Func<T, bool>>(
+            var propertyId = IdAttribute.GetId<TEntity>();
+            var where = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
                     Expression.Property(_parameter, propertyId),
                     Expression.Constant(id)
@@ -68,9 +67,9 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
             return await Collection().Find(where).SingleOrDefaultAsync();
         }
 
-        public async Task<Page<T>> FindAsync(Expression<Func<T, bool>> filter = null, Pageable<T> pageable = null)
+        public async Task<Page<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter = null, Pageable<TEntity> pageable = null)
         {
-            var query = filter ?? CommonHelper.True<T>();
+            var query = filter ?? CommonHelper.True<TEntity>();
 
             var count = (int) await Collection().CountAsync(query);
             var find = Collection().Find(query);
@@ -92,7 +91,7 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
                         }
                         else
                         {
-                            find = ((IOrderedFindFluent<T, T>) find).ThenBy(item);
+                            find = ((IOrderedFindFluent<TEntity, TEntity>) find).ThenBy(item);
                         }
                     }
                 }
@@ -108,26 +107,26 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
                         }
                         else
                         {
-                            find = ((IOrderedFindFluent<T, T>) find).ThenByDescending(item);
+                            find = ((IOrderedFindFluent<TEntity, TEntity>) find).ThenByDescending(item);
                         }
                     }
                 }
             }
 
             var content = await find.ToListAsync();
-            return new Page<T>(content, pageable, count);
+            return new Page<TEntity>(content, pageable, count);
         }
 
-        public async Task<T> CreateAsync(T entity)
+        public async Task<TEntity> CreateAsync(TEntity entity)
         {
             await Collection().InsertOneAsync(entity);
             return entity;
         }
 
-        public async Task<T> UpdateAsync(T entity, TId id)
+        public async Task<TEntity> UpdateAsync(TEntity entity, TKey id)
         {
-            var update = new ObjectUpdateDefinition<T>(entity);
-            var where = Expression.Lambda<Func<T, bool>>(
+            var update = new ObjectUpdateDefinition<TEntity>(entity);
+            var where = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
                     Expression.Property(_parameter, _propertyId),
                     Expression.Constant(id)
@@ -139,9 +138,9 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
             return await Collection().FindOneAndUpdateAsync(filter, update);
         }
 
-        public async Task<T> DeleteAsync(TId id)
+        public async Task<TEntity> DeleteAsync(TKey id)
         {
-            var where = Expression.Lambda<Func<T, bool>>(
+            var where = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
                     Expression.Property(_parameter, _propertyId),
                     Expression.Constant(id)

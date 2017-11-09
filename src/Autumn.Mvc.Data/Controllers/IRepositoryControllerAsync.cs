@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Autumn.Mvc.Data.Controllers
 {
-    public interface IRepositoryControllerAsync<T, in TId> where T : class
+    public interface IRepositoryControllerAsync<TEntity, in TKey> where TEntity : class
     {
-        Task<IActionResult> GetById(TId id);
-        Task<IActionResult> Get(Expression<Func<T, bool>> filter, Pageable<T> pageable);
-        Task<IActionResult> Post(T entity);
-        Task<IActionResult> Delete(TId id);
-        Task<IActionResult> Put(T entity, TId id);
+        Task<IActionResult> GetById(TKey id);
+        Task<IActionResult> Get(Expression<Func<TEntity, bool>> filter, Pageable<TEntity> pageable);
+        Task<IActionResult> Post(TEntity entity);
+        Task<IActionResult> Delete(TKey id);
+        Task<IActionResult> Put(TEntity entity, TKey id);
     }
 }

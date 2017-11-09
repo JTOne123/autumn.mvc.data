@@ -6,19 +6,19 @@ using Autumn.Mvc.Data.Models.Paginations;
 namespace Autumn.Mvc.Data.Repositories
 {
     /// <summary>
-    /// intefaceof CRUD repository
+    /// inteface of CRUD repository
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="TId"></typeparam>
-    public interface ICrudPageableRepositoryAsync<T, in TId>
-        where T : class
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TKey"></typeparam>
+    public interface ICrudPageableRepositoryAsync<TEntity, in TKey>
+        where TEntity : class
     {
         /// <summary>
         /// find enity by ID
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<T> FindOneAsync(TId id);
+        Task<TEntity> FindOneAsync(TKey id);
 
         /// <summary>
         /// find entity by criteria
@@ -26,14 +26,14 @@ namespace Autumn.Mvc.Data.Repositories
         /// <param name="filter"></param>
         /// <param name="pageable"></param>
         /// <returns></returns>
-        Task<Page<T>> FindAsync(Expression<Func<T, bool>> filter=null, Pageable<T> pageable=null);
+        Task<Page<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter=null, Pageable<TEntity> pageable=null);
 
         /// <summary>
         /// create entity
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        Task<T> CreateAsync(T entity);
+        Task<TEntity> CreateAsync(TEntity entity);
 
         /// <summary>
         /// update entity
@@ -41,13 +41,13 @@ namespace Autumn.Mvc.Data.Repositories
         /// <param name="entity"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<T> UpdateAsync(T entity, TId id);
+        Task<TEntity> UpdateAsync(TEntity entity, TKey id);
 
         /// <summary>
         /// delete entity
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<T> DeleteAsync(TId id);
+        Task<TEntity> DeleteAsync(TKey id);
     }
 }

@@ -19,6 +19,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Autumn.Mvc.Data.Swagger", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autumn.Mvc.Data.Swagger", "Autumn.Mvc.Data.Swagger\Autumn.Mvc.Data.Swagger.csproj", "{02E40498-5C64-477F-9756-61369582536A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Autumn.Mvc.Data.EntityFramework", "Autumn.Mvc.Data.EntityFramework", "{9D63C3D9-0647-428D-885C-1A80EB47D8F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autumn.Data.Mvc.EntityFramework", "Autumn.Data.Mvc.EntityFramework\Autumn.Data.Mvc.EntityFramework.csproj", "{F1BBCBA5-83C6-448D-8277-C76F3ADA9C83}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,10 @@ Global
 		{02E40498-5C64-477F-9756-61369582536A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02E40498-5C64-477F-9756-61369582536A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02E40498-5C64-477F-9756-61369582536A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1BBCBA5-83C6-448D-8277-C76F3ADA9C83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1BBCBA5-83C6-448D-8277-C76F3ADA9C83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1BBCBA5-83C6-448D-8277-C76F3ADA9C83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1BBCBA5-83C6-448D-8277-C76F3ADA9C83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,5 +63,6 @@ Global
 		{AD37364A-0CAD-461B-8E19-2249BCAE9AB2} = {72B3CA75-F621-47CE-B3D2-8323AE4612C1}
 		{544BCD76-2926-4098-994F-8B1B7F250BDA} = {72B3CA75-F621-47CE-B3D2-8323AE4612C1}
 		{02E40498-5C64-477F-9756-61369582536A} = {66C17CB8-161B-4151-8DB8-4EF6CE0DF997}
+		{F1BBCBA5-83C6-448D-8277-C76F3ADA9C83} = {9D63C3D9-0647-428D-885C-1A80EB47D8F7}
 	EndGlobalSection
 EndGlobal
