@@ -30,7 +30,7 @@ namespace Autumn.Data.Mvc.EntityFramework.Repositories
         {
             _dbContext = dbContext;
             _parameter = Expression.Parameter(typeof(TEntity));
-            _propertyId = IdAttribute.GetId<TEntity>();
+            _propertyId = IdAttribute.GetOrRegisterId<TEntity>();
         }
         
         public async Task<TEntity> FindOneAsync(TKey id)

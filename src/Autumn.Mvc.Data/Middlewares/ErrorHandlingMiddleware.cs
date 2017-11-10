@@ -2,7 +2,9 @@
 using System.Net;
 using System.Threading.Tasks;
 using Autumn.Mvc.Data.Configurations;
+using Autumn.Mvc.Data.Models;
 using Autumn.Mvc.Data.Models.Queries.Exceptions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -11,7 +13,7 @@ namespace Autumn.Mvc.Data.Middlewares
 {
     public class ErrorHandlingMiddleware
     {
-        private static readonly JsonSerializerSettings _jsonSerializerSettings;
+        private static readonly JsonSerializerSettings JsonSerializerSettings;
         private readonly RequestDelegate _next;
 
         public ErrorHandlingMiddleware(RequestDelegate next)
@@ -33,7 +35,7 @@ namespace Autumn.Mvc.Data.Middlewares
 
         static ErrorHandlingMiddleware()
         {
-            _jsonSerializerSettings = new JsonSerializerSettings
+            JsonSerializerSettings = new JsonSerializerSettings
             {
                 ContractResolver =
                     new DefaultContractResolver() {NamingStrategy = AutumnSettings.Instance.NamingStrategy}
@@ -42,28 +44,18 @@ namespace Autumn.Mvc.Data.Middlewares
 
         private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            object o = null;
+            var result = new AutumnErrorModel() {Message = exception.Message};
+            if (AutumnSettings.Instance.Environment.IsDevelopment())
+            {
+                result.StackTrace = exception.StackTrace;
+            }
             if (exception is QueryComparisonException comparisonException)
             {
-                o = new
-                {
-                    Error = exception.Message,
-                    Timestamp = DateTime.UtcNow,
-                    Comparison = comparisonException.Origin.GetText()
-                };
+                result.Origin = comparisonException.Origin.GetText();
             }
-            else
-            {
-                o = new
-                {
-                    Error = exception.Message,
-                    Timestamp = DateTime.UtcNow
-                };
-            }
-            var result = JsonConvert.SerializeObject(o, _jsonSerializerSettings);
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            return context.Response.WriteAsync(result);
+            context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+            return context.Response.WriteAsync(JsonConvert.SerializeObject(result, JsonSerializerSettings));
         }
     }
 }

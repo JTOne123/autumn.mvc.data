@@ -40,4 +40,15 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
         [BsonElement("active")]
         public bool? Active { get; set; }
     }
+    
+    
+    
+    [BsonIgnoreExtraElements]
+    [Entity(Name = "user", Version = "v4")]
+    public class UserV4 : AbstractEntity
+    {
+
+        [BsonElement("test")]
+        public string Test { get; set; }
+    }
 }

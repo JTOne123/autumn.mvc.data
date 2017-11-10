@@ -17,6 +17,10 @@ namespace Autumn.Mvc.Data.Models.Paginations
         public bool IsFirst { get; }
         public bool IsLast { get; }
 
+        public Page() : this(null, null)
+        {
+        }
+
         public Page(List<T> content, Pageable<T> pageable, long? total = null)
         {
             Content = content ?? new List<T>();

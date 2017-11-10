@@ -43,7 +43,7 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
             _filterDefinitionBuilder=new FilterDefinitionBuilder<TEntity>();
             _client = new MongoClient(settings.ConnectionString);
             _database = _client.GetDatabase(settings.DatabaseName);
-            _propertyId = IdAttribute.GetId<TEntity>();
+            _propertyId = IdAttribute.GetOrRegisterId<TEntity>();
             var collectionName = typeof(TEntity).Name.ToLowerInvariant();
             var collectionAttribute = (EntityAttribute)
                 typeof(TEntity).GetCustomAttribute(typeof(EntityAttribute));
@@ -56,7 +56,7 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
 
         public async Task<TEntity> FindOneAsync(TKey id)
         {
-            var propertyId = IdAttribute.GetId<TEntity>();
+            var propertyId = IdAttribute.GetOrRegisterId<TEntity>();
             var where = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
                     Expression.Property(_parameter, propertyId),
@@ -135,7 +135,8 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
             );
 
             var filter = _filterDefinitionBuilder.Where(where);
-            return await Collection().FindOneAndUpdateAsync(filter, update);
+            var result = await Collection().ReplaceOneAsync(filter, entity);
+            return entity;
         }
 
         public async Task<TEntity> DeleteAsync(TKey id)

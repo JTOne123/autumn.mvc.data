@@ -8,9 +8,12 @@ namespace Autumn.Mvc.Data.Models
     [AttributeUsage(AttributeTargets.Property)]
     public class IdAttribute : Attribute
     {
+        public bool Insertable { get; set; }
+        public bool Updatable { get; set; }
+        
         private static readonly Dictionary<Type, PropertyInfo> Ids=new Dictionary<Type, PropertyInfo>();
         
-        public static PropertyInfo GetId<T>()
+        public static PropertyInfo GetOrRegisterId<T>()
         {
             lock (Ids)
             {

@@ -7,7 +7,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     public abstract class AbstractEntity
     {
         [BsonId]
-        [Id]
+        [Id(Insertable = true,Updatable = false)]
         [BsonElement("_id")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }

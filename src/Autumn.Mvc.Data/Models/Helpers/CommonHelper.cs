@@ -32,7 +32,6 @@ namespace Autumn.Mvc.Data.Models.Helpers
         public static readonly MemoryCache QueriesCache =
             new MemoryCache(new MemoryCacheOptions() {ExpirationScanFrequency = TimeSpan.FromMinutes(5)});
 
-
         #region GetProperty 
 
         private static Dictionary<string, PropertyInfo> Build(IReflect type, NamingStrategy namingStrategy = null)
@@ -72,7 +71,7 @@ namespace Autumn.Mvc.Data.Models.Helpers
             return propertyName;
         }
 
-        private static PropertyInfo GetProperty(Type type, string name, NamingStrategy namingStrategy = null)
+        private static PropertyInfo GetOrRegistryProperty(Type type, string name, NamingStrategy namingStrategy = null)
         {
             lock (MappingJson2PropertyInfo)
             {
@@ -161,7 +160,7 @@ namespace Autumn.Mvc.Data.Models.Helpers
             {
                 foreach (var item in selector.Split('.'))
                 {
-                    property = GetProperty(type, item, namingStrategy);
+                    property = GetOrRegistryProperty(type, item, namingStrategy);
                     if (property == null)
                     {
                         throw new Exception(string.Format("Invalid property {0}", selector));
@@ -172,7 +171,7 @@ namespace Autumn.Mvc.Data.Models.Helpers
             }
             else
             {
-                property = GetProperty(type, selector, namingStrategy);
+                property = GetOrRegistryProperty(type, selector, namingStrategy);
                 if (property == null)
                 {
                     throw new Exception(string.Format("Invalid property {0}", selector));

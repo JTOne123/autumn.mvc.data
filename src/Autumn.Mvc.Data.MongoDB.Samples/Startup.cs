@@ -12,18 +12,21 @@ namespace Autumn.Mvc.Data.Samples
     [EnableAutoConfigurationSwagger]
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment env,IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
+            _hostingEnvironment = env;
         }
 
-        private IConfiguration Configuration { get; }
+        private IConfiguration _configuration;
+        private IHostingEnvironment _hostingEnvironment;
         private ILoggerFactory LoggerFactory { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAutumn(Configuration);
+            services.AddAutumn( _configuration,_hostingEnvironment);
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -33,7 +36,9 @@ namespace Autumn.Mvc.Data.Samples
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseAutumn(env, loggerFactory);
+            app
+                .UseAutumn(env, loggerFactory)
+                .UseMvc();
         }
     }
 }

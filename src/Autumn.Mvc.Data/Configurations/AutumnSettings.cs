@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Newtonsoft.Json.Serialization;
 
@@ -23,6 +24,7 @@ namespace Autumn.Mvc.Data.Configurations
             };
         }
 
+        public IHostingEnvironment Environment { get; set; } 
         public ICollection<string> ApiVersions { get; set; }
         public string PageSizeFieldName { get; set; }
         public string SortFieldName { get; set; }

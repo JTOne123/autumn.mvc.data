@@ -9,6 +9,7 @@ using Autumn.Mvc.Data.Models;
 using Autumn.Mvc.Data.Models.Helpers;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Models.Queries;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
@@ -48,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services"></param>
         /// <param name="configuration"></param>
-        public static void AddAutumn(this IServiceCollection services, IConfiguration configuration)
+        public static void AddAutumn(this IServiceCollection services, IConfiguration configuration,IHostingEnvironment environment)
         {
             _logger = ApplicationLogging.CreateLogger("AutumnConfiguration");
             _logger.LogInformation(Logo());
@@ -56,7 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // load custom extension
             EnableAutoConfigurationAttribute.Initialize(Assembly.GetCallingAssembly());
 
-            var settings = BuildSettings(configuration);
+            var settings = BuildSettings(configuration,environment);
             settings.EntityAssembly = settings.EntityAssembly ?? Assembly.GetCallingAssembly();
 
             var mvcBuilder = services.AddMvc(config =>
@@ -131,14 +132,10 @@ namespace Microsoft.Extensions.DependencyInjection
             }
         }
 
-        /// <summary>
-        /// build autumn settings
-        /// </summary>
-        /// <param name="configuration"></param>
-        /// <returns></returns>
-        private static AutumnSettings BuildSettings(IConfiguration configuration)
+         private static AutumnSettings BuildSettings(IConfiguration configuration,IHostingEnvironment hostingEnvironment)
         {
             var settings = AutumnSettings.Instance;
+            settings.Environment = hostingEnvironment;
             var namingStrategySettings = configuration.GetSection("Autumn.Data.Mvc:NamingStrategy").Value;
             if (!string.IsNullOrWhiteSpace(namingStrategySettings))
             {

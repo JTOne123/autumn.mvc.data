@@ -24,7 +24,7 @@ namespace Microsoft.AspNetCore.Builder
             {
                 result = item.Configure(result, env, loggerFactory);
             }
-            return result.UseMvc();
+            return result;
         }
     }
 }
