@@ -4,6 +4,7 @@ using System.Diagnostics.Tracing;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Transactions;
 using Autumn.Mvc.Data.Models.Helpers;
 using Autumn.Mvc.Data.Models.Queries.Exceptions;
 using Newtonsoft.Json.Serialization;
@@ -402,6 +403,17 @@ namespace Autumn.Mvc.Data.Models.Queries
             var items = new List<object>();
             foreach (var valueContext in argumentsContext.value())
             {
+
+                if (valueContext.single_quote() != null || valueContext.double_quote() != null)
+                {
+                    var value = valueContext.GetText();
+                    if (value.Length == 2)
+                    {
+                        items.Add(string.Empty);
+                    }
+                    items.Add(value.Substring(1, value.Length - 2));
+
+                }
                 items.Add(valueContext.GetText());
             }
             return items;

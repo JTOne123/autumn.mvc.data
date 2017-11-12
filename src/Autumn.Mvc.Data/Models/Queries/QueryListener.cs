@@ -142,16 +142,6 @@ public interface IQueryListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitReserved([NotNull] QueryParser.ReservedContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="QueryParser.unreserved"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterUnreserved([NotNull] QueryParser.UnreservedContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="QueryParser.unreserved"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitUnreserved([NotNull] QueryParser.UnreservedContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="QueryParser.single_quote"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -161,6 +151,16 @@ public interface IQueryListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitSingle_quote([NotNull] QueryParser.Single_quoteContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="QueryParser.double_quote"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDouble_quote([NotNull] QueryParser.Double_quoteContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="QueryParser.double_quote"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDouble_quote([NotNull] QueryParser.Double_quoteContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="QueryParser.arguments"/>.
 	/// </summary>

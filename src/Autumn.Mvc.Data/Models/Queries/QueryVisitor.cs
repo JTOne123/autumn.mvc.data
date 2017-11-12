@@ -99,17 +99,17 @@ public interface IQueryVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitReserved([NotNull] QueryParser.ReservedContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="QueryParser.unreserved"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitUnreserved([NotNull] QueryParser.UnreservedContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="QueryParser.single_quote"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitSingle_quote([NotNull] QueryParser.Single_quoteContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="QueryParser.double_quote"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDouble_quote([NotNull] QueryParser.Double_quoteContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="QueryParser.arguments"/>.
 	/// </summary>

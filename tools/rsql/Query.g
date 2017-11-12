@@ -1,10 +1,7 @@
 grammar Query;
 
-
-LETTER	:	'a'..'z'|'A'..'Z';
-ALPHA	:	LETTER+;
+LETTER 	: 'a'..'z'|'A'..'Z';
 ANY : . ; 
-
 selector	: ~('\'' |  '(' | ')' | ';' | ',' | '=' | '~' | '<' | '>' |' ')+;	
 
 eval 	:	
@@ -30,8 +27,7 @@ group	:
 
 comparison	
 	:
-	selector comparator (arguments)?
-	;
+	selector comparator arguments;
 	
 comparator	
 	:
@@ -40,9 +36,7 @@ comparator
 	;
 
 comp_fiql	
-	:
-	('!='|'='(ALPHA('-'ALPHA)*)?'=')
-	;
+	: ('!'|'=')(LETTER|'-')*'=';
 
 comp_alt	
 	:
@@ -51,24 +45,25 @@ comp_alt
 		 	
 reserved 	
 	: 
-	'\'' |  '(' | ')' | ';' | ',' | '=' | '~' | '<' | '>' |' '
+	'(' | ')' | ';' | ',' | '=' |  '<' | '>' | ' '| '!'
 	;
-
-unreserved
-	: ~(  '(' | ')' | ';' | ',' | '=' | '~' | '<' | '>');
 	
 single_quote
 	:
 	 '\''('\\\'' | ~('\''))* '\''
 	;
-
+	
+double_quote
+	:
+	 '"'('\\"' | ~('"'))* '"'
+	;
+	
 arguments
 	:
 	'(' value ( ',' value)* ')' 
 	| value 
 	;
 value	
-	: 
-	unreserved+;
-
-
+	: single_quote
+	| double_quote
+	|~('(' | ')' | ';' | ',' | '=' | '~' | '<' | '>')+;

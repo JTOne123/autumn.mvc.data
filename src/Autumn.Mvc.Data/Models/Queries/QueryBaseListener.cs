@@ -168,18 +168,6 @@ public partial class QueryBaseListener : IQueryListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitReserved([NotNull] QueryParser.ReservedContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="QueryParser.unreserved"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterUnreserved([NotNull] QueryParser.UnreservedContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="QueryParser.unreserved"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitUnreserved([NotNull] QueryParser.UnreservedContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="QueryParser.single_quote"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -191,6 +179,18 @@ public partial class QueryBaseListener : IQueryListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitSingle_quote([NotNull] QueryParser.Single_quoteContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="QueryParser.double_quote"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDouble_quote([NotNull] QueryParser.Double_quoteContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="QueryParser.double_quote"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDouble_quote([NotNull] QueryParser.Double_quoteContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="QueryParser.arguments"/>.
 	/// <para>The default implementation does nothing.</para>
