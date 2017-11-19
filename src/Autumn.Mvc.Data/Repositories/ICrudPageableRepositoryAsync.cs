@@ -33,7 +33,7 @@ namespace Autumn.Mvc.Data.Repositories
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        Task<TEntity> CreateAsync(TEntity entity);
+        Task<TEntity> InsertAsync(TEntity entity);
 
         /// <summary>
         /// update entity

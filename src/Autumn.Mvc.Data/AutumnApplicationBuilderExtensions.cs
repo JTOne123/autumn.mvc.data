@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Reflection;
-using Autumn.Mvc.Data;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Middlewares;
 using Microsoft.AspNetCore.Hosting;
@@ -19,11 +17,13 @@ namespace Microsoft.AspNetCore.Builder
             var result = app;
             result = result
                 .UseMiddleware(typeof(ErrorHandlingMiddleware));
+           
 
-            foreach (var item in EnableAutoConfigurationAttribute.Configurations)
+            foreach (var configuration in AutumnSettings.Instance.AutoConfigurations)
             {
-                result = item.Configure(result, env, loggerFactory);
+                configuration.Configure(app, env, loggerFactory);
             }
+            
             return result;
         }
     }

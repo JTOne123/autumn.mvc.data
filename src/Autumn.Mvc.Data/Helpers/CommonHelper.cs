@@ -11,7 +11,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Autumn.Mvc.Data.Models.Helpers
+namespace Autumn.Mvc.Data.Helpers
 {
     public static class CommonHelper
     {

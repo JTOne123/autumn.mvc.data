@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Autumn.Mvc.Data.Configurations;
-using Autumn.Mvc.Data.Models.Helpers;
+using Autumn.Mvc.Data.Helpers;
 using Autumn.Mvc.Data.Models.Paginations.Exceptions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 

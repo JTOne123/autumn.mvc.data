@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq.Expressions;
-using Autumn.Mvc.Data.Models.Helpers;
+using Autumn.Mvc.Data.Helpers;
 using Autumn.Mvc.Data.Models.Queries.Exceptions;
 using Xunit;
 

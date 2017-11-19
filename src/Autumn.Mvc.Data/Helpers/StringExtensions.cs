@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Newtonsoft.Json.Serialization;
 
-namespace Autumn.Mvc.Data.Models.Helpers
+namespace Autumn.Mvc.Data.Helpers
 {
     public static class StringExtensions
     {
@@ -14,13 +14,12 @@ namespace Autumn.Mvc.Data.Models.Helpers
 
         public static string ToCase(this string value, NamingStrategy namingStrategy)
         {
-            if (namingStrategy is CamelCaseNamingStrategy)
+            switch (namingStrategy)
             {
-                return ToCamelCase(value);
-            }
-            if (namingStrategy is SnakeCaseNamingStrategy)
-            {
-                return ToSnakeCase(value);
+                case CamelCaseNamingStrategy _:
+                    return ToCamelCase(value);
+                case SnakeCaseNamingStrategy _:
+                    return ToSnakeCase(value);
             }
             return value;
         }

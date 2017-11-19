@@ -12,8 +12,8 @@ namespace Autumn.Mvc.Data.MongoDB
         public override void ConfigureServices(IServiceCollection serviceCollection, ILoggerFactory loggerFactory,
             IConfiguration configuration)
         {
-           
-                var connectionString = configuration.GetSection("Autumn.Data.Mvc:MongoDB:ConnectionString").Value;
+
+            var connectionString = configuration.GetSection("Autumn.Data.Mvc:MongoDB:ConnectionString").Value;
             var databaseName = configuration.GetSection("Autumn.Data.Mvc:MongoDB:DatabaseName").Value;
 
             serviceCollection.AddSingleton(new AutumnMongoSettings()
@@ -21,7 +21,7 @@ namespace Autumn.Mvc.Data.MongoDB
                 ConnectionString = connectionString,
                 DatabaseName = databaseName
             });
-                
+
             serviceCollection.AddScoped(typeof(ICrudPageableRepositoryAsync<,>),
                 typeof(MongoCrudPageableRepositoryAsync<,>));
         }

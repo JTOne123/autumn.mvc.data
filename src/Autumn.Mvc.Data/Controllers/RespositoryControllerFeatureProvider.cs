@@ -8,7 +8,6 @@ namespace Autumn.Mvc.Data.Controllers
 {
     public class RespositoryControllerFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
-
         private readonly AutumnSettings _settings;
 
         public RespositoryControllerFeatureProvider(AutumnSettings settings)

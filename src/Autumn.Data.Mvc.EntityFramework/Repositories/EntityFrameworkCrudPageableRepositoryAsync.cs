@@ -1,115 +1,84 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
-using Autumn.Mvc.Data.Models;
-using Autumn.Mvc.Data.Models.Helpers;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Autumn.Data.Mvc.EntityFramework.Repositories
 {
-    public class EntityFrameworkCrudPageableRepositoryAsync<TDbContext,TEntity,TKey> : ICrudPageableRepositoryAsync<TEntity,TKey> ,IDisposable
+    public class EntityFrameworkCrudPageableRepositoryAsync<TEntity,TKey> : CrudPageableRepositoryAsync<TEntity,TKey> 
         where TEntity :class
-        where TDbContext : DbContext
     {
 
-        private readonly TDbContext _dbContext;
-        private readonly ParameterExpression _parameter;
-        private readonly PropertyInfo _propertyId;
+        private readonly DbContext _dbContext;
 
-        protected TDbContext DbContext()
-        {
-            return _dbContext;
-        }
-        
-        public EntityFrameworkCrudPageableRepositoryAsync(TDbContext dbContext)
+        public EntityFrameworkCrudPageableRepositoryAsync(DbContext dbContext)
         {
             _dbContext = dbContext;
-            _parameter = Expression.Parameter(typeof(TEntity));
-            _propertyId = IdAttribute.GetOrRegisterId<TEntity>();
         }
-        
-        public async Task<TEntity> FindOneAsync(TKey id)
+
+        protected override async Task<TEntity> OnFindOneAsync(Expression<Func<TEntity, bool>> filter)
         {
-            var where = Expression.Lambda<Func<TEntity, bool>>(
-                Expression.Equal(
-                    Expression.Property(_parameter, _propertyId),
-                    Expression.Constant(id)
-                )
-                ,_parameter
-            );
             return await _dbContext.Set<TEntity>()
                 .AsNoTracking()
-                .SingleOrDefaultAsync(where);
+                .SingleOrDefaultAsync(filter);
         }
 
-        public async Task<Page<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter = null, Pageable<TEntity> pageable = null)
+        protected override async Task<Page<TEntity>> OnFindAsync(Expression<Func<TEntity, bool>> filter,
+            Pageable<TEntity> pageable)
         {
-            var query = filter ?? CommonHelper.True<TEntity>();
-
             var count = await _dbContext.Set<TEntity>()
                 .AsNoTracking()
-                .Where(query).CountAsync();
+                .Where(filter).CountAsync();
 
             var find = _dbContext.Set<TEntity>()
                 .AsNoTracking()
-                .Where(query);
-            if (pageable != null)
+                .Where(filter);
+
+            var offset = pageable.PageNumber * pageable.PageSize;
+            var limit = pageable.PageSize;
+            find = find.Skip(offset)
+                .Take(limit);
+            if (pageable.Sort?.OrderBy?.Count() > 0)
             {
-                var offset = pageable.PageNumber * pageable.PageSize;
-                var limit = pageable.PageSize;
-                find = find.Skip(offset)
-                    .Take(limit);
-                if (pageable.Sort?.OrderBy?.Count() > 0)
-                {
-                    foreach (var order in pageable.Sort.OrderBy)
-                    {
-                        find = find.OrderBy(order);
-                    }
-
-                    foreach (var order in pageable.Sort.OrderDescendingBy)
-                    {
-                        find = find.OrderByDescending(order);
-                    }
-                }
+                find = pageable.Sort.OrderBy.Aggregate(find, (current, order) => current.OrderBy(order));
             }
-
+            if (pageable.Sort?.OrderDescendingBy?.Count() > 0)
+            {
+                find = pageable.Sort.OrderDescendingBy.Aggregate(find,
+                    (current, order) => current.OrderByDescending(order));
+            }
             var content = await find.ToListAsync();
             return new Page<TEntity>(content, pageable, count);
         }
 
-        public async Task<TEntity> CreateAsync(TEntity entity)
+        protected override async Task<TEntity> OnInsertAsync(TEntity entity)
         {
             await _dbContext.Set<TEntity>().AddAsync(entity);
             await _dbContext.SaveChangesAsync();
             return entity;
         }
 
-        public async Task<TEntity> UpdateAsync(TEntity entity, TKey id)
+        protected override async Task<TEntity> OnUpdateAsync(TEntity entity, Expression<Func<TEntity, bool>> filter)
         {
-            var entityDb = await FindOneAsync(id);
-            if (entityDb != null)
-            {
-                Mapper.Map(entity, entityDb);
-                _dbContext.Set<TEntity>().Update(entityDb);
-                await _dbContext.SaveChangesAsync();
-            }
-            return entityDb;
+            var entityDb = await OnFindOneAsync(filter);
+            if (entityDb == null) return entity;
+            Mapper.Map(entity, entityDb);
+            _dbContext.Set<TEntity>().Update(entityDb);
+            await _dbContext.SaveChangesAsync();
+            return entity;
         }
 
-        public async Task<TEntity> DeleteAsync(TKey id)
+        protected override async Task<TEntity> OnDeleteAsync(Expression<Func<TEntity, bool>> filter)
         {
-            var entity = await FindOneAsync(id);
-            if (entity != null)
-            {
-                _dbContext.Set<TEntity>().Remove(entity);
-                await _dbContext.SaveChangesAsync();
-            }
-            return entity;
+            var entityDb = await OnFindOneAsync(filter);
+            if (entityDb == null) return null;
+            _dbContext.Set<TEntity>().Remove(entityDb);
+            await _dbContext.SaveChangesAsync();
+            return entityDb;
         }
 
         public void Dispose()

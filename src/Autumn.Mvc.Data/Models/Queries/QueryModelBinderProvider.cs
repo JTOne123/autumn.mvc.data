@@ -1,10 +1,7 @@
 ﻿using System.Linq.Expressions;
-using System.Reflection;
 using Autumn.Mvc.Data.Configurations;
-using Autumn.Mvc.Data.Models.Helpers;
+using Autumn.Mvc.Data.Helpers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Models.Queries
 {

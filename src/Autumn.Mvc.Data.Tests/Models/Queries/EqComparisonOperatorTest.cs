@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
-using Autumn.Mvc.Data.Models.Helpers;
+using Autumn.Mvc.Data.Helpers;
 using Autumn.Mvc.Data.Models.Queries.Exceptions;
 using Newtonsoft.Json.Serialization;
 using Xunit;

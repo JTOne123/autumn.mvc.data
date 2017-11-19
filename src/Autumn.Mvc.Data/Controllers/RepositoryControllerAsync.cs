@@ -2,10 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Autumn.Mvc.Data.Models;
+using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -18,22 +17,17 @@ namespace Autumn.Mvc.Data.Controllers
         where TEntity : class 
     {
         private readonly ICrudPageableRepositoryAsync<TEntity,TKey> _repository;
-        private readonly PropertyInfo _idProperty;
-        private readonly bool _idInsertable;
-        private readonly bool _idUpdatable;
+        private readonly AutumnEntityInfo _entityInfo;
 
         protected ICrudPageableRepositoryAsync<TEntity, TKey> Repository()
         {
             return _repository;
         }
 
-        public RepositoryControllerAsync(ICrudPageableRepositoryAsync<TEntity,TKey> repository)
+        public RepositoryControllerAsync(ICrudPageableRepositoryAsync<TEntity, TKey> repository)
         {
             _repository = repository;
-            _idProperty = IdAttribute.GetOrRegisterId<TEntity>();
-            var attribute = _idProperty.GetCustomAttribute<IdAttribute>();
-            _idInsertable = attribute.Insertable;
-            _idUpdatable = attribute.Updatable;
+            _entityInfo = AutumnSettings.Instance.EntitiesInfos[typeof(TEntity)];
         }
 
         [HttpGet("{id}")]
@@ -58,10 +52,10 @@ namespace Autumn.Mvc.Data.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (!_idInsertable) _idProperty.SetValue(entity, null);
-                var result = await _repository.CreateAsync(entity);
+                if (!_entityInfo.KeyInfo.Insertable) _entityInfo.KeyInfo.Property.SetValue(entity, null);
+                var result = await _repository.InsertAsync(entity);
                 var uri = string.Format("{0}/{1}", Request.HttpContext.Request.Path.ToString().TrimEnd('/'),
-                    _idProperty.GetValue(result));
+                    _entityInfo.KeyInfo.Property.GetValue(result));
                 return Created(uri, result);
             }
             else
@@ -92,7 +86,7 @@ namespace Autumn.Mvc.Data.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (!_idUpdatable) _idProperty.SetValue(entity, id);
+                if (!_entityInfo.KeyInfo.Insertable) _entityInfo.KeyInfo.Property.SetValue(entity, null);
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NoContent();
                 result = await _repository.UpdateAsync(entity, id);

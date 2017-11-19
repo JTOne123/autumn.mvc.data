@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using Autumn.Mvc.Data.Models.Paginations;
 
 namespace Autumn.Mvc.Data.Repositories
@@ -33,7 +32,7 @@ namespace Autumn.Mvc.Data.Repositories
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        T Create(T entity);
+        T Insert(T entity);
 
         /// <summary>
         /// update entity

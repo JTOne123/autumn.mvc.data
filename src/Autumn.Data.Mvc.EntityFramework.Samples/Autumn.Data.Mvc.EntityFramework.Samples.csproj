@@ -1,15 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
-
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Evolve" Version="1.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.1" />
   </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\Autumn.Data.Mvc.EntityFramework\Autumn.Data.Mvc.EntityFramework.csproj" />
+    <ProjectReference Include="..\Autumn.Mvc.Data.Swagger\Autumn.Mvc.Data.Swagger.csproj" />
+    <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
+  </ItemGroup>
 </Project>
