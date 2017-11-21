@@ -57,9 +57,10 @@ namespace Autumn.Mvc.Data.Swagger
                     
                     parameter = operation.Parameters.Single(p => p.Name == "entity");
                     parameter.Description = "New value of the object";
+                    ((BodyParameter) parameter).Schema = entitySchemaPut;
                     parameter.Required = true;
                     
-                    operation.Responses.Add(((int)HttpStatusCode.OK).ToString(),new Response() {Schema = entitySchemaPut});
+                    operation.Responses.Add(((int)HttpStatusCode.OK).ToString(),new Response() {Schema = entitySchemaGet});
                     break;
                 case "Delete":
                     operation.Consumes.Add(ConsumeContentType);
@@ -76,8 +77,8 @@ namespace Autumn.Mvc.Data.Swagger
                     parameter = operation.Parameters.Single(p => p.Name == "entity");
                     parameter.Description = "Value of the object to create";
                     parameter.Required = true;
-                    
-                    operation.Responses.Add(((int)HttpStatusCode.Created).ToString(),new Response() {Schema = entitySchemaPost});
+                    ((BodyParameter) parameter).Schema = entitySchemaPost;
+                    operation.Responses.Add(((int)HttpStatusCode.Created).ToString(),new Response() {Schema = entitySchemaGet});
                     break;
                 case "GetById":
                     parameter = operation.Parameters.Single(p => p.Name == "id");
@@ -136,14 +137,18 @@ namespace Autumn.Mvc.Data.Swagger
         {
             if (method != "GET")
             {
-                var attribute = property.GetCustomAttribute<AutumnPropertyAttribute>();
+                var attribute = property.GetCustomAttribute<AutumnIgnoreAttribute>();
                 if (attribute != null)
                 {
                     // exclusion property verb POST & Insertable = false
-                    if (!attribute.Insertable && method == "POST") return null;
-
+                    switch (attribute.Type)
+                    {
+                        case AutumnIgnoreType.Insert when method == "POST":
+                            return null;
+                        case AutumnIgnoreType.Update when method == "PUT":
+                            return null;
+                    }
                     // exclusion property verb PUT & Updatable = false
-                    if (!attribute.Updatable && method == "PUT") return null;
                 }
             }
             

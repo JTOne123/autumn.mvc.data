@@ -40,6 +40,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     public class UserV3 : UserV2
     {
 
+        [AutumnIgnore(AutumnIgnoreType.Update)]
         [BsonElement("active")]
         public bool? Active { get; set; }
     }

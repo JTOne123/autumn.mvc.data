@@ -8,7 +8,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     {
         [BsonId]
         [AutumnKey()]
-        [AutumnProperty(Insertable = false, Updatable = false)]
+        [AutumnIgnore(AutumnIgnoreType.Insert & AutumnIgnoreType.Update)]
         [BsonElement("_id")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
