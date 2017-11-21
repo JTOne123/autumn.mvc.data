@@ -365,7 +365,7 @@ namespace Autumn.Mvc.Data.Models.Queries
         /// create in expression
         /// </summary>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetInExpression<T>(ParameterExpression parameter,
+        public static Expression<Func<T, bool>> GetInExpression<T>(ParameterExpression parameter,    
             QueryParser.ComparisonContext context,
             NamingStrategy namingStrategy = null)
         {
@@ -374,7 +374,7 @@ namespace Autumn.Mvc.Data.Models.Queries
             var values = GetValues(expressionValue.Property.PropertyType, context.arguments());
             if (values == null || values.Count == 0) throw new QueryComparisonNotEnoughtArgumentException(context);
             return Expression.Lambda<Func<T, bool>>(
-                Expression.Call(Expression.Constant(values, expressionValue.Property.PropertyType), MethodListContains,
+                Expression.Call(Expression.Constant(values), MethodListContains,
                     expressionValue.Expression), parameter);
         }
 
