@@ -15,7 +15,7 @@ namespace Autumn.Mvc.Data.Controllers
             defaultSelector.AttributeRouteModel = AutumnSettings.Instance.Routes[controller.ControllerType];
             var entityType = controller.ControllerType.GetGenericArguments()[0];
             var autumnEntityInfo = AutumnSettings.Instance.EntitiesInfos[entityType];
-            controller.ApiExplorer.GroupName = autumnEntityInfo.Version;
+            controller.ApiExplorer.GroupName = autumnEntityInfo.ApiVersion;
             controller.ControllerName = autumnEntityInfo.ControllerName;
         }
     }

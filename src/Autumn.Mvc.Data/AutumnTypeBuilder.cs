@@ -124,7 +124,7 @@ namespace Autumn.Mvc.Data
             switch (attribute)
             {
                 case RangeAttribute rangeAttribute:
-                    constructorInfo = typeof(RangeAttribute).GetConstructor(new[] {typeof(int), typeof(int)});
+                    constructorInfo = typeof(RangeAttribute).GetConstructor(new[] {rangeAttribute.Minimum.GetType(), rangeAttribute.Maximum.GetType()});
                     args = new[] {rangeAttribute.Minimum, rangeAttribute.Maximum};
                     break;
                 case RegularExpressionAttribute regularExpressionAttribute:

@@ -31,6 +31,14 @@ namespace Autumn.Data.Mvc.EntityFramework.Samples.Models
             modelBuilder.Entity<Customer>()
                 .ToTable("Customer")
                 .Property(a => a.Id).HasColumnName("CustomerId");
+            
+            modelBuilder.Entity<Employee>()
+                .ToTable("Employee")
+                .Property(a => a.Id).HasColumnName("EmployeeId");
+            
+            modelBuilder.Entity<Invoice>()
+                .ToTable("Invoice")
+                .Property(a => a.Id).HasColumnName("InvoiceId");
         }
     }
 }

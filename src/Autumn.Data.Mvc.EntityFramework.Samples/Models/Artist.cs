@@ -3,7 +3,7 @@ using Autumn.Mvc.Data.Annotations;
 
 namespace Autumn.Data.Mvc.EntityFramework.Samples.Models
 {
-    [AutumnEntity(Name = "artist",Version = "v1")]
+    [AutumnEntity(Version = "v1")]
     public class Artist : AbstractEntity
     {
         [MinLength(4)]

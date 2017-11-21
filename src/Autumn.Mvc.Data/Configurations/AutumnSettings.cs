@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using AutoMapper;
 using Autumn.Mvc.Data.Annotations;
+using Autumn.Mvc.Data.Configurations.Exceptions;
 using Autumn.Mvc.Data.Controllers;
 using Autumn.Mvc.Data.Helpers;
 using Microsoft.AspNetCore.Hosting;
@@ -17,6 +19,7 @@ namespace Autumn.Mvc.Data.Configurations
     public class AutumnSettings
     {
         public static AutumnSettings Instance { get; }
+        
 
         static AutumnSettings()
         {
@@ -26,13 +29,11 @@ namespace Autumn.Mvc.Data.Configurations
                 PageNumberFieldName = "PageNumber",
                 QueryFieldName = "Query",
                 SortFieldName = "Sort",
-                ApiVersions = new List<string>(),
                 DefaultPageSize = 100
             };
         }
 
         public IHostingEnvironment Environment { get; set; }
-        public ICollection<string> ApiVersions { get; set; }
         public string PageSizeFieldName { get; set; }
         public string SortFieldName { get; set; }
         public string PageNumberFieldName { get; set; }
@@ -71,17 +72,29 @@ namespace Autumn.Mvc.Data.Configurations
         /// <returns></returns>
         private static void BuildApiInfos(IConfiguration configuration)
         {
-            var defaultVersion = configuration.GetSection("Autumn.Data.Mvc:DefaultApiVersion").Value;
-            if (!string.IsNullOrWhiteSpace(defaultVersion))
+           var option = configuration.GetSection("Autumn.Data.Mvc:DefaultApiVersion").Value;
+            if (!string.IsNullOrWhiteSpace(option))
             {
-                Instance.DefaultApiVersion = defaultVersion;
+                if (!Regex.Match(option, "v[0-9]+", RegexOptions.IgnoreCase).Success)
+                {
+                    throw new InvalidDefaultApiNumberVersionException(option);
+                }
+                Instance.DefaultApiVersion = option;
             }
-            Instance.DefaultApiVersion = Instance.DefaultApiVersion ?? "v1";
-
-            var controllerPluralize = configuration.GetSection("Autumn.Data.Mvc:PluralizeController").Value;
-            if (!string.IsNullOrWhiteSpace(controllerPluralize))
+            else
             {
-                Instance.PluralizeController = bool.Parse(controllerPluralize);
+                Instance.DefaultApiVersion = "v1";
+            }
+
+            option = configuration.GetSection("Autumn.Data.Mvc:PluralizeController").Value;
+            if (string.IsNullOrWhiteSpace(option)) return;
+            if (bool.TryParse(option, out var controllerPluralize))
+            {
+                Instance.PluralizeController = controllerPluralize;
+            }
+            else
+            {
+                throw new InvalidPluralizeControllerException(option);
             }
         }
 
@@ -220,15 +233,7 @@ namespace Autumn.Mvc.Data.Configurations
                 {
                     name = name + "s";
                 }
-                var version = info.Version ?? Instance.DefaultApiVersion;
-                if (!string.IsNullOrEmpty(version))
-                {
-                    name = version + "/" + name;
-                    if (!Instance.ApiVersions.Contains(version))
-                    {
-                        Instance.ApiVersions.Add(version);
-                    }
-                }
+                name = string.Format("{0}/{1}", info.ApiVersion, name);
                 var entityKeyType = info.KeyInfo.Property.PropertyType;
                 var controllerType = baseType.MakeGenericType(
                     info.EntityType,
