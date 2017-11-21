@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Autumn.Mvc.Data.Annotations;
-using Autumn.Mvc.Data.Models;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 
 namespace Autumn.Mvc.Data.MongoDB.Samples.Models
 {
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Name = "user",Version = "v1")]
-    public class User : AbstractEntity
+    [AutumnEntity(Name = "customers",Version = "v1")]
+    public class Customer : AbstractEntity
     {    
         [Required]
         [BsonElement("name")]
@@ -20,8 +19,8 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     }
     
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Name = "user",Version = "v2")]
-    public class UserV2 : User
+    [AutumnEntity(Name = "customers",Version = "v2")]
+    public class CustomerV2 : Customer
     {
 
         [BsonElement("email")]
@@ -36,8 +35,8 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     }
 
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Name = "user", Version = "v3")]
-    public class UserV3 : UserV2
+    [AutumnEntity(Name = "customers", Version = "v3")]
+    public class CustomerV3 : Customer
     {
 
         [AutumnIgnore(AutumnIgnoreType.Update)]
@@ -48,8 +47,8 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     
     
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Name = "user", Version = "v4")]
-    public class UserV4 : AbstractEntity
+    [AutumnEntity(Name = "customers", Version = "v4")]
+    public class CustomerV4 : AbstractEntity
     {
 
         [BsonElement("test")]
