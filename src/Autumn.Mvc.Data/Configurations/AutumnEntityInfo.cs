@@ -12,14 +12,14 @@ namespace Autumn.Mvc.Data.Configurations
         public string Name { get; }
         public string ControllerName { get; }
         public AutumnEntityKeyInfo KeyInfo { get;  }
-        public List<AutumnPropertyInfo> PropertyInfos { get; }
-        
-        public AutumnEntityInfo(){}
+        public Dictionary<AutumnIgnoreType,Type> ProxyTypes { get;  }
 
-        public AutumnEntityInfo(AutumnSettings settings, Type entityType, AutumnEntityAttribute entityAttribute,
+        public AutumnEntityInfo(AutumnSettings settings, Type entityType, Dictionary<AutumnIgnoreType, Type> proxyTypes,
+            AutumnEntityAttribute entityAttribute,
             AutumnEntityKeyInfo keyInfo)
         {
             EntityType = entityType;
+            ProxyTypes = proxyTypes;
             Version = entityAttribute.Version ?? settings.DefaultApiVersion;
             Name = entityAttribute.Name;
             KeyInfo = keyInfo;

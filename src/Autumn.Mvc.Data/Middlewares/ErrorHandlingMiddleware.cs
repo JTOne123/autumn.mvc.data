@@ -45,10 +45,6 @@ namespace Autumn.Mvc.Data.Middlewares
         private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var result = new AutumnErrorModel() {Message = exception.Message};
-            if (AutumnSettings.Instance.Environment.IsDevelopment())
-            {
-                result.StackTrace = exception.StackTrace;
-            }
             if (exception is QueryComparisonException comparisonException)
             {
                 result.Origin = comparisonException.Origin.GetText();

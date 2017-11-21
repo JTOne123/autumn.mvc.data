@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AutoMapper;
 using Autumn.Mvc.Data.Annotations;
 using Autumn.Mvc.Data.Controllers;
 using Autumn.Mvc.Data.Helpers;
@@ -89,7 +90,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// </summary>
         private static void BuildEntitiesInfosSettings(Assembly callingAssembly)
         {
-            Instance.EntityAssembly = Instance.EntityAssembly ??callingAssembly;
+            Instance.EntityAssembly = Instance.EntityAssembly ?? callingAssembly;
             Instance.EntitiesInfos = new Dictionary<Type, AutumnEntityInfo>();
             foreach (var type in Instance.EntityAssembly.GetTypes())
             {
@@ -103,11 +104,24 @@ namespace Autumn.Mvc.Data.Configurations
                     keyInfo = new AutumnEntityKeyInfo(property, keyAttribute);
                     break;
                 }
-                if (keyInfo != null)
-                {
-                    Instance.EntitiesInfos.Add(type, new AutumnEntityInfo(Instance, type, entityAttribute, keyInfo));
-                }
+                if (keyInfo == null) continue;
+                var proxyTypes = AutumnTypeBuilder.CompileResultType(type);
+                Instance.EntitiesInfos.Add(type,
+                    new AutumnEntityInfo(Instance, type, proxyTypes, entityAttribute, keyInfo));
             }
+
+            /// initialisaiton mapping dto -> entity
+            Mapper.Initialize(c =>
+            {
+                foreach (var entityInfo in Instance.EntitiesInfos.Values)
+                {
+                    foreach (var proxyType in entityInfo.ProxyTypes.Values)
+                    {
+                        c.CreateMap(proxyType, entityInfo.EntityType);
+                    }
+                }
+            });
+
         }
 
         /// <summary>
@@ -189,7 +203,7 @@ namespace Autumn.Mvc.Data.Configurations
         private static void BuildRoutes()
         {
             Instance.Routes = new Dictionary<Type, AttributeRouteModel>();
-            var baseType = typeof(RepositoryControllerAsync<,>);
+            var baseType = typeof(RepositoryControllerAsync<,,,>);
             foreach (var entityType in Instance.EntitiesInfos.Keys)
             {
                 var info = Instance.EntitiesInfos[entityType];
@@ -217,15 +231,15 @@ namespace Autumn.Mvc.Data.Configurations
                     }
                 }
                 var entityKeyType = info.KeyInfo.Property.PropertyType;
-                
-                
-                
-                var controllerType = baseType.MakeGenericType(entityType, entityKeyType);
+                var controllerType = baseType.MakeGenericType(
+                    info.EntityType,
+                    info.ProxyTypes[AutumnIgnoreType.Post], 
+                    info.ProxyTypes[AutumnIgnoreType.Put],
+                    entityKeyType);
                 var attributeRouteModel = new AttributeRouteModel(new RouteAttribute(name));
                 Instance.Routes.Add(controllerType, attributeRouteModel);
             }
         }
-
 
         private static void BuildEnableAutoConfigurationsSettings(Assembly callingAssembly)
         {

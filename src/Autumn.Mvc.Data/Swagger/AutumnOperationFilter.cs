@@ -34,12 +34,15 @@ namespace Autumn.Mvc.Data.Swagger
             if (!(context.ApiDescription.ActionDescriptor is ControllerActionDescriptor actionDescriptor)) return;
             if (!actionDescriptor.ControllerTypeInfo.IsGenericType &&
                 actionDescriptor.ControllerTypeInfo.GetGenericTypeDefinition() !=
-                typeof(RepositoryControllerAsync<,>)) return;
+                typeof(RepositoryControllerAsync<,,,>)) return;
 
+            
+            
             var entityType = actionDescriptor.ControllerTypeInfo.GetGenericArguments()[0];
+            var entityInfo = AutumnSettings.Instance.EntitiesInfos[entityType];
             var entitySchemaGet = GetOrRegistrySchema(entityType,"GET");
-            var entitySchemaPost = GetOrRegistrySchema(entityType, "POST");
-            var entitySchemaPut = GetOrRegistrySchema(entityType, "PUT");
+            var entitySchemaPost = GetOrRegistrySchema(entityInfo.ProxyTypes[AutumnIgnoreType.Post], "POST");
+            var entitySchemaPut = GetOrRegistrySchema(entityInfo.ProxyTypes[AutumnIgnoreType.Put], "PUT");
             
             operation.Responses = new ConcurrentDictionary<string, Response>();
             operation.Responses.Add(((int)HttpStatusCode.InternalServerError).ToString(), new Response() {Schema = AutumnErrorModelSchema});
@@ -53,7 +56,7 @@ namespace Autumn.Mvc.Data.Swagger
                 parameter = operation.Parameters.Single(p => p.Name == "id");
                 parameter.Description = "Identifier of the object to update";
 
-                parameter = operation.Parameters.Single(p => p.Name == "entity");
+                parameter = operation.Parameters.Single(p => p.Name == "entityPut");
                 parameter.Description = "New value of the object";
                 ((BodyParameter) parameter).Schema = entitySchemaPut;
                 parameter.Required = true;
@@ -76,7 +79,7 @@ namespace Autumn.Mvc.Data.Swagger
             {
                 operation.Consumes.Add(ConsumeContentType);
 
-                parameter = operation.Parameters.Single(p => p.Name == "entity");
+                parameter = operation.Parameters.Single(p => p.Name == "entityPost");
                 parameter.Description = "Value of the object to create";
                 parameter.Required = true;
                 ((BodyParameter) parameter).Schema = entitySchemaPost;
@@ -151,9 +154,9 @@ namespace Autumn.Mvc.Data.Swagger
                 {
                     switch (attribute.Type)
                     {
-                        case AutumnIgnoreType.Insert  when method == "POST":
+                        case AutumnIgnoreType.Post  when method == "POST":
                             return null;
-                        case AutumnIgnoreType.Update when method == "PUT":
+                        case AutumnIgnoreType.Put when method == "PUT":
                             return null;
                         // exclusion property vert PUT or POST and AutumnIgnore.Type==All
                         default:

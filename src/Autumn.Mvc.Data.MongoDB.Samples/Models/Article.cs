@@ -1,6 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Autumn.Mvc.Data.Annotations;
-using Autumn.Mvc.Data.Models;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Autumn.Mvc.Data.MongoDB.Samples.Models
@@ -9,6 +9,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     [AutumnEntity(Name = "articles",Version = "v1")]
     public class Article : AbstractEntity
     {
+        [Required]
         [BsonElement("title")]
         public string Title { get; set; }
 

@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Repositories;
@@ -13,8 +14,10 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace Autumn.Mvc.Data.Controllers
 {
     [RepositoryControllerNameConvention]
-    public class RepositoryControllerAsync<TEntity, TKey> : Controller, IRepositoryControllerAsync<TEntity,TKey>
+    public class RepositoryControllerAsync<TEntity,TEntityPost, TEntityPut, TKey> : Controller, IRepositoryControllerAsync<TEntity, TEntityPost, TEntityPut, TKey>
         where TEntity : class 
+        where TEntityPost : class 
+        where TEntityPut : class 
     {
         private readonly ICrudPageableRepositoryAsync<TEntity,TKey> _repository;
         private readonly AutumnEntityInfo _entityInfo;
@@ -48,10 +51,11 @@ namespace Autumn.Mvc.Data.Controllers
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> Post([FromBody] [Required] TEntity entity)
+        public virtual async Task<IActionResult> Post([FromBody] [Required] TEntityPost entityPost)
         {
             if (ModelState.IsValid)
             {
+                var entity = Mapper.Map<TEntity>(entityPost);
                 var result = await _repository.InsertAsync(entity);
                 var uri = string.Format("{0}/{1}", Request.HttpContext.Request.Path.ToString().TrimEnd('/'),
                     _entityInfo.KeyInfo.Property.GetValue(result));
@@ -81,13 +85,14 @@ namespace Autumn.Mvc.Data.Controllers
         }
 
         [HttpPut("{id}")]
-        public virtual async Task<IActionResult> Put([FromBody][Required] TEntity entity,TKey id)
+        public virtual async Task<IActionResult> Put([FromBody] [Required] TEntityPut entityPut, TKey id)
         {
             if (ModelState.IsValid)
             {
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NoContent();
-                result = await _repository.UpdateAsync(entity, id);
+                Mapper.Map(entityPut, result);
+                result = await _repository.UpdateAsync(result, id);
                 return Ok(result);
             }
             else
