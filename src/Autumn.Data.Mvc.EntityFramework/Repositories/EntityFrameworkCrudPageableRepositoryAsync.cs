@@ -63,9 +63,7 @@ namespace Autumn.Data.Mvc.EntityFramework.Repositories
 
         protected override async Task<TEntity> OnUpdateAsync(TEntity entity, Expression<Func<TEntity, bool>> filter)
         {
-            var entityDb = await OnFindOneAsync(filter);
-            if (entityDb == null) return entity;
-            _dbContext.Set<TEntity>().Update(entityDb);
+            _dbContext.Set<TEntity>().Update(entity);
             await _dbContext.SaveChangesAsync();
             return entity;
         }

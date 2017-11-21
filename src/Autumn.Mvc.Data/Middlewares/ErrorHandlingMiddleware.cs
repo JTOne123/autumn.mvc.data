@@ -21,7 +21,7 @@ namespace Autumn.Mvc.Data.Middlewares
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context )
+        public async Task Invoke(HttpContext context)
         {
             try
             {

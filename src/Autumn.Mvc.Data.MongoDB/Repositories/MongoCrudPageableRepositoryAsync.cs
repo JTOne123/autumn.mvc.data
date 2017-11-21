@@ -104,9 +104,7 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
         protected override async Task<TEntity> OnUpdateAsync(TEntity entity, Expression<Func<TEntity, bool>> filter)
         {
             var filterDefinition = _filterDefinitionBuilder.Where(filter);
-            var result =
-                await _collection
-                    .ReplaceOneAsync(filterDefinition, entity);
+            await _collection.ReplaceOneAsync(filterDefinition, entity);
             return entity;
         }
         

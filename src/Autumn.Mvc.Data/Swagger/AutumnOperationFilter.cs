@@ -47,8 +47,18 @@ namespace Autumn.Mvc.Data.Swagger
             operation.Responses = new ConcurrentDictionary<string, Response>();
             operation.Responses.Add(((int)HttpStatusCode.InternalServerError).ToString(), new Response() {Schema = AutumnErrorModelSchema});
             operation.Consumes.Clear();
+           
             IParameter parameter;
-
+            
+            operation.Parameters.Add(new NonBodyParameter()
+            {
+                Name="Accept-Language",
+                @In="header",
+                Type="string",
+                Required = false,
+                Description = "Accept language ( cf https://en.wikipedia.org/wiki/Content_negotiation)"
+            });
+   
             if (actionDescriptor.ActionName == "Put")
             {
                 operation.Consumes.Add(ConsumeContentType);
@@ -84,7 +94,7 @@ namespace Autumn.Mvc.Data.Swagger
                 parameter.Required = true;
                 ((BodyParameter) parameter).Schema = entitySchemaPost;
                 operation.Responses.Add(((int) HttpStatusCode.Created).ToString(),
-                    new Response() {Schema = entitySchemaGet});
+                    new Response() {Schema = entitySchemaGet, Description = "Created"});
             }
             else if (actionDescriptor.ActionName == "GetById")
             {
@@ -94,15 +104,15 @@ namespace Autumn.Mvc.Data.Swagger
 
                 operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
                     new Response() {Schema = entitySchemaGet});
-                operation.Responses.Add(((int) HttpStatusCode.NotFound).ToString(), new Response());
+                operation.Responses.Add(((int) HttpStatusCode.NotFound).ToString(), new Response(){Description = "Not Found"});
             }
             else
             {
                 var genericPageType = typeof(Models.Paginations.Page<>);
                 var pageType = genericPageType.MakeGenericType(entityType);
                 var schema = GetOrRegistrySchema(pageType, "GET");
-                operation.Responses.Add("200", new Response() {Schema = schema});
-                operation.Responses.Add("206", new Response() {Schema = schema});
+                operation.Responses.Add("200", new Response() {Schema = schema, Description = "OK"});
+                operation.Responses.Add("206", new Response() {Schema = schema, Description = "Partial Content"});
                 operation.Parameters.Clear();
                 parameter = new NonBodyParameter
                 {

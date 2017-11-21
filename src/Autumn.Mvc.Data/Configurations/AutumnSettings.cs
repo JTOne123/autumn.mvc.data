@@ -110,7 +110,6 @@ namespace Autumn.Mvc.Data.Configurations
                     new AutumnEntityInfo(Instance, type, proxyTypes, entityAttribute, keyInfo));
             }
 
-            /// initialisaiton mapping dto -> entity
             Mapper.Initialize(c =>
             {
                 foreach (var entityInfo in Instance.EntitiesInfos.Values)

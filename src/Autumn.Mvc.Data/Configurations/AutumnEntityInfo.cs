@@ -21,7 +21,7 @@ namespace Autumn.Mvc.Data.Configurations
             EntityType = entityType;
             ProxyTypes = proxyTypes;
             Version = entityAttribute.Version ?? settings.DefaultApiVersion;
-            Name = entityAttribute.Name;
+            Name = entityAttribute.Name ?? entityType.Name;
             KeyInfo = keyInfo;
             ControllerName = Name.ToCase(settings.NamingStrategy);
             if (settings.PluralizeController && !ControllerName.EndsWith("s"))

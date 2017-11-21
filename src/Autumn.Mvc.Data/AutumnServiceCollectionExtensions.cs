@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
             _logger = ApplicationLogging.CreateLogger("AutumnConfiguration");
             _logger.LogInformation(Logo());
 
-            var settings = AutumnSettings.Build(configuration, environment,Assembly.GetCallingAssembly());
+            var settings = AutumnSettings.Build(configuration, environment, Assembly.GetCallingAssembly());
             services.AddSingleton(settings);
 
             var mvcBuilder = services.AddMvc(config =>

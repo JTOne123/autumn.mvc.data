@@ -18,15 +18,19 @@ namespace Autumn.Data.Mvc.EntityFramework.Samples.Models
             modelBuilder.Entity<Artist>()
                 .ToTable("Artist")
                 .Property(a=>a.Id).HasColumnName("ArtistId");
-                
-            modelBuilder.Entity<Artist>();
             
             
             modelBuilder.Entity<Genre>()
                 .ToTable("Genre")
                 .Property(o=>o.Id).HasColumnName("GenreId");
-                
-            modelBuilder.Entity<Artist>();
+
+            modelBuilder.Entity<Album>()
+                .ToTable("Album")
+                .Property(a => a.Id).HasColumnName("AlbumId");
+            
+            modelBuilder.Entity<Customer>()
+                .ToTable("Customer")
+                .Property(a => a.Id).HasColumnName("CustomerId");
         }
     }
 }
