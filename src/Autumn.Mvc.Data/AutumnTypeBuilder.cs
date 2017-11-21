@@ -62,20 +62,16 @@ namespace Autumn.Mvc.Data
             var fieldBuilder = typeBuilder.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);
             var propertyBuilder =
                 typeBuilder.DefineProperty(propertyName, PropertyAttributes.HasDefault, propertyType, null);
-            
+
             foreach (var attribute in propertyInfo.GetCustomAttributes())
             {
-                if(attribute is AutumnIgnoreAttribute) continue;
-                if(attribute.GetType().IsSubclassOf(typeof(ValidationAttribute)))
+                var customAttributeBuilder = BuildCustomAttribute(attribute);
+                if (customAttributeBuilder != null)
                 {
-                    propertyBuilder.SetCustomAttribute(BuildCustomAttribute(attribute));
-                }
-                else if (attribute.GetType().Namespace == "Newtonsoft.Json")
-                {
-                    propertyBuilder.SetCustomAttribute(BuildCustomAttribute(attribute));
+                    propertyBuilder.SetCustomAttribute(customAttributeBuilder);
                 }
             }
-    
+
             if (propertyInfo.CanRead)
             {
                 var getPropMthdBldr = typeBuilder.DefineMethod("get_" + propertyName,
@@ -113,12 +109,66 @@ namespace Autumn.Mvc.Data
             propertyBuilder.SetSetMethod(setPropMthdBldr);
         }
 
+        /// <summary>
+        /// find the constructofInfo by attribute type
+        /// </summary>
+        /// <param name="attribute"></param>
+        /// <returns></returns>
+        private static Tuple<ConstructorInfo, object[]> BuildConstuctorInfos(Attribute attribute)
+        {
+            ConstructorInfo constructorInfo;
+            object[] args;
+
+            switch (attribute)
+            {
+                case RangeAttribute rangeAttribute:
+                    constructorInfo = typeof(RangeAttribute).GetConstructor(new Type[] {typeof(int), typeof(int)});
+                    args = new object[] {rangeAttribute.Minimum, rangeAttribute.Maximum};
+                    break;
+                case RegularExpressionAttribute regularExpressionAttribute:
+                    constructorInfo = typeof(RegularExpressionAttribute).GetConstructor(new Type[] {typeof(string)});
+                    args = new object[] {regularExpressionAttribute.Pattern};
+                    break;
+                case MinLengthAttribute minLengthAttribute:
+                    constructorInfo = typeof(MinLengthAttribute).GetConstructor(new Type[] {typeof(int)});
+                    args = new object[] {minLengthAttribute.Length};
+                    break;
+                case MaxLengthAttribute maxLengthAttribute:
+                    constructorInfo = typeof(MaxLengthAttribute).GetConstructor(new Type[] {typeof(int)});
+                    args = new object[] {maxLengthAttribute.Length};
+                    break;
+                case CompareAttribute compareAttribute:
+                    constructorInfo = typeof(CompareAttribute).GetConstructor(new Type[] {typeof(string)});
+                    args = new object[] {compareAttribute.OtherProperty};
+                    break;
+                case StringLengthAttribute stringLengthAttribute:
+                    constructorInfo = typeof(StringLengthAttribute).GetConstructor(new Type[] {typeof(int)});
+                    args = new object[] {stringLengthAttribute.MaximumLength};
+                    break;
+                // TODO
+                //case EnumDataTypeAttribute enumDataTypeAttribute:
+                //    constructorInfo = typeof(EnumDataTypeAttribute).GetConstructor(new Type[] {Type});
+                //    args = new object[] {enumDataTypeAttribute.EnumType};
+                //    break;
+                default:
+                    // PhoneAttribute , RequireAttribute, EmailAddressAttribute, UrlAttribute, CreditCardAttribute, FileExtensionsAttribute
+                    constructorInfo = attribute.GetType().GetConstructor(Type.EmptyTypes);
+                    args = new object[] { };
+                    break;
+            }
+
+            return new Tuple<ConstructorInfo, object[]>(constructorInfo, args);
+        }
 
         private static CustomAttributeBuilder BuildCustomAttribute(Attribute attribute)
         {
+
             var type = attribute.GetType();
-            var constructor = type.GetConstructor(Type.EmptyTypes);
-            if (constructor == null) return null;
+            if (type == typeof(AutumnIgnoreAttribute)) return null;
+            if (!type.IsSubclassOf(typeof(ValidationAttribute)) && type.Namespace != "Newtonsoft.Json") return null;
+
+            var constructorInfo = BuildConstuctorInfos(attribute); 
+            if (constructorInfo.Item1 == null) return null;
 
             PropertyInfo[] namedProperties;
             object[] propertyValues = null;
@@ -174,8 +224,8 @@ namespace Autumn.Mvc.Data
 
             if (namedFields.Length > 0 && namedProperties.Length > 0)
             {
-                return new CustomAttributeBuilder(constructor,
-                    new object[] { },
+                return new CustomAttributeBuilder(constructorInfo.Item1,
+                   constructorInfo.Item2,
                     namedProperties,
                     propertyValues,
                     namedFields,
@@ -183,20 +233,20 @@ namespace Autumn.Mvc.Data
             }
             if (namedFields.Length > 0)
             {
-                return new CustomAttributeBuilder(constructor,
-                    new object[] { },
+                return new CustomAttributeBuilder(constructorInfo.Item1,
+                    constructorInfo.Item2,
                     namedFields,
                     fieldValues);
             }
             if (namedProperties.Length > 0)
             {
-                return new CustomAttributeBuilder(constructor,
-                    new object[] { },
+                return new CustomAttributeBuilder(constructorInfo.Item1,
+                    constructorInfo.Item2,
                     namedProperties,
                     propertyValues);
             }
-            return new CustomAttributeBuilder(constructor,
-                new object[] { });
+            return new CustomAttributeBuilder(constructorInfo.Item1,
+                constructorInfo.Item2);
         }
     }
 }

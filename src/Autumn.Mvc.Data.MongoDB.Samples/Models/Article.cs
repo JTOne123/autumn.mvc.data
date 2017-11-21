@@ -16,12 +16,16 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
         [BsonElement("content")]
         public string Content { get; set; }
     }
-    
+
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Name = "articles",Version = "v2")]
+    [AutumnEntity(Name = "articles", Version = "v2")]
     public class ArticleV2 : Article
     {
         [BsonElement("publish_date")]
         public DateTime? PublishDate { get; set; }
+
+        [Range(0, 100)]
+        [BsonElement("score")]
+        public int Score { get; set; }
     }
 }
