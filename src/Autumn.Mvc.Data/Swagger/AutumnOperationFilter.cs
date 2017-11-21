@@ -50,15 +50,6 @@ namespace Autumn.Mvc.Data.Swagger
            
             IParameter parameter;
             
-            operation.Parameters.Add(new NonBodyParameter()
-            {
-                Name="Accept-Language",
-                @In="header",
-                Type="string",
-                Required = false,
-                Description = "Accept language ( cf https://en.wikipedia.org/wiki/Content_negotiation)"
-            });
-   
             if (actionDescriptor.ActionName == "Put")
             {
                 operation.Consumes.Add(ConsumeContentType);
@@ -147,6 +138,16 @@ namespace Autumn.Mvc.Data.Swagger
                 };
                 operation.Parameters.Add(parameter);
             }
+            
+            operation.Parameters.Add(new NonBodyParameter()
+            {
+                Name="Accept-Language",
+                @In="header",
+                Type="string",
+                Required = false,
+                Description = "Accept language ( cf https://en.wikipedia.org/wiki/Content_negotiation)"
+            });
+   
         }
 
         /// <summary>
