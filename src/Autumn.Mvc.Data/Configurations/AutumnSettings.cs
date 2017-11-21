@@ -217,6 +217,9 @@ namespace Autumn.Mvc.Data.Configurations
                     }
                 }
                 var entityKeyType = info.KeyInfo.Property.PropertyType;
+                
+                
+                
                 var controllerType = baseType.MakeGenericType(entityType, entityKeyType);
                 var attributeRouteModel = new AttributeRouteModel(new RouteAttribute(name));
                 Instance.Routes.Add(controllerType, attributeRouteModel);

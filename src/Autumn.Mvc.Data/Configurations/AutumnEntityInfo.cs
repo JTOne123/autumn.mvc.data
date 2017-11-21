@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Autumn.Mvc.Data.Annotations;
 using Autumn.Mvc.Data.Helpers;
 
@@ -11,6 +12,7 @@ namespace Autumn.Mvc.Data.Configurations
         public string Name { get; }
         public string ControllerName { get; }
         public AutumnEntityKeyInfo KeyInfo { get;  }
+        public List<AutumnPropertyInfo> PropertyInfos { get; }
         
         public AutumnEntityInfo(){}
 

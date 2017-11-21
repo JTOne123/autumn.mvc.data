@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
+using Autumn.Mvc.Data.Annotations;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
 using Autumn.Mvc.Data.Helpers;
@@ -18,13 +20,13 @@ namespace Autumn.Mvc.Data.Swagger
     {
 
         private const string ConsumeContentType = "application/json";
-        private static readonly ConcurrentDictionary<Type,Schema> Caches = new ConcurrentDictionary<Type,Schema>();
+        private static readonly ConcurrentDictionary<Type,Dictionary<string,Schema>> Caches = new ConcurrentDictionary<Type,Dictionary<string,Schema>>();
         private static readonly Schema AutumnErrorModelSchema;
-     
-        
+
+
         static AutumnOperationFilter()
         {
-            AutumnErrorModelSchema = GetOrRegistrySchema(typeof(AutumnErrorModel));
+            AutumnErrorModelSchema = GetOrRegistrySchema(typeof(AutumnErrorModel), "GET");
         }
 
         public void Apply(Operation operation, OperationFilterContext context)
@@ -36,7 +38,9 @@ namespace Autumn.Mvc.Data.Swagger
                 typeof(RepositoryControllerAsync<,>)) return;
 
             var entityType = actionDescriptor.ControllerTypeInfo.GetGenericArguments()[0];
-            var entitySchema = GetOrRegistrySchema(entityType);
+            var entitySchemaGet = GetOrRegistrySchema(entityType,"GET");
+            var entitySchemaPost = GetOrRegistrySchema(entityType, "POST");
+            var entitySchemaPut = GetOrRegistrySchema(entityType, "PUT");
             
             operation.Responses = new ConcurrentDictionary<string, Response>();
             operation.Responses.Add(((int)HttpStatusCode.InternalServerError).ToString(), new Response() {Schema = AutumnErrorModelSchema});
@@ -55,7 +59,7 @@ namespace Autumn.Mvc.Data.Swagger
                     parameter.Description = "New value of the object";
                     parameter.Required = true;
                     
-                    operation.Responses.Add(((int)HttpStatusCode.OK).ToString(),new Response() {Schema = entitySchema});
+                    operation.Responses.Add(((int)HttpStatusCode.OK).ToString(),new Response() {Schema = entitySchemaPut});
                     break;
                 case "Delete":
                     operation.Consumes.Add(ConsumeContentType);
@@ -64,7 +68,7 @@ namespace Autumn.Mvc.Data.Swagger
                     parameter.Description= "Identifier of the object to delete";
                     parameter.Required = true;
                     
-                    operation.Responses.Add(((int)HttpStatusCode.OK).ToString(),new Response() {Schema = entitySchema});
+                    operation.Responses.Add(((int)HttpStatusCode.OK).ToString(),new Response() {Schema = entitySchemaGet});
                     break;
                 case "Post":
                     operation.Consumes.Add(ConsumeContentType);
@@ -73,21 +77,21 @@ namespace Autumn.Mvc.Data.Swagger
                     parameter.Description = "Value of the object to create";
                     parameter.Required = true;
                     
-                    operation.Responses.Add(((int)HttpStatusCode.Created).ToString(),new Response() {Schema = entitySchema});
+                    operation.Responses.Add(((int)HttpStatusCode.Created).ToString(),new Response() {Schema = entitySchemaPost});
                     break;
                 case "GetById":
                     parameter = operation.Parameters.Single(p => p.Name == "id");
                     parameter.Description= "Identifier of the object to search";
                     parameter.Required = true;
                     
-                    operation.Responses.Add(((int)HttpStatusCode.OK).ToString(),new Response() {Schema = entitySchema});
+                    operation.Responses.Add(((int)HttpStatusCode.OK).ToString(),new Response() {Schema = entitySchemaGet});
                     operation.Responses.Add(((int)HttpStatusCode.NotFound).ToString(),new Response());
                     break;
                     
                 case "Get":
                     var genericPageType = typeof(Models.Paginations.Page<>);
                     var pageType = genericPageType.MakeGenericType(entityType);
-                    var schema = GetOrRegistrySchema(pageType);
+                    var schema = GetOrRegistrySchema(pageType,"GET");
                     operation.Responses.Add("200",new Response() {Schema = schema});
                     operation.Responses.Add("206",new Response() {Schema = schema});
                     operation.Parameters.Clear();
@@ -127,94 +131,111 @@ namespace Autumn.Mvc.Data.Swagger
             }
         }
 
-        private static Schema GetOrRegistrySchema(Type type)
+        
+        private static Schema BuildSchema(PropertyInfo property,string method = "GET")
         {
+            if (method != "GET")
+            {
+                var attribute = property.GetCustomAttribute<AutumnPropertyAttribute>();
+                if (attribute != null)
+                {
+                    // exclusion property verb POST & Insertable = false
+                    if (!attribute.Insertable && method == "POST") return null;
+
+                    // exclusion property verb PUT & Updatable = false
+                    if (!attribute.Updatable && method == "PUT") return null;
+                }
+            }
             
+            var result = new Schema();
+            if (property.PropertyType == typeof(string))
+            {
+                result.Type = "string";
+            }
+            else if (property.PropertyType == typeof(short) ||
+                     property.PropertyType == typeof(short?) ||
+                     property.PropertyType == typeof(int) ||
+                     property.PropertyType == typeof(int?))
+            {
+                result.Type = "integer";
+                result.Format = "int32";
+            }
+            else if (property.PropertyType == typeof(long) ||
+                     property.PropertyType == typeof(long?))
+            {
+                result.Type = "integer";
+                result.Format = "int64";
+            }
+            else if (property.PropertyType == typeof(decimal) ||
+                     property.PropertyType == typeof(decimal?) ||
+                     property.PropertyType == typeof(double) ||
+                     property.PropertyType == typeof(double?))
+            {
+                result.Type = "number";
+                result.Format = "double";
+            }
+            else if (property.PropertyType == typeof(DateTime) ||
+                     property.PropertyType == typeof(DateTime?))
+            {
+                result.Type = "string";
+                result.Format = "date-time";
+            }
+            else if (property.PropertyType == typeof(byte) ||
+                     property.PropertyType == typeof(byte?))
+            {
+                result.Type = "string";
+                result.Format = "byte";
+            }
+            else if (property.PropertyType == typeof(bool) ||
+                     property.PropertyType == typeof(bool?))
+            {
+                result.Type = "boolean";
+            }
+            else
+            {
+                if (property.PropertyType.IsGenericType &&
+                    property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    result.Type = "array";
+                    result.Items = GetOrRegistrySchema(property.PropertyType.GetGenericArguments()[0],method);
+                }
+                else if (property.PropertyType.IsArray)
+                {
+                    result.Type = "array";
+                    result.Items = GetOrRegistrySchema(property.PropertyType, method);
+                }
+                else
+                {
+                    result = GetOrRegistrySchema(property.PropertyType, method);
+                }
+            }
+            return result;
+        }
+
+        private static Schema GetOrRegistrySchema(Type type,string method)
+        {
             lock (Caches)
             {
-                if (Caches.ContainsKey(type)) return Caches[type];
+                if (Caches.ContainsKey(type) && Caches[type].ContainsKey(method)) return Caches[type][method];
+                if (!Caches.ContainsKey(type)) Caches[type] = new Dictionary<string, Schema>();
                 var o = Activator.CreateInstance(type);
                 var stringify = JsonConvert.SerializeObject(o);
                 var expected = JObject.Parse(stringify);
                 var result = new Schema {Properties = new ConcurrentDictionary<string, Schema>()};
                 foreach (var propertyName in expected.Properties())
                 {
-                    var propertySchema = new Schema();
                     var name = propertyName.Name.ToCase(AutumnSettings.Instance.NamingStrategy);
                     var property = type.GetProperty(propertyName.Name);
-                    if (property != null)
-                    {
-                        if (property.PropertyType == typeof(string))
-                        {
-                            propertySchema.Type = "string";
-                        }
-                        else if (property.PropertyType == typeof(short) ||
-                                 property.PropertyType == typeof(short?) ||
-                                 property.PropertyType == typeof(int) ||
-                                 property.PropertyType == typeof(int?))
-                        {
-                            propertySchema.Type = "integer";
-                            propertySchema.Format = "int32";
-                        }
-                        else if (property.PropertyType == typeof(long) ||
-                                 property.PropertyType == typeof(long?))
-                        {
-                            propertySchema.Type = "integer";
-                            propertySchema.Format = "int64";
-                        }
-                        else if (property.PropertyType == typeof(decimal) ||
-                                 property.PropertyType == typeof(decimal?) ||
-                                 property.PropertyType == typeof(double) ||
-                                 property.PropertyType == typeof(double?))
-                        {
-                            propertySchema.Type = "number";
-                            propertySchema.Format = "double";
-                        }
-                        else if (property.PropertyType == typeof(DateTime) ||
-                                 property.PropertyType == typeof(DateTime?))
-                        {
-                            propertySchema.Type = "string";
-                            propertySchema.Format = "date-time";
-                        }
-                        else if (property.PropertyType == typeof(byte) ||
-                                 property.PropertyType == typeof(byte?))
-                        {
-                            propertySchema.Type = "string";
-                            propertySchema.Format = "byte";
-                        }
-                        else if (property.PropertyType == typeof(bool) ||
-                                 property.PropertyType == typeof(bool?))
-                        {
-                            propertySchema.Type = "boolean";
-                        }
-                        else
-                        {
-                            if (property.PropertyType.IsGenericType &&
-                                property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
-                            {
-                                propertySchema.Type = "array";
-                                propertySchema.Items = GetOrRegistrySchema(property.PropertyType.GetGenericArguments()[0]);
-                            }
-                            else if (property.PropertyType.IsArray)
-                            {
-                                propertySchema.Type = "array";
-                                propertySchema.Items = GetOrRegistrySchema(property.PropertyType);
-                            }
-                            else
-                            {
-                                propertySchema = GetOrRegistrySchema(property.PropertyType);
-                            }
-                        }
-                    }
+                    if (property == null) continue;
+                    var propertySchema = BuildSchema(property, method);
                     if (propertySchema != null)
                     {
                         result.Properties.Add(name, propertySchema);
                     }
                 }
-                Caches[type] = result;
-                return Caches[type];
+                Caches[type][method] = result;
+                return result;
             }
-
         }
     }
 }

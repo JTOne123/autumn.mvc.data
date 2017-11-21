@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace Autumn.Mvc.Data.Controllers
 {
     [RepositoryControllerNameConvention]
-    public class RepositoryControllerAsync<TEntity,TKey> : Controller, IRepositoryControllerAsync<TEntity,TKey>
+    public class RepositoryControllerAsync<TEntity, TKey> : Controller, IRepositoryControllerAsync<TEntity,TKey>
         where TEntity : class 
     {
         private readonly ICrudPageableRepositoryAsync<TEntity,TKey> _repository;
@@ -52,7 +52,6 @@ namespace Autumn.Mvc.Data.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (!_entityInfo.KeyInfo.Insertable) _entityInfo.KeyInfo.Property.SetValue(entity, null);
                 var result = await _repository.InsertAsync(entity);
                 var uri = string.Format("{0}/{1}", Request.HttpContext.Request.Path.ToString().TrimEnd('/'),
                     _entityInfo.KeyInfo.Property.GetValue(result));
@@ -86,7 +85,6 @@ namespace Autumn.Mvc.Data.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (!_entityInfo.KeyInfo.Insertable) _entityInfo.KeyInfo.Property.SetValue(entity, null);
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NoContent();
                 result = await _repository.UpdateAsync(entity, id);

@@ -34,7 +34,9 @@ namespace Autumn.Mvc.Data.Samples
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseMvc();
+
+            app.UseMvc()
+                .UseAutumn(env, loggerFactory);
         }
     }
 }

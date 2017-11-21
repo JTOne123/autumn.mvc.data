@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using AutoMapper;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -66,7 +65,6 @@ namespace Autumn.Data.Mvc.EntityFramework.Repositories
         {
             var entityDb = await OnFindOneAsync(filter);
             if (entityDb == null) return entity;
-            Mapper.Map(entity, entityDb);
             _dbContext.Set<TEntity>().Update(entityDb);
             await _dbContext.SaveChangesAsync();
             return entity;
