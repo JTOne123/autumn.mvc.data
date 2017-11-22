@@ -5,7 +5,7 @@ using Autumn.Mvc.Data.Annotations;
 namespace Autumn.Data.Mvc.EntityFramework.Samples.Models
 {
     [AutumnEntity]
-    public class Employee : AbstractEntity
+    public class Employee : AbstractEntityWithAddress
     {
         [Required]
         [MaxLength(20)]

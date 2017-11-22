@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Data.Mvc.EntityFramework.Samples
 {
@@ -32,18 +33,20 @@ namespace Autumn.Data.Mvc.EntityFramework.Samples
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAutumn( _configuration,_hostingEnvironment);
+            services.AddAutumn((s) => new AutumnOptions(services)
+                    .UseApiVersion("v1")
+                    .UsePluralizationController(true)
+                    .UseNamingStrategy(new CamelCaseNamingStrategy())
+            );
 
             services.AddDbContextPool<ChinookContext>(options =>
             {
                 options.UseSqlServer(_configuration.GetSection("Autumn.Data.Mvc:EntityFrameworkCore:ConnectionString")
                     .Value);
-                
-                
             });
 
-            services.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(ChinookContext))    );
-            
+            services.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(ChinookContext)));
+
             services.AddScoped(typeof(ICrudPageableRepositoryAsync<,>),
                 typeof(EntityFrameworkCrudPageableRepositoryAsync<,>));
 

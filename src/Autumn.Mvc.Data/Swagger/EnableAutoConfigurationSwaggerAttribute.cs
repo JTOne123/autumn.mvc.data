@@ -2,7 +2,6 @@
 using Autumn.Mvc.Data.Configurations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Swagger;
@@ -12,8 +11,7 @@ namespace Autumn.Mvc.Data.Swagger
     public class EnableAutoConfigurationSwaggerAttribute : EnableAutoConfigurationAttribute
     {
        
-        public override void ConfigureServices(IServiceCollection serviceCollection, ILoggerFactory loggerFactory,
-            IConfiguration configuration)
+        public override void ConfigureServices(IServiceCollection serviceCollection, ILoggerFactory loggerFactory)
         {
             serviceCollection.AddSwaggerGen(c =>
             {

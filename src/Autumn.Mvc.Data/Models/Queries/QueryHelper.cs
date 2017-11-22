@@ -20,15 +20,14 @@ namespace Autumn.Mvc.Data.Models.Queries
         private static readonly MethodInfo MethodStringEndsWith =
             typeof(string).GetMethod("EndsWith", new[] {typeof(string)});
 
-        private static readonly MethodInfo MethodListContains =
-            typeof(List<object>).GetMethod("Contains", new[] {typeof(object)});
-
-        private static string maskLk = string.Format("[{0}]", Guid.NewGuid().ToString());
+        private static readonly Dictionary<Type,MethodContainsInfo> MethodListContains=new Dictionary<Type, MethodContainsInfo>();
+    
+        private static readonly string MaskLk = string.Format("[{0}]", Guid.NewGuid().ToString());
 
         #region GetExpression 
 
         /// <summary>
-        /// create and expression
+        /// create and expression ( operator ";" ) 
         /// </summary>
         /// <param name="visitor"></param>
         /// <param name="context"></param>
@@ -50,9 +49,8 @@ namespace Autumn.Mvc.Data.Models.Queries
             return right;
         }
 
-
         /// <summary>
-        /// create or expression
+        /// create or expression ( operator "," ) 
         /// </summary>
         /// <param name="visitor"></param>
         /// <param name="context"></param>
@@ -75,7 +73,7 @@ namespace Autumn.Mvc.Data.Models.Queries
         }
 
         /// <summary>
-        /// create is-null expression
+        /// create is null expression ( operator "=is-null=" or "=nil=" ) 
         /// </summary>
         /// <param name="parameter"></param>
         /// <param name="context"></param>
@@ -108,25 +106,7 @@ namespace Autumn.Mvc.Data.Models.Queries
         }
 
         /// <summary>
-        /// create not-is-null expression
-        /// </summary>
-        /// <param name="parameter"></param>
-        /// <param name="context"></param>
-        /// <param name="namingStrategy"></param>
-        /// <returns></returns>
-        public static Expression<Func<T, bool>> GetNotIsNullExpression<T>(ParameterExpression parameter,
-            QueryParser.ComparisonContext context,
-            NamingStrategy namingStrategy=null)
-        {
-            if (parameter == null) throw new ArgumentException("parameter");
-            if (context == null) throw new ArgumentException("context");
-            var expression = GetIsNullExpression<T>(parameter, context, namingStrategy);
-            var body = Expression.Not(expression.Body);
-            return Expression.Lambda<Func<T, bool>>(body, parameter);
-        }
-
-        /// <summary>
-        /// create eq expression
+        /// create equal expression ( operator "==" or "=eq=" ) 
         /// </summary>
         /// <param name="parameter"></param>
         /// <param name="context"></param>
@@ -147,15 +127,16 @@ namespace Autumn.Mvc.Data.Models.Queries
             if (values.Count > 1) throw new QueryComparisonTooManyArgumentException(context);
 
             var value = values[0];
-            if (expressionValue.Property.PropertyType == typeof(string))
+            if (expressionValue.Property.PropertyType != typeof(string))
+                return Expression.Lambda<Func<T, bool>>(Expression.Equal(
+                    expressionValue.Expression,
+                    Expression.Constant(value, expressionValue.Property.PropertyType)), parameter);
+            var v = ((string) value).Replace(@"\*", MaskLk);
+            if (v.IndexOf('*') != -1)
             {
-                var v = ((string) value).Replace(@"\*", maskLk);
-                if (v.IndexOf('*') != -1)
-                {
-                    return GetLkExpression<T>(parameter, context, namingStrategy);
-                }
-                value = v.Replace(maskLk, "*");
+                return GetLkExpression<T>(parameter, context, namingStrategy);
             }
+            value = v.Replace(MaskLk, "*");
 
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(
                 expressionValue.Expression,
@@ -163,7 +144,7 @@ namespace Autumn.Mvc.Data.Models.Queries
         }
 
         /// <summary>
-        /// create neq expression
+        /// create neq expression ( operator "!=" or "=neq=" ) 
         /// </summary>
         /// <param name="parameter"></param>
         /// <param name="context"></param>
@@ -180,7 +161,9 @@ namespace Autumn.Mvc.Data.Models.Queries
         }
 
         /// <summary>
-        /// create lt expression
+#pragma warning disable 1570
+        /// create les than expression ( operator "<" or "=lt=" ) 
+#pragma warning restore 1570
         /// </summary>
         /// <param name="parameter"></param>
         /// <param name="context"></param>
@@ -215,7 +198,9 @@ namespace Autumn.Mvc.Data.Models.Queries
         }
 
         /// <summary>
-        /// create le expression
+#pragma warning disable 1570
+        /// create less than or equal expression ( operator "<=" or "=le=" ) 
+#pragma warning restore 1570
         /// </summary>
         /// <param name="parameter"></param>
         /// <param name="context"></param>
@@ -250,7 +235,7 @@ namespace Autumn.Mvc.Data.Models.Queries
         }
 
         /// <summary>
-        /// create gt expression
+        /// create greater than expression ( operator ">" or "=gt=" ) 
         /// </summary>
         /// <param name="parameter"></param>
         /// <param name="context"></param>
@@ -284,7 +269,7 @@ namespace Autumn.Mvc.Data.Models.Queries
         }
         
         /// <summary>
-        /// create ge expression
+        /// create greater than or equal expression ( operator ">=" or "=ge=" ) 
         /// </summary>
         /// <param name="parameter"></param>
         /// <param name="context"></param>
@@ -321,7 +306,7 @@ namespace Autumn.Mvc.Data.Models.Queries
         /// create like expression
         /// </summary>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetLkExpression<T>(ParameterExpression parameter,
+        private static Expression<Func<T, bool>> GetLkExpression<T>(ParameterExpression parameter,
             QueryParser.ComparisonContext context,
             NamingStrategy namingStrategy=null)
         {
@@ -362,10 +347,10 @@ namespace Autumn.Mvc.Data.Models.Queries
         }
 
         /// <summary>
-        /// create in expression
+        /// create in expression ( operator "=in=" ) 
         /// </summary>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> GetInExpression<T>(ParameterExpression parameter,    
+        public static Expression<Func<T, bool>> GetInExpression<T>(ParameterExpression parameter,
             QueryParser.ComparisonContext context,
             NamingStrategy namingStrategy = null)
         {
@@ -373,13 +358,34 @@ namespace Autumn.Mvc.Data.Models.Queries
                 CommonHelper.GetMemberExpressionValue<T>(parameter, context, namingStrategy);
             var values = GetValues(expressionValue.Property.PropertyType, context.arguments());
             if (values == null || values.Count == 0) throw new QueryComparisonNotEnoughtArgumentException(context);
+
+            var methodContainsInfo = GetOrRegistryContainsMethodInfo(expressionValue.Property.PropertyType);
+
             return Expression.Lambda<Func<T, bool>>(
-                Expression.Call(Expression.Constant(values), MethodListContains,
+                Expression.Call(Expression.Constant(methodContainsInfo.Convert(values)),
+                    methodContainsInfo.ContainsMethod,
                     expressionValue.Expression), parameter);
         }
 
         /// <summary>
-        /// create out expression
+        /// find Contains méthode
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private static MethodContainsInfo GetOrRegistryContainsMethodInfo(Type type)
+        {
+            lock (MethodListContains)
+            {
+                if (!MethodListContains.ContainsKey(type))
+                {
+                    MethodListContains.Add(type, new MethodContainsInfo(type));
+                }
+                return MethodListContains[type];
+            }
+        }
+
+        /// <summary>
+        /// create not in expression ( operator "=out=" or "=nin=" ) 
         /// </summary>
         /// <returns></returns>
         public static Expression<Func<T, bool>> GetOutExpression<T>(ParameterExpression parameter,

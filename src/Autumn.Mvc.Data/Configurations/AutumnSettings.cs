@@ -2,24 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using AutoMapper;
 using Autumn.Mvc.Data.Annotations;
-using Autumn.Mvc.Data.Configurations.Exceptions;
 using Autumn.Mvc.Data.Controllers;
 using Autumn.Mvc.Data.Helpers;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Configurations
 {
     public class AutumnSettings
     {
-        public static AutumnSettings Instance { get; }
-        
+        public string PageSizeFieldName { get; set; }
+        public string SortFieldName { get; set; }
+        public string PageNumberFieldName { get; set; }
+        public string QueryFieldName { get; set; }
+        public int DefaultPageSize { get; set; }
+        public bool PluralizeController { get; set; }
+        public NamingStrategy NamingStrategy { get; set; }
+        public string DefaultApiVersion { get; set; }
+        public Assembly EntityAssembly { get; set; }
+        public static AutumnSettings Instance { get; private set; }
+        public Dictionary<Type, AttributeRouteModel> Routes { get; private set; }
+        public Dictionary<Type, AutumnEntityInfo> EntitiesInfos { get; private set;}
+        public List<EnableAutoConfigurationAttribute> AutoConfigurations { get;  private set;}
 
         static AutumnSettings()
         {
@@ -29,36 +36,24 @@ namespace Autumn.Mvc.Data.Configurations
                 PageNumberFieldName = "PageNumber",
                 QueryFieldName = "Query",
                 SortFieldName = "Sort",
-                DefaultPageSize = 100
+                DefaultPageSize = 100,
+                PluralizeController = true,
+                DefaultApiVersion = "v1",
+                NamingStrategy = new DefaultNamingStrategy()
             };
+
         }
-
-        public IHostingEnvironment Environment { get; set; }
-        public string PageSizeFieldName { get; set; }
-        public string SortFieldName { get; set; }
-        public string PageNumberFieldName { get; set; }
-        public string QueryFieldName { get; set; }
-        public NamingStrategy NamingStrategy { get; set; }
-        public string DefaultApiVersion { get; set; }
-        public int DefaultPageSize { get; set; }
-        public bool PluralizeController { get; set; }
-        public Dictionary<Type, AttributeRouteModel> Routes { get; set; }
-        public Assembly EntityAssembly { get; set; }
-        public Dictionary<Type, AutumnEntityInfo> EntitiesInfos { get; set; }
-        public List<EnableAutoConfigurationAttribute> AutoConfigurations { get; set; }
-
 
         /// <summary>
         /// build AutumnSettings
         /// </summary>
         /// <returns></returns>
-        public static AutumnSettings Build(IConfiguration configuration, IHostingEnvironment environment,
-            Assembly callingAssembly)
+        public static AutumnSettings Build(AutumnOptions options, Assembly callingAssembly)
         {
-            BuildNamingNamingStrategySettings(configuration);
-            BuildApiInfos(configuration);
-            BuildQueryInfoSettings(configuration);
-            BuildPagingInfoSettings(configuration);
+            Instance.PageSizeFieldName = Instance.PageSizeFieldName.ToCase(Instance.NamingStrategy);
+            Instance.PageNumberFieldName = Instance.PageNumberFieldName.ToCase(Instance.NamingStrategy);
+            Instance.QueryFieldName = Instance.QueryFieldName.ToCase(Instance.NamingStrategy);
+            Instance.SortFieldName = Instance.SortFieldName.ToCase(Instance.NamingStrategy);
             BuildEntitiesInfosSettings(callingAssembly);
             BuildEnableAutoConfigurationsSettings(callingAssembly);
             BuildRoutes();
@@ -66,45 +61,12 @@ namespace Autumn.Mvc.Data.Configurations
         }
 
         /// <summary>
-        /// build naming strategy settings
-        /// </summary>
-        /// <param name="configuration"></param>
-        /// <returns></returns>
-        private static void BuildApiInfos(IConfiguration configuration)
-        {
-           var option = configuration.GetSection("Autumn.Data.Mvc:DefaultApiVersion").Value;
-            if (!string.IsNullOrWhiteSpace(option))
-            {
-                if (!Regex.Match(option, "v[0-9]+", RegexOptions.IgnoreCase).Success)
-                {
-                    throw new InvalidDefaultApiNumberVersionException(option);
-                }
-                Instance.DefaultApiVersion = option;
-            }
-            else
-            {
-                Instance.DefaultApiVersion = "v1";
-            }
-
-            option = configuration.GetSection("Autumn.Data.Mvc:PluralizeController").Value;
-            if (string.IsNullOrWhiteSpace(option)) return;
-            if (bool.TryParse(option, out var controllerPluralize))
-            {
-                Instance.PluralizeController = controllerPluralize;
-            }
-            else
-            {
-                throw new InvalidPluralizeControllerException(option);
-            }
-        }
-
-        /// <summary>
         /// build EntitiesInfos
         /// </summary>
         private static void BuildEntitiesInfosSettings(Assembly callingAssembly)
         {
-            Instance.EntityAssembly = Instance.EntityAssembly ?? callingAssembly;
             Instance.EntitiesInfos = new Dictionary<Type, AutumnEntityInfo>();
+            Instance.EntityAssembly = Instance.EntityAssembly ?? callingAssembly;
             foreach (var type in Instance.EntityAssembly.GetTypes())
             {
                 var entityAttribute = type.GetCustomAttribute<AutumnEntityAttribute>();
@@ -136,77 +98,6 @@ namespace Autumn.Mvc.Data.Configurations
 
         }
 
-        /// <summary>
-        /// build naming strategy settings
-        /// </summary>
-        /// <param name="configuration"></param>
-        /// <returns></returns>
-        private static void BuildNamingNamingStrategySettings(IConfiguration configuration)
-        {
-            var namingStrategySettings = configuration.GetSection("Autumn.Data.Mvc:NamingStrategy").Value;
-            if (string.IsNullOrWhiteSpace(namingStrategySettings)) return;
-            if (namingStrategySettings.ToUpperInvariant() != "SNAKE_CASE")
-            {
-                if (namingStrategySettings.ToUpperInvariant() == "CAMEL_CASE")
-                {
-                    Instance.NamingStrategy = new CamelCaseNamingStrategy();
-                }
-            }
-            else
-            {
-                Instance.NamingStrategy = new SnakeCaseNamingStrategy();
-            }
-        }
-
-        /// <summary>
-        /// build query informations settings
-        /// </summary>
-        /// <param name="configuration"></param>
-        /// <returns></returns>
-        private static void BuildQueryInfoSettings(IConfiguration configuration)
-        {
-            var queryFieldNameSettings = configuration.GetSection("Autumn.Data.Mvc:QueryFieldName").Value;
-            if (!string.IsNullOrWhiteSpace(queryFieldNameSettings))
-            {
-                Instance.QueryFieldName = queryFieldNameSettings;
-            }
-            Instance.QueryFieldName = Instance.QueryFieldName.ToCase(Instance.NamingStrategy);
-
-            var sortFieldNameSettings = configuration.GetSection("Autumn.Data.Mvc:SortFieldName").Value;
-            if (!string.IsNullOrWhiteSpace(sortFieldNameSettings))
-            {
-                Instance.SortFieldName = sortFieldNameSettings;
-            }
-            Instance.SortFieldName = Instance.SortFieldName.ToCase(Instance.NamingStrategy);
-        }
-
-        /// <summary>
-        /// build pagination settings
-        /// </summary>
-        /// <param name="configuration"></param>
-        /// <returns></returns>
-        private static void BuildPagingInfoSettings(IConfiguration configuration)
-        {
-            var pageSizeFieldNameSettings = configuration.GetSection("Autumn.Data.Mvc:PageSizeFieldName").Value;
-            if (!string.IsNullOrWhiteSpace(pageSizeFieldNameSettings))
-            {
-                Instance.PageSizeFieldName = pageSizeFieldNameSettings;
-            }
-            Instance.PageSizeFieldName = Instance.PageSizeFieldName.ToCase(Instance.NamingStrategy);
-
-            var pageNumberFieldNameSettings = configuration.GetSection("Autumn.Data.Mvc:PageNumberFieldName").Value;
-            if (!string.IsNullOrWhiteSpace(pageNumberFieldNameSettings))
-            {
-                Instance.SortFieldName = pageNumberFieldNameSettings;
-            }
-            Instance.PageNumberFieldName = Instance.PageNumberFieldName.ToCase(Instance.NamingStrategy);
-
-            var defaultPageSizeSettings = configuration.GetSection("Autumn.Data.Mvc:DefaultPageSize").Value;
-            if (int.TryParse(defaultPageSizeSettings, out var defaultPageSize))
-            {
-                Instance.DefaultPageSize = defaultPageSize;
-            }
-        }
 
         /// <summary>
         /// build routes
@@ -248,7 +139,6 @@ namespace Autumn.Mvc.Data.Configurations
         private static void BuildEnableAutoConfigurationsSettings(Assembly callingAssembly)
         {
             Instance.AutoConfigurations = new List<EnableAutoConfigurationAttribute>();
-            // find autoconfigurations
             foreach (var type in callingAssembly.GetTypes())
             {
                 var attributes = type.GetCustomAttributes()
@@ -256,7 +146,6 @@ namespace Autumn.Mvc.Data.Configurations
                     .OfType<EnableAutoConfigurationAttribute>();
                 Instance.AutoConfigurations.AddRange(attributes);
             }
-
             Instance.AutoConfigurations = Instance.AutoConfigurations.OrderBy(c => c.Order)
                 .ToList();
         }

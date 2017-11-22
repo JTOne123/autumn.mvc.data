@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Models;
 using Autumn.Mvc.Data.Models.Queries.Exceptions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -38,7 +37,7 @@ namespace Autumn.Mvc.Data.Middlewares
             JsonSerializerSettings = new JsonSerializerSettings
             {
                 ContractResolver =
-                    new DefaultContractResolver() {NamingStrategy = AutumnSettings.Instance.NamingStrategy}
+                    new DefaultContractResolver() { NamingStrategy = AutumnSettings.Instance.NamingStrategy }
             };
         }
 

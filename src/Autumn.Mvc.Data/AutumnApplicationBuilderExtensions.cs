@@ -17,8 +17,7 @@ namespace Microsoft.AspNetCore.Builder
             var result = app;
             result = result
                 .UseMiddleware(typeof(ErrorHandlingMiddleware));
-           
-
+          
             foreach (var configuration in AutumnSettings.Instance.AutoConfigurations)
             {
                 configuration.Configure(app, env, loggerFactory);

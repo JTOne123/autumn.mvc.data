@@ -6,7 +6,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace Autumn.Mvc.Data.MongoDB.Samples.Models
 {
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Version = "v1")]
+    [AutumnEntity(Name = "articles", Version = "v1")]
     public class Article : AbstractEntity
     {
         [Required]

@@ -67,6 +67,7 @@ namespace Autumn.Mvc.Data.Models.Queries
             switch (comparator)
             {
                 case "=is-null=":
+                case "=nil=":
                     return QueryHelper.GetIsNullExpression<T>(_parameter, context, _namingStrategy);
                 case "==":
                 case "=eq=":
@@ -89,6 +90,7 @@ namespace Autumn.Mvc.Data.Models.Queries
                 case "=in=":
                     return QueryHelper.GetInExpression<T>(_parameter, context, _namingStrategy);
                 case "=out=":
+                case "=nin=":  
                     return QueryHelper.GetOutExpression<T>(_parameter, context, _namingStrategy);
                 default:
                     throw new QueryComparisonUnknownComparatorException(context);

@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Samples
 {
-    [EnableAutoConfigurationMongo]
-    [EnableAutoConfigurationSwagger]
+     [EnableAutoConfigurationSwagger]
     public class Startup
     {
         public Startup(IHostingEnvironment env,IConfiguration configuration)
@@ -24,7 +24,12 @@ namespace Autumn.Mvc.Data.Samples
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAutumn( _configuration,_hostingEnvironment);
+            services.AddAutumn((s) => new AutumnOptions(services)
+                .UseApiVersion("v1")
+                .UsePluralizationController(true)
+                .UseNamingStrategy(new SnakeCaseNamingStrategy())
+                .UseMongo("sample","mongodb://jason.garnier-family.lan:27017,ulysse.garnier-family.lan:27017,achille.garnier-family.lan:27017?readPreference=primary&replicaSet=rs0"))
+            ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

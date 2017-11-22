@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Autumn.Mvc.Data;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
@@ -41,20 +42,19 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services"></param>
         /// <param name="configuration"></param>
-        public static void AddAutumn(this IServiceCollection services, IConfiguration configuration,
-            IHostingEnvironment environment)
+        public static void AddAutumn(this IServiceCollection services, Func<IServiceCollection, AutumnOptions> config)
         {
             _logger = ApplicationLogging.CreateLogger("AutumnConfiguration");
             _logger.LogInformation(Logo());
 
-            var settings = AutumnSettings.Build(configuration, environment, Assembly.GetCallingAssembly());
+            var settings = AutumnSettings.Build(config.Invoke(services), Assembly.GetCallingAssembly());
             services.AddSingleton(settings);
 
-            var mvcBuilder = services.AddMvc(config =>
+            var mvcBuilder = services.AddMvc(c =>
             {
-                config.ModelBinderProviders.Insert(0,
+                c.ModelBinderProviders.Insert(0,
                     new PageableModelBinderProvider(settings));
-                config.ModelBinderProviders.Insert(1,
+                c.ModelBinderProviders.Insert(1,
                     new QueryModelBinderProvider(settings));
             });
 
@@ -68,8 +68,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
             settings.AutoConfigurations.ForEach(c =>
             {
-                c.ConfigureServices(services, ApplicationLogging.LoggerFactory, configuration);
+                c.ConfigureServices(services, ApplicationLogging.LoggerFactory);
             });
         }
+
     }
 }

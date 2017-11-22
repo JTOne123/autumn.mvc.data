@@ -11,7 +11,7 @@ namespace Autumn.Data.Mvc.EntityFramework.Samples.Models
         public int Id { get; set; }
     }
 
-    public abstract class AbstractEntityWithAdress : AbstractEntity
+    public abstract class AbstractEntityWithAddress : AbstractEntity
     {
         
         [MaxLength(70)]
