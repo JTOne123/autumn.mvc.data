@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Autumn.Data.Mvc.EntityFramework.Samples
+namespace Autumn.Mvc.Data.EF.SqlServer.Samples
 {
     public class Program
     {

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Autumn.Mvc.Data.EF\Autumn.Mvc.Data.EF.csproj" />
+    <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MySql.Data.EntityFrameworkCore" Version="6.10.4" />
+  </ItemGroup>
+</Project>

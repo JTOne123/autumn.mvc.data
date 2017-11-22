@@ -6,7 +6,7 @@ using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace Autumn.Data.Mvc.EntityFramework.Repositories
+namespace Autumn.Mvc.Data.EF.Repositories
 {
     public class EntityFrameworkCrudPageableRepositoryAsync<TEntity,TKey> : CrudPageableRepositoryAsync<TEntity,TKey> 
         where TEntity :class

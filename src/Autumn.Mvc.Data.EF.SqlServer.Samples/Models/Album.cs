@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Autumn.Mvc.Data.Annotations;
 
-namespace Autumn.Data.Mvc.EntityFramework.Samples.Models
+namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
 {
     [AutumnEntity(Name = "Album")]
     public class Album : AbstractEntity

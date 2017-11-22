@@ -1,6 +1,6 @@
 ﻿using Autumn.Mvc.Data.Annotations;
 
-namespace Autumn.Data.Mvc.EntityFramework.Samples.Models
+namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
 {
     [AutumnEntity]
     public class Genre :AbstractEntity

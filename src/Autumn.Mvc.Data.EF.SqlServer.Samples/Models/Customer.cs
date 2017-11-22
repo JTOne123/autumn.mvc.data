@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Autumn.Mvc.Data.Annotations;
 
-namespace Autumn.Data.Mvc.EntityFramework.Samples.Models
+namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
 {
     [AutumnEntity]
     public class Customer : AbstractEntityWithAddress
@@ -17,7 +17,6 @@ namespace Autumn.Data.Mvc.EntityFramework.Samples.Models
         [MaxLength(80)]
         public string Company { get; set; }
 
-    
         [Required]
         public int SupportRepId { get; set; }
     }

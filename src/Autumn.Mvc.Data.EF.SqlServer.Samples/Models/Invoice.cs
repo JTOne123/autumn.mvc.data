@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Autumn.Mvc.Data.Annotations;
 
-namespace Autumn.Data.Mvc.EntityFramework.Samples.Models
+namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
 {
     [AutumnEntity(Version = "v2")]
     public class Invoice : AbstractEntity

@@ -9,7 +9,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Autumn.Data.Mvc.EntityFramework\Autumn.Data.Mvc.EntityFramework.csproj" />
+    <ProjectReference Include="..\Autumn.Mvc.Data.EF.SqlServer\Autumn.Mvc.Data.EF.SqlServer.csproj" />
+    <ProjectReference Include="..\Autumn.Mvc.Data.EF\Autumn.Mvc.Data.EF.csproj" />
     <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
   </ItemGroup>
 </Project>

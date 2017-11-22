@@ -2,20 +2,16 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
-using Autumn.Data.Mvc.EntityFramework.Repositories;
-using Autumn.Data.Mvc.EntityFramework.Samples.Models;
-using Autumn.Mvc.Data;
-using Autumn.Mvc.Data.Repositories;
+using Autumn.Mvc.Data.EF.SqlServer.Samples.Models;
 using Autumn.Mvc.Data.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 
-namespace Autumn.Data.Mvc.EntityFramework.Samples
+namespace Autumn.Mvc.Data.EF.SqlServer.Samples
 {
     [EnableAutoConfigurationSwagger]
     public class Startup
@@ -34,22 +30,11 @@ namespace Autumn.Data.Mvc.EntityFramework.Samples
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutumn((s) => new AutumnOptions(services)
-                    .UseApiVersion("v1")
-                    .UsePluralizationController(true)
-                    .UseNamingStrategy(new CamelCaseNamingStrategy())
+                .UseApiVersion("v1")
+                .UsePluralizationController(true)
+                .UseNamingStrategy(new CamelCaseNamingStrategy())
+                .UseSqlServer<ChinookContext>("Server=127.0.0.1;Database=Chinook;User Id=sa;Password=16gG1158#3")
             );
-
-            services.AddDbContextPool<ChinookContext>(options =>
-            {
-                options.UseSqlServer(_configuration.GetSection("Autumn.Data.Mvc:EntityFrameworkCore:ConnectionString")
-                    .Value);
-            });
-
-            services.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(ChinookContext)));
-
-            services.AddScoped(typeof(ICrudPageableRepositoryAsync<,>),
-                typeof(EntityFrameworkCrudPageableRepositoryAsync<,>));
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
