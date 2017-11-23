@@ -5,6 +5,7 @@ using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Models.Queries;
+using Autumn.Mvc.Data.Swagger;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
@@ -85,7 +86,9 @@ namespace Autumn.Mvc.Data
                     {
                         c.SwaggerDoc(version, new Info {Title = "api", Version = version});
                     }
+                    c.DocumentFilter<AutumnSwaggerDocumentFilter>();
                     c.OperationFilter<AutumnSwaggerOperationFilter>();
+                    
                 });
             }
 

@@ -7,6 +7,8 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
 {
     [BsonIgnoreExtraElements]
     [AutumnEntity(Name = "articles", Version = "v1")]
+    [AutumnIgnoreOperation(AutumnIgnoreOperationType.Insert | AutumnIgnoreOperationType.Update |
+                           AutumnIgnoreOperationType.Delete)]
     public class Article : AbstractEntity
     {
         [Required]
@@ -19,6 +21,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
 
     [BsonIgnoreExtraElements]
     [AutumnEntity(Name = "articles", Version = "v2")]
+    [AutumnIgnoreOperation(AutumnIgnoreOperationType.Insert)]
     public class ArticleV2 : Article
     {
         [BsonElement("publish_date")]

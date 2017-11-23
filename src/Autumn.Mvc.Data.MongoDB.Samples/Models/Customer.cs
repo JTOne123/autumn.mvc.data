@@ -39,7 +39,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     public class CustomerV3 : Customer
     {
 
-        [AutumnIgnore(AutumnIgnoreType.Put)]
+        [AutumnIgnoreOperationProperty(AutumnIgnoreOperationPropertyType.Update)]
         [BsonElement("active")]
         public bool? Active { get; set; }
     }

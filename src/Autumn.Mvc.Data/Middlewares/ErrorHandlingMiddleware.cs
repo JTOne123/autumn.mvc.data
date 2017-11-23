@@ -43,7 +43,7 @@ namespace Autumn.Mvc.Data.Middlewares
 
         private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            var result = new AutumnErrorModel() {Message = exception.Message};
+            var result = new AutumnErrorModel() {Message = exception.Message, StackTrace = exception.StackTrace};
             if (exception is QueryComparisonException comparisonException)
             {
                 result.Origin = comparisonException.Origin.GetText();

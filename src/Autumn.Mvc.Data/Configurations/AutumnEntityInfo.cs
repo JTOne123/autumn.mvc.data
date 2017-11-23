@@ -13,15 +13,21 @@ namespace Autumn.Mvc.Data.Configurations
         public string Name { get; }
         public string ControllerName { get; }
         public AutumnEntityKeyInfo KeyInfo { get; }
-        public Dictionary<AutumnIgnoreType, Type> ProxyTypes { get; }
+        public AutumnIgnoreOperationType? IgnoreOperations { get;  }
+        public Dictionary<AutumnIgnoreOperationPropertyType, Type> ProxyTypes { get; }
 
-        public AutumnEntityInfo(Type entityType, Dictionary<AutumnIgnoreType, Type> proxyTypes,
+        public AutumnEntityInfo(Type entityType, Dictionary<AutumnIgnoreOperationPropertyType, Type> proxyTypes,
             AutumnEntityAttribute entityAttribute,
-            AutumnEntityKeyInfo keyInfo)
+            AutumnEntityKeyInfo keyInfo,
+            AutumnIgnoreOperationAttribute ignoreOperationAttribute = null)
         {
+            IgnoreOperations = ignoreOperationAttribute?.OperationTypes;
             EntityType = entityType;
             ProxyTypes = proxyTypes;
-            ApiVersion = Regex.Match(entityAttribute.Version??string.Empty, "v[0-9]+", RegexOptions.IgnoreCase).Success ? entityAttribute.Version : AutumnSettings.Current.DefaultApiVersion;
+            ApiVersion =
+                Regex.Match(entityAttribute.Version ?? string.Empty, "v[0-9]+", RegexOptions.IgnoreCase).Success
+                    ? entityAttribute.Version
+                    : AutumnSettings.Current.DefaultApiVersion;
             Name = entityAttribute.Name ?? entityType.Name;
             KeyInfo = keyInfo;
             ControllerName = Name.ToCase(AutumnSettings.Current.NamingStrategy);

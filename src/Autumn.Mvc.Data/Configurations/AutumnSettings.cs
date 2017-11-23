@@ -26,6 +26,7 @@ namespace Autumn.Mvc.Data.Configurations
         public Assembly EntityAssembly { get; set; }
         public static AutumnSettings Current { get; private set; }
         public Dictionary<Type, AttributeRouteModel> Routes { get; private set; }
+        public Dictionary<string,AutumnIgnoreOperationType> IgnoresPaths { get; set; }
         public Dictionary<Type, AutumnEntityInfo> EntitiesInfos { get; private set; }
 
         static AutumnSettings()
@@ -67,20 +68,21 @@ namespace Autumn.Mvc.Data.Configurations
             Current.EntityAssembly = Current.EntityAssembly ?? callingAssembly;
             foreach (var type in Current.EntityAssembly.GetTypes())
             {
-                var entityAttribute = type.GetCustomAttribute<AutumnEntityAttribute>();
+                var entityAttribute = type.GetCustomAttribute<AutumnEntityAttribute>(false);
                 if (entityAttribute == null) continue;
-                AutumnEntityKeyInfo keyInfo = null;
+                var ignoreOperationAttribute = type.GetCustomAttribute<AutumnIgnoreOperationAttribute>(false);
+                AutumnEntityKeyInfo entityKeyInfo = null;
                 foreach (var property in type.GetProperties())
                 {
                     var keyAttribute = property.GetCustomAttribute<AutumnKeyAttribute>();
                     if (keyAttribute == null) continue;
-                    keyInfo = new AutumnEntityKeyInfo(property, keyAttribute);
+                    entityKeyInfo = new AutumnEntityKeyInfo(property, keyAttribute);
                     break;
                 }
-                if (keyInfo == null) continue;
+                if (entityKeyInfo == null) continue;
                 var proxyTypes = AutumnTypeBuilder.CompileResultType(type);
                 Current.EntitiesInfos.Add(type,
-                    new AutumnEntityInfo(type, proxyTypes, entityAttribute, keyInfo));
+                    new AutumnEntityInfo(type, proxyTypes, entityAttribute, entityKeyInfo, ignoreOperationAttribute));
             }
 
             Mapper.Initialize(c =>
@@ -93,7 +95,6 @@ namespace Autumn.Mvc.Data.Configurations
                     }
                 }
             });
-
         }
 
 
@@ -104,6 +105,7 @@ namespace Autumn.Mvc.Data.Configurations
         private static void BuildRoutes()
         {
             Current.Routes = new Dictionary<Type, AttributeRouteModel>();
+            Current.IgnoresPaths = new Dictionary<string, AutumnIgnoreOperationType>();
             var baseType = typeof(RepositoryControllerAsync<,,,>);
             foreach (var entityType in Current.EntitiesInfos.Keys)
             {
@@ -126,11 +128,15 @@ namespace Autumn.Mvc.Data.Configurations
                 var entityKeyType = info.KeyInfo.Property.PropertyType;
                 var controllerType = baseType.MakeGenericType(
                     info.EntityType,
-                    info.ProxyTypes[AutumnIgnoreType.Post],
-                    info.ProxyTypes[AutumnIgnoreType.Put],
+                    info.ProxyTypes[AutumnIgnoreOperationPropertyType.Insert],
+                    info.ProxyTypes[AutumnIgnoreOperationPropertyType.Update],
                     entityKeyType);
                 var attributeRouteModel = new AttributeRouteModel(new RouteAttribute(name));
                 Current.Routes.Add(controllerType, attributeRouteModel);
+                if (info.IgnoreOperations != null)
+                {
+                    Current.IgnoresPaths.Add("/"+name, info.IgnoreOperations.Value);
+                }
             }
         }
     }

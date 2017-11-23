@@ -8,5 +8,6 @@ namespace Autumn.Mvc.Data.Annotations
     {
         public string Name { get; set; }
         public string Version { get; set; }
+        public AutumnIgnoreOperationType? IgnoreOperations { get; set; }
     }
 }

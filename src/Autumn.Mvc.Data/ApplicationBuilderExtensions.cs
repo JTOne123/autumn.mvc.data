@@ -16,7 +16,8 @@ namespace Autumn.Mvc.Data
         
             var result = app;
             result = result
-                .UseMiddleware(typeof(ErrorHandlingMiddleware));
+                .UseMiddleware(typeof(ErrorHandlingMiddleware))
+                .UseMiddleware(typeof(IgnoreOperationMiddleware));
 
             if (!AutumnSettings.Current.UseSwagger) return result;
 

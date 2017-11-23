@@ -10,33 +10,33 @@ namespace Autumn.Mvc.Data
 {
     public static class AutumnTypeBuilder
     {
-        public static Dictionary<AutumnIgnoreType, Type> CompileResultType(Type originType)
+        public static Dictionary<AutumnIgnoreOperationPropertyType, Type> CompileResultType(Type originType)
         {
-            var typeBuilderPost = GetTypeBuilder(originType, AutumnIgnoreType.Post);
+            var typeBuilderPost = GetTypeBuilder(originType, AutumnIgnoreOperationPropertyType.Insert);
             typeBuilderPost.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName |
                                                      MethodAttributes.RTSpecialName);
 
-            var typeBuilderPut = GetTypeBuilder(originType, AutumnIgnoreType.Put);
+            var typeBuilderPut = GetTypeBuilder(originType, AutumnIgnoreOperationPropertyType.Update);
             typeBuilderPut.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName |
                                                     MethodAttributes.RTSpecialName);
             foreach (var property in originType.GetProperties())
             {
-                CreateProperty(typeBuilderPost, property, AutumnIgnoreType.Post);
-                CreateProperty(typeBuilderPut, property, AutumnIgnoreType.Put);
+                CreateProperty(typeBuilderPost, property, AutumnIgnoreOperationPropertyType.Insert);
+                CreateProperty(typeBuilderPut, property, AutumnIgnoreOperationPropertyType.Update);
             }
 
-            var result = new Dictionary<AutumnIgnoreType, Type>
+            var result = new Dictionary<AutumnIgnoreOperationPropertyType, Type>
             {
-                [AutumnIgnoreType.Post] = typeBuilderPost.CreateTypeInfo().AsType(),
-                [AutumnIgnoreType.Put] = typeBuilderPut.CreateTypeInfo().AsType()
+                [AutumnIgnoreOperationPropertyType.Insert] = typeBuilderPost.CreateTypeInfo().AsType(),
+                [AutumnIgnoreOperationPropertyType.Update] = typeBuilderPut.CreateTypeInfo().AsType()
             };
 
             return result;
         }
 
-        private static TypeBuilder GetTypeBuilder(Type originType, AutumnIgnoreType type)
+        private static TypeBuilder GetTypeBuilder(Type originType, AutumnIgnoreOperationPropertyType operationPropertyType)
         {
-            var typeSignature = originType.Name + "Proxy_" + type.ToString();
+            var typeSignature = originType.Name + "Proxy_" + operationPropertyType.ToString();
             var an = new AssemblyName(typeSignature);
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(an, AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.DefineDynamicModule("MainModule");
@@ -51,13 +51,13 @@ namespace Autumn.Mvc.Data
             return tb;
         }
 
-        private static void CreateProperty(TypeBuilder typeBuilder, PropertyInfo propertyInfo, AutumnIgnoreType type)
+        private static void CreateProperty(TypeBuilder typeBuilder, PropertyInfo propertyInfo, AutumnIgnoreOperationPropertyType operationPropertyType)
         {
-            var ignoreAttribute = propertyInfo.GetCustomAttribute<AutumnIgnoreAttribute>();
+            var ignoreAttribute = propertyInfo.GetCustomAttribute<AutumnIgnoreOperationPropertyAttribute>();
            
-            if (ignoreAttribute?.Type == (AutumnIgnoreType.Post | AutumnIgnoreType.Put)) return;
-            if (ignoreAttribute?.Type == AutumnIgnoreType.Put  && type == AutumnIgnoreType.Put) return;
-            if (ignoreAttribute?.Type == AutumnIgnoreType.Post && type == AutumnIgnoreType.Post) return;
+            if (ignoreAttribute?.OperationTypes == (AutumnIgnoreOperationPropertyType.Insert | AutumnIgnoreOperationPropertyType.Update)) return;
+            if (ignoreAttribute?.OperationTypes == AutumnIgnoreOperationPropertyType.Update  && operationPropertyType == AutumnIgnoreOperationPropertyType.Update) return;
+            if (ignoreAttribute?.OperationTypes == AutumnIgnoreOperationPropertyType.Insert && operationPropertyType == AutumnIgnoreOperationPropertyType.Insert) return;
 
             var propertyName = propertyInfo.Name;
             var propertyType = propertyInfo.PropertyType;
@@ -163,7 +163,7 @@ namespace Autumn.Mvc.Data
         private static CustomAttributeBuilder BuildCustomAttribute(Attribute attribute)
         {
             var type = attribute.GetType();
-            if (type == typeof(AutumnIgnoreAttribute)) return null;
+            if (type == typeof(AutumnIgnoreOperationPropertyAttribute)) return null;
             if (!type.IsSubclassOf(typeof(ValidationAttribute)) && type.Namespace != "Newtonsoft.Json") return null;
 
             var constructorInfo = BuildConstuctorInfos(attribute);
