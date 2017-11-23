@@ -15,17 +15,17 @@ namespace Autumn.Mvc.Data.Configurations
         public AutumnEntityKeyInfo KeyInfo { get; }
         public Dictionary<AutumnIgnoreType, Type> ProxyTypes { get; }
 
-        public AutumnEntityInfo(AutumnSettings settings, Type entityType, Dictionary<AutumnIgnoreType, Type> proxyTypes,
+        public AutumnEntityInfo(Type entityType, Dictionary<AutumnIgnoreType, Type> proxyTypes,
             AutumnEntityAttribute entityAttribute,
             AutumnEntityKeyInfo keyInfo)
         {
             EntityType = entityType;
             ProxyTypes = proxyTypes;
-            ApiVersion = Regex.Match(entityAttribute.Version??string.Empty, "v[0-9]+", RegexOptions.IgnoreCase).Success ? entityAttribute.Version : settings.DefaultApiVersion;
+            ApiVersion = Regex.Match(entityAttribute.Version??string.Empty, "v[0-9]+", RegexOptions.IgnoreCase).Success ? entityAttribute.Version : AutumnSettings.Current.DefaultApiVersion;
             Name = entityAttribute.Name ?? entityType.Name;
             KeyInfo = keyInfo;
-            ControllerName = Name.ToCase(settings.NamingStrategy);
-            if (settings.PluralizeController && !ControllerName.EndsWith("s"))
+            ControllerName = Name.ToCase(AutumnSettings.Current.NamingStrategy);
+            if (AutumnSettings.Current.PluralizeController && !ControllerName.EndsWith("s"))
             {
                 ControllerName += "s";
             }

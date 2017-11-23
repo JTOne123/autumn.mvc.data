@@ -37,7 +37,7 @@ namespace Autumn.Mvc.Data.Middlewares
             JsonSerializerSettings = new JsonSerializerSettings
             {
                 ContractResolver =
-                    new DefaultContractResolver() { NamingStrategy = AutumnSettings.Instance.NamingStrategy }
+                    new DefaultContractResolver() { NamingStrategy = AutumnSettings.Current.NamingStrategy }
             };
         }
 

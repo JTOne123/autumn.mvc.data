@@ -1,15 +1,12 @@
 ﻿using Autumn.Mvc.Data.MongoDB;
-using Autumn.Mvc.Data.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Samples
 {
-     [EnableAutoConfigurationSwagger]
     public class Startup
     {
         public Startup(IHostingEnvironment env,IConfiguration configuration)
@@ -24,12 +21,18 @@ namespace Autumn.Mvc.Data.Samples
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAutumn((s) => new AutumnOptions(services)
-                .UseApiVersion("v1")
-                .UsePluralizationController(true)
-                .UseNamingStrategy(new SnakeCaseNamingStrategy())
-                .UseMongo("sample","mongodb://jason.garnier-family.lan:27017,ulysse.garnier-family.lan:27017,achille.garnier-family.lan:27017?readPreference=primary&replicaSet=rs0"))
-            ;
+            services
+                .AddAutumn(config =>
+                    config
+                        .QueryFieldName("search")
+                        .Pluralized()
+                        .Swagger())
+                .AddAutumnMongo(config =>
+                    config
+                        .ConnectionString(
+                            "mongodb://jason.garnier-family.lan:27017,ulysse.garnier-family.lan:27017,achille.garnier-family.lan:27017?readPreference=primary&replicaSet=rs0")
+                        .Database("sample")
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,7 +44,7 @@ namespace Autumn.Mvc.Data.Samples
             }
 
             app
-                .UseAutumn(env, loggerFactory)
+                .UseAutumn(loggerFactory)
                 .UseMvc();
         }
     }

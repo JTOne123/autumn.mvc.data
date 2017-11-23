@@ -2,7 +2,7 @@
 
 namespace Autumn.Mvc.Data
 {
-    public abstract class AutumnException : Exception
+    public abstract class     AutumnException : Exception
     {
         protected AutumnException()
         {

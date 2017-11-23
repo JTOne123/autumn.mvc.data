@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using AutoMapper;
 using Autumn.Mvc.Data.Annotations;
@@ -14,6 +13,7 @@ namespace Autumn.Mvc.Data.Configurations
 {
     public class AutumnSettings
     {
+
         public string PageSizeFieldName { get; set; }
         public string SortFieldName { get; set; }
         public string PageNumberFieldName { get; set; }
@@ -21,16 +21,16 @@ namespace Autumn.Mvc.Data.Configurations
         public int DefaultPageSize { get; set; }
         public bool PluralizeController { get; set; }
         public NamingStrategy NamingStrategy { get; set; }
+        public bool UseSwagger { get; set; }
         public string DefaultApiVersion { get; set; }
         public Assembly EntityAssembly { get; set; }
-        public static AutumnSettings Instance { get; private set; }
+        public static AutumnSettings Current { get; private set; }
         public Dictionary<Type, AttributeRouteModel> Routes { get; private set; }
-        public Dictionary<Type, AutumnEntityInfo> EntitiesInfos { get; private set;}
-        public List<EnableAutoConfigurationAttribute> AutoConfigurations { get;  private set;}
+        public Dictionary<Type, AutumnEntityInfo> EntitiesInfos { get; private set; }
 
         static AutumnSettings()
         {
-            Instance = new AutumnSettings()
+            Current = new AutumnSettings()
             {
                 PageSizeFieldName = "PageSize",
                 PageNumberFieldName = "PageNumber",
@@ -41,23 +41,21 @@ namespace Autumn.Mvc.Data.Configurations
                 DefaultApiVersion = "v1",
                 NamingStrategy = new DefaultNamingStrategy()
             };
-
         }
 
         /// <summary>
         /// build AutumnSettings
         /// </summary>
         /// <returns></returns>
-        public static AutumnSettings Build(AutumnOptions options, Assembly callingAssembly)
+        public static void Build(Assembly callingAssembly)
         {
-            Instance.PageSizeFieldName = Instance.PageSizeFieldName.ToCase(Instance.NamingStrategy);
-            Instance.PageNumberFieldName = Instance.PageNumberFieldName.ToCase(Instance.NamingStrategy);
-            Instance.QueryFieldName = Instance.QueryFieldName.ToCase(Instance.NamingStrategy);
-            Instance.SortFieldName = Instance.SortFieldName.ToCase(Instance.NamingStrategy);
+            Current.NamingStrategy = Current.NamingStrategy ?? new DefaultNamingStrategy();
+            Current.PageSizeFieldName = (Current.PageSizeFieldName ?? "PageSize").ToCase(Current.NamingStrategy);
+            Current.PageNumberFieldName = (Current.PageNumberFieldName ?? "PageNumber").ToCase(Current.NamingStrategy);
+            Current.QueryFieldName = (Current.QueryFieldName ?? "Query").ToCase(Current.NamingStrategy);
+            Current.SortFieldName = (Current.SortFieldName ?? "Sort").ToCase(Current.NamingStrategy);
             BuildEntitiesInfosSettings(callingAssembly);
-            BuildEnableAutoConfigurationsSettings(callingAssembly);
             BuildRoutes();
-            return Instance;
         }
 
         /// <summary>
@@ -65,9 +63,9 @@ namespace Autumn.Mvc.Data.Configurations
         /// </summary>
         private static void BuildEntitiesInfosSettings(Assembly callingAssembly)
         {
-            Instance.EntitiesInfos = new Dictionary<Type, AutumnEntityInfo>();
-            Instance.EntityAssembly = Instance.EntityAssembly ?? callingAssembly;
-            foreach (var type in Instance.EntityAssembly.GetTypes())
+            Current.EntitiesInfos = new Dictionary<Type, AutumnEntityInfo>();
+            Current.EntityAssembly = Current.EntityAssembly ?? callingAssembly;
+            foreach (var type in Current.EntityAssembly.GetTypes())
             {
                 var entityAttribute = type.GetCustomAttribute<AutumnEntityAttribute>();
                 if (entityAttribute == null) continue;
@@ -81,13 +79,13 @@ namespace Autumn.Mvc.Data.Configurations
                 }
                 if (keyInfo == null) continue;
                 var proxyTypes = AutumnTypeBuilder.CompileResultType(type);
-                Instance.EntitiesInfos.Add(type,
-                    new AutumnEntityInfo(Instance, type, proxyTypes, entityAttribute, keyInfo));
+                Current.EntitiesInfos.Add(type,
+                    new AutumnEntityInfo(type, proxyTypes, entityAttribute, keyInfo));
             }
 
             Mapper.Initialize(c =>
             {
-                foreach (var entityInfo in Instance.EntitiesInfos.Values)
+                foreach (var entityInfo in Current.EntitiesInfos.Values)
                 {
                     foreach (var proxyType in entityInfo.ProxyTypes.Values)
                     {
@@ -105,13 +103,13 @@ namespace Autumn.Mvc.Data.Configurations
         /// <returns></returns>
         private static void BuildRoutes()
         {
-            Instance.Routes = new Dictionary<Type, AttributeRouteModel>();
+            Current.Routes = new Dictionary<Type, AttributeRouteModel>();
             var baseType = typeof(RepositoryControllerAsync<,,,>);
-            foreach (var entityType in Instance.EntitiesInfos.Keys)
+            foreach (var entityType in Current.EntitiesInfos.Keys)
             {
-                var info = Instance.EntitiesInfos[entityType];
+                var info = Current.EntitiesInfos[entityType];
                 var name = info.Name;
-                switch (Instance.NamingStrategy)
+                switch (Current.NamingStrategy)
                 {
                     case SnakeCaseNamingStrategy _:
                         name = name.ToSnakeCase();
@@ -120,7 +118,7 @@ namespace Autumn.Mvc.Data.Configurations
                         name = name.ToCamelCase();
                         break;
                 }
-                if (Instance.PluralizeController && !name.EndsWith("s"))
+                if (Current.PluralizeController && !name.EndsWith("s"))
                 {
                     name = name + "s";
                 }
@@ -128,26 +126,12 @@ namespace Autumn.Mvc.Data.Configurations
                 var entityKeyType = info.KeyInfo.Property.PropertyType;
                 var controllerType = baseType.MakeGenericType(
                     info.EntityType,
-                    info.ProxyTypes[AutumnIgnoreType.Post], 
+                    info.ProxyTypes[AutumnIgnoreType.Post],
                     info.ProxyTypes[AutumnIgnoreType.Put],
                     entityKeyType);
                 var attributeRouteModel = new AttributeRouteModel(new RouteAttribute(name));
-                Instance.Routes.Add(controllerType, attributeRouteModel);
+                Current.Routes.Add(controllerType, attributeRouteModel);
             }
-        }
-
-        private static void BuildEnableAutoConfigurationsSettings(Assembly callingAssembly)
-        {
-            Instance.AutoConfigurations = new List<EnableAutoConfigurationAttribute>();
-            foreach (var type in callingAssembly.GetTypes())
-            {
-                var attributes = type.GetCustomAttributes()
-                    .Where(a => a.GetType().IsSubclassOf(typeof(EnableAutoConfigurationAttribute)))
-                    .OfType<EnableAutoConfigurationAttribute>();
-                Instance.AutoConfigurations.AddRange(attributes);
-            }
-            Instance.AutoConfigurations = Instance.AutoConfigurations.OrderBy(c => c.Order)
-                .ToList();
         }
     }
 }

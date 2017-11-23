@@ -407,18 +407,20 @@ namespace Autumn.Mvc.Data.Models.Queries
             var items = new List<object>();
             foreach (var valueContext in argumentsContext.value())
             {
-
                 if (valueContext.single_quote() != null || valueContext.double_quote() != null)
                 {
+                    var replace = valueContext.single_quote() != null ? "'" : "\"";
                     var value = valueContext.GetText();
                     if (value.Length == 2)
                     {
                         items.Add(string.Empty);
                     }
-                    items.Add(value.Substring(1, value.Length - 2));
-
+                    items.Add(value.Substring(1, value.Length - 2).Replace("\\" + replace, replace));
                 }
-                items.Add(valueContext.GetText());
+                else
+                {
+                    items.Add(valueContext.GetText());
+                }
             }
             return items;
         }

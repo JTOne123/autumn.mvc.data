@@ -10,11 +10,11 @@ namespace Autumn.Mvc.Data.Controllers
     {
         public void Apply(ControllerModel controller)
         {
-            if (!AutumnSettings.Instance.Routes.ContainsKey(controller.ControllerType)) return;
+            if (!AutumnSettings.Current.Routes.ContainsKey(controller.ControllerType)) return;
             var defaultSelector = controller.Selectors.First(s => s.AttributeRouteModel == null);
-            defaultSelector.AttributeRouteModel = AutumnSettings.Instance.Routes[controller.ControllerType];
+            defaultSelector.AttributeRouteModel = AutumnSettings.Current.Routes[controller.ControllerType];
             var entityType = controller.ControllerType.GetGenericArguments()[0];
-            var autumnEntityInfo = AutumnSettings.Instance.EntitiesInfos[entityType];
+            var autumnEntityInfo = AutumnSettings.Current.EntitiesInfos[entityType];
             controller.ApiExplorer.GroupName = autumnEntityInfo.ApiVersion;
             controller.ControllerName = autumnEntityInfo.ControllerName;
         }

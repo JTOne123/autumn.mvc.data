@@ -23,7 +23,7 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
         {
             _filterDefinitionBuilder = new FilterDefinitionBuilder<TEntity>();
             var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.DatabaseName);
+            var database = client.GetDatabase(settings.Database);
             var collectionName = EntityInfo.Name;
             _collection = database.GetCollection<TEntity>(collectionName);
         }
