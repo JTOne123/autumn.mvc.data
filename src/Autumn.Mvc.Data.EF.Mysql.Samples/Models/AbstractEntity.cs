@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Autumn.Mvc.Data.Annotations;
 
-namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
+namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
 {
     public abstract class AbstractEntity
     {

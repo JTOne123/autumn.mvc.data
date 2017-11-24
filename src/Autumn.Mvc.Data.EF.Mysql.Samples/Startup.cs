@@ -1,10 +1,10 @@
-﻿using Autumn.Mvc.Data.EF.SqlServer.Samples.Models;
+﻿using Autumn.Mvc.Data.EF.Mysql.Samples.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Autumn.Mvc.Data.EF.SqlServer.Samples
+namespace Autumn.Mvc.Data.EF.Mysql.Samples
 {
     public class Startup
     {
@@ -13,7 +13,7 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
             _hostingEnvironment = env;
         }
 
-         private IHostingEnvironment _hostingEnvironment;
+        private IHostingEnvironment _hostingEnvironment;
        
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -21,12 +21,11 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
             services
                 .AddAutumn(config =>
                     config
-                        .QueryFieldName("search")
                         .Pluralized()
                         .Swagger())
-                .AddAutumnEntityFrameworkCoreSqlServer<ChinookContext>(config =>
+                .AddAutumnEntityFrameworkCoreMysql<ChinookContext>(config =>
                     config
-                        .ConnectionString("server=localhost;database=Chinook;User Id=sa;password=@utUmn")
+                        .ConnectionString("server=localhost;port=3306;database=chinook;uid=root;password=@utumn")
                         .Evolve()
                 );
         }

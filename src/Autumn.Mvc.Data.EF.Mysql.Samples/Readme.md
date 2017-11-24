@@ -1,0 +1,1 @@
+docker run -e MYSQL_USER=autumn -e MYSQL_PASSWORD=autumn -e MYSQL_ROOT_PASSWORD=@utumn -e MYSQL_DATABASE=chinook -d -p 3306:3306 mysql:latest

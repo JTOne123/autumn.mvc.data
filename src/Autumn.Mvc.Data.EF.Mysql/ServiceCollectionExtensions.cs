@@ -3,9 +3,9 @@ using Autumn.Mvc.Data.EF.Mysql.Configuration;
 using Autumn.Mvc.Data.EF.Repositories;
 using Autumn.Mvc.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MySql.Data.EntityFrameworkCore.Infraestructure;
 using MySql.Data.MySqlClient;
 
 namespace Autumn.Mvc.Data.EF.Mysql
@@ -15,7 +15,7 @@ namespace Autumn.Mvc.Data.EF.Mysql
         public static IServiceCollection AddAutumnEntityFrameworkCoreMysql<TContext>(
             this IServiceCollection serviceCollection,
             Action<AutumnEntityFrameworkCoreMysqlSettingsBuilder> autumnMySqlOptionsAction,
-            Action<MySQLDbContextOptionsBuilder> mysqlOptionsAction = null,
+            Action<MySqlDbContextOptionsBuilder> mysqlOptionsAction = null,
             ILoggerFactory loggerFactory = null)
             where TContext : DbContext
         {
@@ -37,14 +37,17 @@ namespace Autumn.Mvc.Data.EF.Mysql
 
                 using (var connection = new MySqlConnection(settings.ConnectionString))
                 {
-                    var evolve = new Evolve.Evolve(connection, log);
+                    var evolve = new Evolve.Evolve(connection, log)
+                    {
+                        MustEraseOnValidationError = true
+                    };
                     evolve.Migrate();
                 }
             }
 
             serviceCollection.AddDbContextPool<TContext>(o =>
             {
-                o.UseMySQL(settings.ConnectionString, mysqlOptionsAction);
+                o.UseMySql(settings.ConnectionString, mysqlOptionsAction);
             });
 
             serviceCollection.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(TContext)));

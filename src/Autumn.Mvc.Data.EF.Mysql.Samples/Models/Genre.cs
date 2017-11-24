@@ -1,6 +1,6 @@
 ﻿using Autumn.Mvc.Data.Annotations;
 
-namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
+namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
 {
     [AutumnEntity]
     [AutumnIgnoreOperation(AutumnIgnoreOperationType.Insert | AutumnIgnoreOperationType.Update | AutumnIgnoreOperationType.Delete)]
