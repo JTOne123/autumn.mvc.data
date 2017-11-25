@@ -73,7 +73,7 @@ namespace Autumn.Mvc.Data.EF.Repositories
             var entityDb = await OnFindOneAsync(filter);
             if (entityDb == null) return null;
             _dbContext.Set<TEntity>().Remove(entityDb);
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();    
             return entityDb;
         }
 
