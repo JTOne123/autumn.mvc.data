@@ -1,0 +1,19 @@
+language: csharp
+dist: trusty
+services:
+  - docker
+env:
+  global:
+    - DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+    - DOTNET_CLI_TELEMETRY_OPTOUT: 1
+sudo: required
+mono: none
+dotnet: 2.0.2
+os:
+  - linux
+script:
+  - dotnet restore ./src/Autumn.Mvc.Data.sln
+  - dotnet build --configuration Release ./src/Autumn.Mvc.Data.sln
+  - dotnet test --configuration Release --no-build .src/Autumn.Mvc.Data.Tests/Autumn.Mvc.Data.Tests.csproj
+
+
