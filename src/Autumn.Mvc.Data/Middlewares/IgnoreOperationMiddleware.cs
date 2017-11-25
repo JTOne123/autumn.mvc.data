@@ -25,6 +25,10 @@ namespace Autumn.Mvc.Data.Middlewares
                 {
                     context.Response.StatusCode = 404;
                 }
+                else
+                {
+                    await _next(context);
+                }
             }
             else
             {

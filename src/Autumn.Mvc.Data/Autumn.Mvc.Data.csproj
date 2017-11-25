@@ -24,7 +24,4 @@
       <HintPath>..\..\..\..\..\..\home\gwendall\.nuget\packages\system.reflection.emit.ilgeneration\4.3.0\ref\netstandard1.0\System.Reflection.Emit.ILGeneration.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Documentations" />
-  </ItemGroup>
 </Project>

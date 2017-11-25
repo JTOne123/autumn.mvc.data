@@ -16,29 +16,35 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Artist>()
-                .ToTable("Artist")
-                .Property(a=>a.Id).HasColumnName("ArtistId");
+                .ToTable("artist")
+                .Property(a => a.Id).HasColumnName("artistid")
+                .ValueGeneratedOnAdd();
             
             
             modelBuilder.Entity<Genre>()
-                .ToTable("Genre")
-                .Property(o=>o.Id).HasColumnName("GenreId");
+                .ToTable("genre")
+                .Property(o=>o.Id).HasColumnName("genreid")
+                .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<Album>()
-                .ToTable("Album")
-                .Property(a => a.Id).HasColumnName("AlbumId");
+                .ToTable("album")
+                .Property(a => a.Id).HasColumnName("albumid")
+                .ValueGeneratedOnAdd();
             
             modelBuilder.Entity<Customer>()
-                .ToTable("Customer")
-                .Property(a => a.Id).HasColumnName("CustomerId");
+                .ToTable("customer")
+                .Property(a => a.Id).HasColumnName("customerid")
+                .ValueGeneratedOnAdd();
             
             modelBuilder.Entity<Employee>()
-                .ToTable("Employee")
-                .Property(a => a.Id).HasColumnName("EmployeeId");
+                .ToTable("employee")
+                .Property(a => a.Id).HasColumnName("employeeid")
+                .ValueGeneratedOnAdd();
             
             modelBuilder.Entity<Invoice>()
-                .ToTable("Invoice")
-                .Property(a => a.Id).HasColumnName("InvoiceId");
+                .ToTable("invoice")
+                .Property(a => a.Id).HasColumnName("invoiceid")
+                .ValueGeneratedOnAdd();
         }
     }
 }
