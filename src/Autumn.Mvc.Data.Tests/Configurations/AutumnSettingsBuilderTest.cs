@@ -92,7 +92,7 @@ namespace Autumn.Mvc.Data.Tests.Configurations
             
             builder.NamingStrategy(new CamelCaseNamingStrategy());
             builder.Build(Assembly());
-            Assert.True(AutumnSettings.Current.QueryFieldName == "sort");
+            Assert.True(AutumnSettings.Current.SortFieldName == "sort");
 
             builder.SortFieldName("S");
             builder.Build(Assembly());
