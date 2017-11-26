@@ -6,7 +6,7 @@
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170628-02" />
-    <PackageReference Include="Moq" Version="4.7.142" />
+    <PackageReference Include="Moq" Version="4.7.145" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
   </ItemGroup>
@@ -14,6 +14,8 @@
     <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Configuration" />
+    <Folder Include="Middlewares" />
     <Folder Include="Models" />
   </ItemGroup>
 </Project>

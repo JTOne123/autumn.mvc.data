@@ -2,6 +2,7 @@
 
 namespace Autumn.Mvc.Data.Annotations
 {
+    
     [AttributeUsage(AttributeTargets.Class)]
     public class AutumnIgnoreOperationAttribute : Attribute
     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Autumn.Mvc.Data.Annotations;
 
@@ -31,5 +32,10 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
         [Required]
         [Range(0, 99999999999.99)]
         public decimal Total { get; set; }
+        
+        /// <summary>
+        /// invoice lines
+        /// </summary>
+        public List<InvoiceLine> Lines { get; set; }
     }
 }

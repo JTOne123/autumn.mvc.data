@@ -12,7 +12,7 @@ namespace Autumn.Mvc.Data.Repositories
     {
 
         private readonly ParameterExpression _parameter;
-        protected AutumnEntityInfo EntityInfo { get; }
+         protected AutumnEntityInfo EntityInfo { get; }
 
         protected CrudPageableRepositoryAsync()
         {
@@ -21,7 +21,7 @@ namespace Autumn.Mvc.Data.Repositories
         }
 
         #region FindOneAsync
-        
+
         public async Task<TEntity> FindOneAsync(TKey id)
         {
             var filter = Expression.Lambda<Func<TEntity, bool>>(
@@ -31,7 +31,9 @@ namespace Autumn.Mvc.Data.Repositories
                 )
                 , _parameter
             );
-            return await OnFindOneAsync(filter);
+            var result = await OnFindOneAsync(filter);
+            
+            return result;
         }
 
         protected abstract Task<TEntity> OnFindOneAsync(Expression<Func<TEntity,bool>> filter);

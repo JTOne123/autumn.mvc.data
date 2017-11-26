@@ -85,6 +85,8 @@ namespace Autumn.Mvc.Data.Configurations
                     new AutumnEntityInfo(type, proxyTypes, entityAttribute, entityKeyInfo, ignoreOperationAttribute));
             }
 
+            Mapper.Reset();
+            
             Mapper.Initialize(c =>
             {
                 foreach (var entityInfo in Current.EntitiesInfos.Values)
