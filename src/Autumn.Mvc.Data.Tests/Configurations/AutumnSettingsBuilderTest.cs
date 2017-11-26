@@ -96,7 +96,7 @@ namespace Autumn.Mvc.Data.Tests.Configurations
 
             builder.SortFieldName("S");
             builder.Build(Assembly());
-            Assert.True(AutumnSettings.Current.SortFieldName == "S");
+            Assert.True(AutumnSettings.Current.SortFieldName == "s");
         }
     }
 }

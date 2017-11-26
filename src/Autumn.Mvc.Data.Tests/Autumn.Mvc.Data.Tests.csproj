@@ -14,8 +14,6 @@
     <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Configuration" />
-    <Folder Include="Middlewares" />
     <Folder Include="Models" />
   </ItemGroup>
 </Project>
