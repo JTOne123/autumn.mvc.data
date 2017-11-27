@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Models.Queries;
 using Autumn.Mvc.Data.Models.Queries.Exceptions;
@@ -85,7 +84,7 @@ namespace Autumn.Mvc.Data.Helpers
 
         #region GetExpressionModelBinder
 
-        public static IModelBinder GetExpressionModelBinder(Type type, AutumnSettings autumnSettings)
+        public static IModelBinder GetExpressionModelBinder(Type type)
         {
             lock (ExpressionModelBinders)
             {
@@ -93,18 +92,8 @@ namespace Autumn.Mvc.Data.Helpers
                 var entityType = type
                     .GetGenericArguments()[0]
                     .GetGenericArguments()[0];
-
                 var modelBinderType = typeof(QueryModelBinder<>).MakeGenericType(entityType);
-                var constructorInfo = modelBinderType.GetConstructor(new [] {typeof(AutumnSettings)});
-
-                ExpressionModelBinders.Add(
-                    type,
-                    (IModelBinder) constructorInfo.Invoke(new object[]
-                    {
-                        autumnSettings
-                    })
-                );
-
+                ExpressionModelBinders.Add(type,(IModelBinder)Activator.CreateInstance(modelBinderType));
                 return ExpressionModelBinders[type];
             }
         }
@@ -113,27 +102,15 @@ namespace Autumn.Mvc.Data.Helpers
 
         #region GetPageableModelBinder
 
-        public static IModelBinder GetPageableModelBinder(Type type, AutumnSettings autumnSettings)
+        public static IModelBinder GetPageableModelBinder(Type type)
         {
             lock (PageableModelBinders)
             {
                 if (PageableModelBinders.ContainsKey(type)) return PageableModelBinders[type];
                 var entityType = type
                     .GetGenericArguments()[0];
-
-                var modelBinderType = typeof(PageableModelBinder<>)
-                    .MakeGenericType(entityType);
-
-                var constructorInfo = modelBinderType.GetConstructor(new[]
-                    {typeof(AutumnSettings)});
-
-                PageableModelBinders.Add(type,
-                    (IModelBinder) constructorInfo.Invoke(new object[]
-                    {
-                        autumnSettings
-                    })
-                );
-
+                var modelBinderType = typeof(PageableModelBinder<>).MakeGenericType(entityType);
+                PageableModelBinders.Add(type,(IModelBinder) Activator.CreateInstance(modelBinderType));
                 return PageableModelBinders[type];
             }
         }

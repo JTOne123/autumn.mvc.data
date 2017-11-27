@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Antlr4.Runtime;
-using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Helpers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Caching.Memory;
@@ -13,18 +12,11 @@ namespace Autumn.Mvc.Data.Models.Queries
 {
     public class QueryModelBinder<T> : IModelBinder
     {
-        private readonly AutumnSettings _autumnSettings;
-   
-        public QueryModelBinder(AutumnSettings autumnSettings)
-        {
-            _autumnSettings = autumnSettings;
-        }
-
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             var queryCollection = bindingContext.ActionContext.HttpContext.Request.Query;
             var eval = CommonHelper.True<T>();
-            if (queryCollection.TryGetValue(_autumnSettings.QueryFieldName, out var query))
+            if (queryCollection.TryGetValue(AutumnApplication.Current.QueryFieldName, out var query))
             {
                 var hash = Hash(query[0]);
                 if (!CommonHelper.QueriesCache.TryGetValue(hash, out eval))
@@ -70,7 +62,7 @@ namespace Autumn.Mvc.Data.Models.Queries
             var commonTokenStream = new CommonTokenStream(lexer);
             var parser = new QueryParser(commonTokenStream);
             var eval = parser.eval();
-            var visitor = new DefaultQueryVisitor<T>(_autumnSettings.NamingStrategy);
+            var visitor = new DefaultQueryVisitor<T>(AutumnApplication.Current.NamingStrategy);
             return visitor.VisitEval(eval);
         }
     }

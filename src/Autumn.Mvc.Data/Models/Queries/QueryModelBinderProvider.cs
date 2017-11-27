@@ -7,18 +7,12 @@ namespace Autumn.Mvc.Data.Models.Queries
 {
     public class QueryModelBinderProvider : IModelBinderProvider
     {
-        private readonly AutumnSettings _autumnSettings;
-         
-        public QueryModelBinderProvider(AutumnSettings autumnSettings)
-        {
-            _autumnSettings = autumnSettings;
-        }
-
+       
         public IModelBinder GetBinder(ModelBinderProviderContext context)
         {
             if (!context.Metadata.ModelType.IsGenericType ||
                 context.Metadata.ModelType.GetGenericTypeDefinition() != typeof(Expression<>)) return null;
-            return CommonHelper.GetExpressionModelBinder(context.Metadata.ModelType, _autumnSettings);
+            return CommonHelper.GetExpressionModelBinder(context.Metadata.ModelType);
         }
     }
 }

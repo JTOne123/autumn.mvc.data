@@ -16,7 +16,7 @@ namespace Autumn.Mvc.Data.Repositories
 
         protected CrudPageableRepositoryAsync()
         {
-            EntityInfo = AutumnSettings.Current.EntitiesInfos[typeof(TEntity)];
+            EntityInfo = AutumnApplication.Current.EntitiesInfos[typeof(TEntity)];
             _parameter = Expression.Parameter(typeof(TEntity));
         }
 
@@ -47,7 +47,7 @@ namespace Autumn.Mvc.Data.Repositories
         {
             return await OnFindAsync(
                 filter ?? CommonHelper.True<TEntity>(),
-                pageable ?? new Pageable<TEntity>(0, AutumnSettings.Current.DefaultPageSize)
+                pageable ?? new Pageable<TEntity>(0, AutumnApplication.Current.DefaultPageSize)
             );
         }
 

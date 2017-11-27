@@ -1,18 +1,41 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using Autumn.Mvc.Data.Configurations.Exceptions;
 using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Configurations
 {
     public class AutumnSettingsBuilder
     {
-        public void Build(Assembly callingAssembly)
+
+        private readonly AutumnSettings _autumnSettings;
+
+        /// <summary>
+        /// class initializer 
+        /// </summary>
+        public AutumnSettingsBuilder()
         {
-            AutumnSettings.Build(callingAssembly);
+            _autumnSettings = new AutumnSettings();
         }
 
+        /// <summary>
+        /// build result
+        /// </summary>
+        /// <returns></returns>
+        public AutumnSettings Build()
+        {
+            return _autumnSettings;
+        }
+        
+        /// <summary>
+        /// configuration pluralize controllers
+        /// </summary>
+        /// <param name="pluralized"></param>
+        /// <returns></returns>
         public AutumnSettingsBuilder Pluralized(bool pluralized = true)
         {
-            AutumnSettings.Current.PluralizeController = pluralized;
+            _autumnSettings.PluralizeController = pluralized;
             return this;
         }
 
@@ -25,55 +48,119 @@ namespace Autumn.Mvc.Data.Configurations
         public AutumnSettingsBuilder PageSizeFieldName(string parameterName,
             int? pageSize = null)
         {
-            AutumnSettings.Current.PageSizeFieldName = parameterName;
-            AutumnSettings.Current.DefaultPageSize = pageSize ?? AutumnSettings.Current.DefaultPageSize;
+            _autumnSettings.PageSizeFieldName = parameterName;
             return this;
         }
 
         /// <summary>
         /// configuration of page number
         /// </summary>
-        /// <param name="parameterName">query parameter id for page number</param>
+        /// <param name="pageNumberFieldName">query parameter id for page number</param>
         /// <returns></returns>
-        public AutumnSettingsBuilder PageNumberFieldName(string parameterName)
+        public AutumnSettingsBuilder PageNumberFieldName(string pageNumberFieldName)
         {
-            AutumnSettings.Current.PageNumberFieldName = parameterName;
+            if (string.IsNullOrWhiteSpace(pageNumberFieldName))
+            {
+                throw new ArgumentNullException(nameof(pageNumberFieldName));
+            }
+            _autumnSettings.PageNumberFieldName = pageNumberFieldName;
             return this;
         }
 
-        public AutumnSettingsBuilder SortFieldName(string parameterName)
+
+        /// <summary>
+        /// configuraion of sort field
+        /// </summary>
+        /// <param name="sortFieldName"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public AutumnSettingsBuilder SortFieldName(string sortFieldName)
         {
-            AutumnSettings.Current.SortFieldName = parameterName;
+            if (string.IsNullOrWhiteSpace(sortFieldName))
+            {
+                throw new ArgumentNullException(nameof(sortFieldName));
+            }
+            _autumnSettings.SortFieldName = sortFieldName;
             return this;
         }
         
-        public AutumnSettingsBuilder QueryFieldName(string parameterName)
+        /// <summary>
+        /// configuration of query field name
+        /// </summary>
+        /// <param name="queryFieldName"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public AutumnSettingsBuilder QueryFieldName(string queryFieldName)
         {
-            AutumnSettings.Current.QueryFieldName = parameterName;
+            if (string.IsNullOrWhiteSpace(queryFieldName))
+            {
+                throw new ArgumentNullException(nameof(queryFieldName));
+            }
+            _autumnSettings.QueryFieldName = queryFieldName;
             return this;
         }
 
-        public AutumnSettingsBuilder EntityAssembly(Assembly assembly)
+        /// <summary>
+        /// configuration of entity assembly
+        /// </summary>
+        /// <param name="entityAssembly"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public AutumnSettingsBuilder EntityAssembly(Assembly entityAssembly)
         {
-            AutumnSettings.Current.EntityAssembly = assembly;
+            if (entityAssembly==null)
+            {
+                throw new ArgumentNullException(nameof(entityAssembly));
+            }
+            _autumnSettings.EntityAssembly = entityAssembly;
             return this;
         }
 
+        /// <summary>
+        /// configuration default api version
+        /// </summary>
+        /// <param name="defaultApiVersion"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="AutumnSettingsException"></exception>
         public AutumnSettingsBuilder DefaultApiVersion(string defaultApiVersion)
         {
-            AutumnSettings.Current.DefaultApiVersion = defaultApiVersion ?? AutumnSettings.Current.DefaultApiVersion;
+            if (string.IsNullOrWhiteSpace(defaultApiVersion))
+            {
+                throw new ArgumentNullException(nameof(defaultApiVersion));
+            }
+            if (!Regex.IsMatch(defaultApiVersion, "v[0-9]+"))
+            {
+                throw new AutumnSettingsException("invalid version see regular expression v[0-9]+");
+            }
+            _autumnSettings.DefaultApiVersion = defaultApiVersion;
             return this;
         }
 
+        /// <summary>
+        /// configuration of naming strategy
+        /// </summary>
+        /// <param name="namingStrategy"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public AutumnSettingsBuilder NamingStrategy(NamingStrategy namingStrategy)
         {
-            AutumnSettings.Current.NamingStrategy = namingStrategy ?? AutumnSettings.Current.NamingStrategy;
+            if (namingStrategy==null)
+            {
+                throw new ArgumentNullException(nameof(namingStrategy));
+            }
+            _autumnSettings.NamingStrategy = namingStrategy;
             return this;
         }
 
+        /// <summary>
+        /// configuration swagger
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public AutumnSettingsBuilder Swagger(bool value=true)
         {
-            AutumnSettings.Current.UseSwagger = value;
+            _autumnSettings.UseSwagger = value;
             return this;
         }
     }

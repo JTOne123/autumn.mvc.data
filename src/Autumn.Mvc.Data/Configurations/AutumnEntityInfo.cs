@@ -27,11 +27,11 @@ namespace Autumn.Mvc.Data.Configurations
             ApiVersion =
                 Regex.Match(entityAttribute.Version ?? string.Empty, "v[0-9]+", RegexOptions.IgnoreCase).Success
                     ? entityAttribute.Version
-                    : AutumnSettings.Current.DefaultApiVersion;
+                    : AutumnApplication.Current.DefaultApiVersion;
             Name = entityAttribute.Name ?? entityType.Name;
             KeyInfo = keyInfo;
-            ControllerName = Name.ToCase(AutumnSettings.Current.NamingStrategy);
-            if (AutumnSettings.Current.PluralizeController && !ControllerName.EndsWith("s"))
+            ControllerName = Name.ToCase(AutumnApplication.Current.NamingStrategy);
+            if (AutumnApplication.Current.PluralizeController && !ControllerName.EndsWith("s"))
             {
                 ControllerName += "s";
             }

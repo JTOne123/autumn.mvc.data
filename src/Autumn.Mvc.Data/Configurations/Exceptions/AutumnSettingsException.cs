@@ -11,7 +11,7 @@ namespace Autumn.Mvc.Data.Configurations.Exceptions
         public AutumnSettingsException(string message) : base(message)
         {
         }
-
+       
         public AutumnSettingsException(string message, Exception innerException) : base(message, innerException)
         {
         }

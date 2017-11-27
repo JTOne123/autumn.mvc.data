@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using Autumn.Mvc.Data.Annotations;
-using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
 using Autumn.Mvc.Data.Helpers;
 using Autumn.Mvc.Data.Models;
@@ -38,7 +37,7 @@ namespace Autumn.Mvc.Data.Swagger
                 typeof(RepositoryControllerAsync<,,,>)) return;
 
             var entityType = actionDescriptor.ControllerTypeInfo.GetGenericArguments()[0];
-            var entityInfo = AutumnSettings.Current.EntitiesInfos[entityType];
+            var entityInfo = AutumnApplication.Current.EntitiesInfos[entityType];
             var entitySchemaGet = GetOrRegistrySchema(entityType,"GET");
             var entitySchemaPost = GetOrRegistrySchema(entityInfo.ProxyTypes[AutumnIgnoreOperationPropertyType.Insert], "POST");
             var entitySchemaPut = GetOrRegistrySchema(entityInfo.ProxyTypes[AutumnIgnoreOperationPropertyType.Update], "PUT");
@@ -109,7 +108,7 @@ namespace Autumn.Mvc.Data.Swagger
                     Type = "string",
                     In = "query",
                     Description = "Query to search (cf. http://tools.ietf.org/html/draft-nottingham-atompub-fiql-00)",
-                    Name = AutumnSettings.Current.QueryFieldName
+                    Name = AutumnApplication.Current.QueryFieldName
                 };
                 operation.Parameters.Add(parameter);
 
@@ -120,8 +119,8 @@ namespace Autumn.Mvc.Data.Swagger
                     Minimum = 0,
                     Format = "int32",
                     Description = "Size of the page",
-                    Default = AutumnSettings.Current.DefaultPageSize,
-                    Name = AutumnSettings.Current.PageSizeFieldName
+                    Default = AutumnApplication.Current.DefaultPageSize,
+                    Name = AutumnApplication.Current.PageSizeFieldName
                 };
                 operation.Parameters.Add(parameter);
 
@@ -133,20 +132,10 @@ namespace Autumn.Mvc.Data.Swagger
                     Minimum = 0,
                     Format = "int32",
                     Default = 0,
-                    Name = AutumnSettings.Current.PageNumberFieldName
+                    Name = AutumnApplication.Current.PageNumberFieldName
                 };
                 operation.Parameters.Add(parameter);
             }
-            
-            operation.Parameters.Add(new NonBodyParameter()
-            {
-                Name="Accept-Language",
-                @In="header",
-                Type="string",
-                Required = false,
-                Description = "Accept language ( cf https://en.wikipedia.org/wiki/Content_negotiation)"
-            });
-   
         }
 
         /// <summary>
@@ -253,7 +242,7 @@ namespace Autumn.Mvc.Data.Swagger
                 var result = new Schema {Properties = new ConcurrentDictionary<string, Schema>()};
                 foreach (var propertyName in expected.Properties())
                 {
-                    var name = propertyName.Name.ToCase(AutumnSettings.Current.NamingStrategy);
+                    var name = propertyName.Name.ToCase(AutumnApplication.Current.NamingStrategy);
                     var property = type.GetProperty(propertyName.Name);
                     if (property == null) continue;
                     var propertySchema = BuildSchema(property, method);

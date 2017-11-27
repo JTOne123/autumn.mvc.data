@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Autumn.Mvc.Data.Configurations;
 using Microsoft.AspNetCore.Http;
 
 namespace Autumn.Mvc.Data.Middlewares
@@ -54,7 +53,7 @@ namespace Autumn.Mvc.Data.Middlewares
                 {"PUT", new List<string>()},
                 {"DELETE", new List<string>()}
             };
-            foreach (var item in AutumnSettings.Current.IgnoresPaths)
+            foreach (var item in AutumnApplication.Current.IgnoresPaths)
             {
                 var ignore = ((int) item.Value).ToString().PadLeft(3, '0');
                 if (ignore[0] == '1')

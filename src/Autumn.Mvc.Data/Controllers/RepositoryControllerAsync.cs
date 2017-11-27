@@ -30,7 +30,7 @@ namespace Autumn.Mvc.Data.Controllers
         public RepositoryControllerAsync(ICrudPageableRepositoryAsync<TEntity, TKey> repository)
         {
             _repository = repository;
-            _entityInfo = AutumnSettings.Current.EntitiesInfos[typeof(TEntity)];
+            _entityInfo = AutumnApplication.Current.EntitiesInfos[typeof(TEntity)];
         }
 
         [HttpGet("{id}")]

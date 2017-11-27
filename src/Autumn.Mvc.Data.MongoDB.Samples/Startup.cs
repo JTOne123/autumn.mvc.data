@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Samples
 {
@@ -24,7 +25,8 @@ namespace Autumn.Mvc.Data.Samples
             services
                 .AddAutumn(config =>
                     config
-                        .QueryFieldName("search")
+                        .QueryFieldName("Search")
+                        .NamingStrategy(new SnakeCaseNamingStrategy())
                         .Pluralized()
                         .Swagger())
                 .AddAutumnMongo(config =>

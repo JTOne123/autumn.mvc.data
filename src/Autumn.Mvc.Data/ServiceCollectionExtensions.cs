@@ -56,39 +56,39 @@ namespace Autumn.Mvc.Data
 
             var autumnConfigurationBuilder = new AutumnSettingsBuilder();
             autumnOptionsAction(autumnConfigurationBuilder);
-            autumnConfigurationBuilder.Build(Assembly.GetCallingAssembly());
-
-            services.AddSingleton(AutumnSettings.Current);
-
+            var settings = autumnConfigurationBuilder.Build();
+            
+            AutumnApplication.Initialize(settings,Assembly.GetCallingAssembly());
+            
             var mvcBuilder = services.AddMvc(c =>
             {
                 c.ModelBinderProviders.Insert(0,
-                    new PageableModelBinderProvider(AutumnSettings.Current));
+                    new PageableModelBinderProvider());
                 c.ModelBinderProviders.Insert(1,
-                    new QueryModelBinderProvider(AutumnSettings.Current));
+                    new QueryModelBinderProvider());
             });
 
             var contractResolver =
-                new DefaultContractResolver() {NamingStrategy = AutumnSettings.Current.NamingStrategy};
+                new DefaultContractResolver() {NamingStrategy = AutumnApplication.Current.NamingStrategy};
             mvcBuilder.AddJsonOptions(o => { o.SerializerSettings.ContractResolver = contractResolver; });
 
             mvcBuilder.ConfigureApplicationPartManager(p =>
             {
-                p.FeatureProviders.Add(new RespositoryControllerFeatureProvider(AutumnSettings.Current));
+                p.FeatureProviders.Add(new RespositoryControllerFeatureProvider());
             });
 
-            if (AutumnSettings.Current.UseSwagger)
+            if (settings.UseSwagger)
             {
                 services.AddSwaggerGen(c =>
                 {
-                    foreach (var version in AutumnSettings.Current.EntitiesInfos.Values.Select(e => e.ApiVersion)
+                    foreach (var version in AutumnApplication.Current.EntitiesInfos.Values.Select(e => e.ApiVersion)
                         .Distinct())
                     {
                         c.SwaggerDoc(version, new Info {Title = "api", Version = version});
                     }
                     c.DocumentFilter<AutumnSwaggerDocumentFilter>();
                     c.OperationFilter<AutumnSwaggerOperationFilter>();
-                    
+
                 });
             }
 
