@@ -6,24 +6,24 @@ using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Configurations
 {
-    public class AutumnSettingsBuilder
+    public class AutumnOptionsBuilder
     {
 
-        private readonly AutumnSettings _autumnSettings;
+        private readonly AutumnOptions _autumnSettings;
 
         /// <summary>
         /// class initializer 
         /// </summary>
-        public AutumnSettingsBuilder()
+        public AutumnOptionsBuilder()
         {
-            _autumnSettings = new AutumnSettings();
+            _autumnSettings = new AutumnOptions();
         }
 
         /// <summary>
         /// build result
         /// </summary>
         /// <returns></returns>
-        public AutumnSettings Build()
+        public AutumnOptions Build()
         {
             return _autumnSettings;
         }
@@ -33,7 +33,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// </summary>
         /// <param name="pluralized"></param>
         /// <returns></returns>
-        public AutumnSettingsBuilder Pluralized(bool pluralized = true)
+        public AutumnOptionsBuilder Pluralized(bool pluralized = true)
         {
             _autumnSettings.PluralizeController = pluralized;
             return this;
@@ -45,7 +45,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// <param name="parameterName">query parameter id for page size</param>
         /// <param name="pageSize">default page size</param>
         /// <returns></returns>
-        public AutumnSettingsBuilder PageSizeFieldName(string parameterName,
+        public AutumnOptionsBuilder PageSizeFieldName(string parameterName,
             int? pageSize = null)
         {
             _autumnSettings.PageSizeFieldName = parameterName;
@@ -57,7 +57,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// </summary>
         /// <param name="pageNumberFieldName">query parameter id for page number</param>
         /// <returns></returns>
-        public AutumnSettingsBuilder PageNumberFieldName(string pageNumberFieldName)
+        public AutumnOptionsBuilder PageNumberFieldName(string pageNumberFieldName)
         {
             if (string.IsNullOrWhiteSpace(pageNumberFieldName))
             {
@@ -74,7 +74,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// <param name="sortFieldName"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public AutumnSettingsBuilder SortFieldName(string sortFieldName)
+        public AutumnOptionsBuilder SortFieldName(string sortFieldName)
         {
             if (string.IsNullOrWhiteSpace(sortFieldName))
             {
@@ -90,7 +90,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// <param name="queryFieldName"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public AutumnSettingsBuilder QueryFieldName(string queryFieldName)
+        public AutumnOptionsBuilder QueryFieldName(string queryFieldName)
         {
             if (string.IsNullOrWhiteSpace(queryFieldName))
             {
@@ -106,7 +106,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// <param name="entityAssembly"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public AutumnSettingsBuilder EntityAssembly(Assembly entityAssembly)
+        public AutumnOptionsBuilder EntityAssembly(Assembly entityAssembly)
         {
             if (entityAssembly==null)
             {
@@ -123,7 +123,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="AutumnSettingsException"></exception>
-        public AutumnSettingsBuilder DefaultApiVersion(string defaultApiVersion)
+        public AutumnOptionsBuilder DefaultApiVersion(string defaultApiVersion)
         {
             if (string.IsNullOrWhiteSpace(defaultApiVersion))
             {
@@ -143,7 +143,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// <param name="namingStrategy"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public AutumnSettingsBuilder NamingStrategy(NamingStrategy namingStrategy)
+        public AutumnOptionsBuilder NamingStrategy(NamingStrategy namingStrategy)
         {
             if (namingStrategy==null)
             {
@@ -158,7 +158,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public AutumnSettingsBuilder Swagger(bool value=true)
+        public AutumnOptionsBuilder Swagger(bool value=true)
         {
             _autumnSettings.UseSwagger = value;
             return this;

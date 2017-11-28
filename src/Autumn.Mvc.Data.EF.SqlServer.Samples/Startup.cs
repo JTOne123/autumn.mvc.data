@@ -26,7 +26,7 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
                         .Swagger())
                 .AddAutumnEntityFrameworkCoreSqlServer<ChinookContext>(config =>
                     config
-                        .ConnectionString("server=localhost;database=Chinook;User Id=sa;password=@utUmn")
+                        .ConnectionString("server=localhost;database=Chinook;User Id=sa;password=16gG1158#3")
                         .Evolve()
                 );
         }

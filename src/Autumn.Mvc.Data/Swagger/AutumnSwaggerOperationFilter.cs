@@ -55,7 +55,7 @@ namespace Autumn.Mvc.Data.Swagger
                 parameter = operation.Parameters.Single(p => p.Name == "id");
                 parameter.Description = "Identifier of the object to update";
 
-                parameter = operation.Parameters.Single(p => p.Name == "entityPut");
+                parameter = operation.Parameters.Single(p => p.Name == "entityPutRequest");
                 parameter.Description = "New value of the object";
                 ((BodyParameter) parameter).Schema = entitySchemaPut;
                 parameter.Required = true;
@@ -78,7 +78,7 @@ namespace Autumn.Mvc.Data.Swagger
             {
                 operation.Consumes.Add(ConsumeContentType);
 
-                parameter = operation.Parameters.Single(p => p.Name == "entityPost");
+                parameter = operation.Parameters.Single(p => p.Name == "entityPostRequest");
                 parameter.Description = "Value of the object to create";
                 parameter.Required = true;
                 ((BodyParameter) parameter).Schema = entitySchemaPost;

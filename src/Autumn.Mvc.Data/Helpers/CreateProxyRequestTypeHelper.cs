@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -8,9 +9,12 @@ using Autumn.Mvc.Data.Annotations;
 
 namespace Autumn.Mvc.Data
 {
-    public static class AutumnTypeBuilder
+    /// <summary>
+    /// tool class for proxy Resquest proxies
+    /// </summary>
+    public static class CreateProxyRequestTypeHelper
     {
-        public static Dictionary<AutumnIgnoreOperationPropertyType, Type> CompileResultType(Type originType)
+        public static IReadOnlyDictionary<AutumnIgnoreOperationPropertyType, Type> CompileResultType(Type originType)
         {
             var typeBuilderPost = GetTypeBuilder(originType, AutumnIgnoreOperationPropertyType.Insert);
             typeBuilderPost.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName |
@@ -31,12 +35,29 @@ namespace Autumn.Mvc.Data
                 [AutumnIgnoreOperationPropertyType.Update] = typeBuilderPut.CreateTypeInfo().AsType()
             };
 
-            return result;
+            return new ReadOnlyDictionary<AutumnIgnoreOperationPropertyType, Type>(result);
         }
+    
 
+    /// <summary>
+        /// create type builder
+        /// </summary>
+        /// <param name="originType"></param>
+        /// <param name="operationPropertyType"></param>
+        /// <returns></returns>
         private static TypeBuilder GetTypeBuilder(Type originType, AutumnIgnoreOperationPropertyType operationPropertyType)
         {
-            var typeSignature = originType.Name + "Proxy_" + operationPropertyType.ToString();
+            var typeSignature = originType.Name;
+            switch (operationPropertyType)
+            {
+                    case AutumnIgnoreOperationPropertyType.Insert:
+                        typeSignature += "Post";
+                        break;
+                    default:
+                        typeSignature += "Put";
+                        break;
+            }
+            typeSignature += "Request";
             var an = new AssemblyName(typeSignature);
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(an, AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.DefineDynamicModule("MainModule");
@@ -51,6 +72,12 @@ namespace Autumn.Mvc.Data
             return tb;
         }
 
+        /// <summary>
+        /// add properrty declaration
+        /// </summary>
+        /// <param name="typeBuilder"></param>
+        /// <param name="propertyInfo"></param>
+        /// <param name="operationPropertyType"></param>
         private static void CreateProperty(TypeBuilder typeBuilder, PropertyInfo propertyInfo, AutumnIgnoreOperationPropertyType operationPropertyType)
         {
             var ignoreAttribute = propertyInfo.GetCustomAttribute<AutumnIgnoreOperationPropertyAttribute>();
@@ -160,6 +187,11 @@ namespace Autumn.Mvc.Data
             return new Tuple<ConstructorInfo, object[]>(constructorInfo, args);
         }
 
+        /// <summary>
+        /// create customAttribute builder
+        /// </summary>
+        /// <param name="attribute"></param>
+        /// <returns></returns>
         private static CustomAttributeBuilder BuildCustomAttribute(Attribute attribute)
         {
             var type = attribute.GetType();
@@ -169,10 +201,9 @@ namespace Autumn.Mvc.Data
             var constructorInfo = BuildConstuctorInfos(attribute);
             if (constructorInfo.Item1 == null) return null;
 
-            PropertyInfo[] namedProperties;
             object[] propertyValues = null;
 
-            namedProperties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            var namedProperties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.CanRead && p.CanWrite).ToArray();
             if (namedProperties.Length > 0)
             {
@@ -196,10 +227,9 @@ namespace Autumn.Mvc.Data
                 #endregion
             }
 
-            FieldInfo[] namedFields;
             object[] fieldValues = null;
 
-            namedFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var namedFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
             if (namedFields.Length > 0)
             {
                 (from f in namedFields

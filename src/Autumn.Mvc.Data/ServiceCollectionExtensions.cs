@@ -43,7 +43,7 @@ namespace Autumn.Mvc.Data
         /// <param name="autumnOptionsAction"></param>
         /// <param name="loggerFactory"></param>
         public static IServiceCollection AddAutumn(this IServiceCollection services,
-            Action<AutumnSettingsBuilder> autumnOptionsAction, ILoggerFactory loggerFactory = null)
+            Action<AutumnOptionsBuilder> autumnOptionsAction, ILoggerFactory loggerFactory = null)
         {
 
             if (services == null)
@@ -52,9 +52,9 @@ namespace Autumn.Mvc.Data
                 throw new ArgumentNullException(nameof(autumnOptionsAction));
 
             var logger = loggerFactory?.CreateLogger("AutumnServiceCollection");
-            logger?.LogInformation(Logo());
-
-            var autumnConfigurationBuilder = new AutumnSettingsBuilder();
+            Console.WriteLine(Logo());
+           
+            var autumnConfigurationBuilder = new AutumnOptionsBuilder();
             autumnOptionsAction(autumnConfigurationBuilder);
             var settings = autumnConfigurationBuilder.Build();
             

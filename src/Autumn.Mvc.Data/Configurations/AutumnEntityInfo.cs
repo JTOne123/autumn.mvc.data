@@ -14,9 +14,9 @@ namespace Autumn.Mvc.Data.Configurations
         public string ControllerName { get; }
         public AutumnEntityKeyInfo KeyInfo { get; }
         public AutumnIgnoreOperationType? IgnoreOperations { get;  }
-        public Dictionary<AutumnIgnoreOperationPropertyType, Type> ProxyTypes { get; }
+        public IReadOnlyDictionary<AutumnIgnoreOperationPropertyType, Type> ProxyTypes { get; }
 
-        public AutumnEntityInfo(Type entityType, Dictionary<AutumnIgnoreOperationPropertyType, Type> proxyTypes,
+        public AutumnEntityInfo(Type entityType, IReadOnlyDictionary<AutumnIgnoreOperationPropertyType, Type> proxyTypes,
             AutumnEntityAttribute entityAttribute,
             AutumnEntityKeyInfo keyInfo,
             AutumnIgnoreOperationAttribute ignoreOperationAttribute = null)

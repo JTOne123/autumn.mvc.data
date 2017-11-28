@@ -19,9 +19,8 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddAutumn(config =>
-                    config
-                        .Pluralized()
+                .AddAutumn(options =>
+                    options.Pluralized()
                         .Swagger())
                 .AddAutumnEntityFrameworkCoreMysql<ChinookContext>(config =>
                     config

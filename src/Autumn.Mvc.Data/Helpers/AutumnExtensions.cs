@@ -1,9 +1,10 @@
 ﻿using System.Text;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Helpers
 {
-    public static class StringExtensions
+    public static class AutumnExtensions
     {
         public static string ToCamelCase(this string value)
         {
@@ -64,6 +65,22 @@ namespace Autumn.Mvc.Data.Helpers
                 }
             }
             return builder.ToString();
+        }
+        
+        
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stateDictionary"></param>
+        /// <returns></returns>
+        public static string ToMessage(this ModelStateDictionary stateDictionary)
+        {
+            var stringbuilder = new StringBuilder();
+            foreach (var item in stateDictionary.Values)
+            foreach (var error in item.Errors)
+                stringbuilder.Append(error.ErrorMessage);
+            return stringbuilder.ToString();
         }
     }
 }

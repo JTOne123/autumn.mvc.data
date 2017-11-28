@@ -3,7 +3,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Configurations
 {
-    public class AutumnSettings
+    public class AutumnOptions
     {
         public string PageSizeFieldName { get; set; }
         public string SortFieldName { get; set; }

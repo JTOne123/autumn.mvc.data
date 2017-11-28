@@ -15,5 +15,9 @@ namespace Autumn.Mvc.Data
         protected AutumnException(string message, Exception innerException) : base(message, innerException)
         {
         }
+
+        protected AutumnException(Exception innerException) : base(innerException?.Message, innerException)
+        {
+        }
     }
 }

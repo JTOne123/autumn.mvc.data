@@ -47,37 +47,37 @@ namespace Autumn.Mvc.Data
         public IReadOnlyDictionary<string, AutumnIgnoreOperationType> IgnoresPaths { get; set; }
         public IReadOnlyDictionary<Type, AutumnEntityInfo> EntitiesInfos { get; private set; }
 
-        public static void Initialize(AutumnSettings autumnSettings,Assembly callingAssembly)
+        public static void Initialize(AutumnOptions autumnOptions,Assembly callingAssembly)
         {
             lock (Current)
             {
-                Current.NamingStrategy = autumnSettings.NamingStrategy ?? CDefaultNamingStrategy;
-                Current.DefaultPageSize = autumnSettings.DefaultPageSize <= 0
+                Current.NamingStrategy = autumnOptions.NamingStrategy ?? CDefaultNamingStrategy;
+                Current.DefaultPageSize = autumnOptions.DefaultPageSize <= 0
                     ? CDefaultPageSize
-                    : autumnSettings.DefaultPageSize;
+                    : autumnOptions.DefaultPageSize;
                 Current.PageSizeFieldName =
-                    (autumnSettings.PageSizeFieldName ?? CDefaultPageSizeFieldName).ToCase(Current.NamingStrategy);
+                    (autumnOptions.PageSizeFieldName ?? CDefaultPageSizeFieldName).ToCase(Current.NamingStrategy);
                 Current.PageNumberFieldName =
-                    (autumnSettings.PageNumberFieldName ?? CDefaultPageNumberFieldName).ToCase(Current.NamingStrategy);
+                    (autumnOptions.PageNumberFieldName ?? CDefaultPageNumberFieldName).ToCase(Current.NamingStrategy);
                 Current.SortFieldName =
-                    (autumnSettings.SortFieldName ?? CDefaultSortFieldName).ToCase(Current.NamingStrategy);
+                    (autumnOptions.SortFieldName ?? CDefaultSortFieldName).ToCase(Current.NamingStrategy);
                 Current.QueryFieldName =
-                    (autumnSettings.QueryFieldName ?? CDefaultQueryFieldName).ToCase(Current.NamingStrategy);
-                Current.PluralizeController = autumnSettings.PluralizeController;
-                Current.UseSwagger = autumnSettings.UseSwagger;
-                Current.DefaultApiVersion = autumnSettings.DefaultApiVersion ?? CDefaultApiVersion;
-                BuildEntitiesInfos(autumnSettings, callingAssembly);
-                BuildRoutes(autumnSettings);
+                    (autumnOptions.QueryFieldName ?? CDefaultQueryFieldName).ToCase(Current.NamingStrategy);
+                Current.PluralizeController = autumnOptions.PluralizeController;
+                Current.UseSwagger = autumnOptions.UseSwagger;
+                Current.DefaultApiVersion = autumnOptions.DefaultApiVersion ?? CDefaultApiVersion;
+                BuildEntitiesInfos(autumnOptions, callingAssembly);
+                BuildRoutes(autumnOptions);
             }
         }
 
         /// <summary>
         /// build EntitiesInfos
         /// </summary>
-        private static void BuildEntitiesInfos(AutumnSettings autumnSettings,Assembly callingAssembly)
+        private static void BuildEntitiesInfos(AutumnOptions autumnOptions,Assembly callingAssembly)
         {
             var items = new Dictionary<Type, AutumnEntityInfo>();
-            foreach (var type in (autumnSettings.EntityAssembly??callingAssembly).GetTypes())
+            foreach (var type in (autumnOptions.EntityAssembly??callingAssembly).GetTypes())
             {
                 var entityAttribute = type.GetCustomAttribute<AutumnEntityAttribute>(false);
                 if (entityAttribute == null) continue;
@@ -91,7 +91,7 @@ namespace Autumn.Mvc.Data
                     break;
                 }
                 if (entityKeyInfo == null) continue;
-                var proxyTypes = AutumnTypeBuilder.CompileResultType(type);
+                var proxyTypes = CreateProxyRequestTypeHelper.CompileResultType(type);
                 items.Add(type,
                     new AutumnEntityInfo(type, proxyTypes, entityAttribute, entityKeyInfo, ignoreOperationAttribute));
             }
@@ -116,7 +116,7 @@ namespace Autumn.Mvc.Data
         /// build routes
         /// </summary>
         /// <returns></returns>
-        private static void BuildRoutes(AutumnSettings autumnSettings)
+        private static void BuildRoutes(AutumnOptions autumnOptions)
         {
             var routes = new Dictionary<Type, AttributeRouteModel>();
             var ignorePaths = new Dictionary<string, AutumnIgnoreOperationType>();
@@ -125,7 +125,7 @@ namespace Autumn.Mvc.Data
             {
                 var info = Current.EntitiesInfos[entityType];
                 var name = info.Name;
-                switch (autumnSettings.NamingStrategy)
+                switch (autumnOptions.NamingStrategy)
                 {
                     case SnakeCaseNamingStrategy _:
                         name = name.ToSnakeCase();
@@ -134,7 +134,7 @@ namespace Autumn.Mvc.Data
                         name = name.ToCamelCase();
                         break;
                 }
-                if (autumnSettings.PluralizeController && !name.EndsWith("s"))
+                if (autumnOptions.PluralizeController && !name.EndsWith("s"))
                 {
                     name = name + "s";
                 }
