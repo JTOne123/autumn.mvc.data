@@ -15,9 +15,9 @@ script:
   - dotnet restore ./src/Autumn.Mvc.Data.sln
   - dotnet build -c Release -v ./src/Autumn.Mvc.Data.sln
   - dotnet test --no-build ./src/Autumn.Mvc.Data.Tests/Autumn.Mvc.Data.Tests.csproj
+
 deploy:
   - provider: script
     script: chmod +x ./deploy/deploy.sh && ./deploy/deploy.sh $NUGET_API_KEY $NUGET_SOURCE 1.0.0 Pre
     on:
-      branch: develop
-	
+      branch: develop	
