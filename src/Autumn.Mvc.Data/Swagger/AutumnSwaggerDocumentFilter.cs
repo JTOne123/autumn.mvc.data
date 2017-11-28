@@ -1,5 +1,4 @@
-﻿using Autumn.Mvc.Data.Configurations;
-using Swashbuckle.AspNetCore.Swagger;
+﻿using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Autumn.Mvc.Data.Swagger

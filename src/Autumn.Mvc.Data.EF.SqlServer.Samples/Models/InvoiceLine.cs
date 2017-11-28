@@ -1,6 +1,6 @@
 ﻿using Autumn.Mvc.Data.Annotations;
 
-namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
+namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
 {
     [AutumnEntity(Version = "v2")]
     public class InvoiceLine : AbstractEntity

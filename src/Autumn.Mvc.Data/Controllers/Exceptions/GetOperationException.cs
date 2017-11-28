@@ -7,6 +7,7 @@ namespace Autumn.Mvc.Data.Controllers.Exceptions
     /// </summary>
     public class GetOperationException : RepositoryControllerAsyncException
     {
+        /// <inheritdoc />
         /// <summary>
         /// class initializer
         /// </summary>

@@ -2,11 +2,13 @@
 
 namespace Autumn.Mvc.Data.Controllers.Exceptions
 {
+    /// <inheritdoc />
     /// <summary>
     /// exception of GetByID operation controller ( find by Id )
     /// </summary>
     public class GetByIdOperationException : RepositoryControllerAsyncException
     {
+        /// <inheritdoc />
         /// <summary>
         /// class initializer
         /// </summary>

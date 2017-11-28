@@ -7,39 +7,52 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
     /// </summary>
     public class ChinookContext : DbContext
     {
+        public ChinookContext(DbContextOptions options) : base(options)
+        {
+        }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Artist>()
-                .ToTable("artist")
-                .Property(a => a.Id).HasColumnName("artistid")
-                .ValueGeneratedOnAdd();
+                .ToTable("Artist")
+                .Property(a => a.Id).HasColumnName("ArtistId");
             
             modelBuilder.Entity<Genre>()
-                .ToTable("genre")
-                .Property(o=>o.Id).HasColumnName("genreid")
-                .ValueGeneratedOnAdd();
+                .ToTable("Genre")
+                .Property(o=>o.Id).HasColumnName("Genreid");
 
             modelBuilder.Entity<Album>()
-                .ToTable("album")
-                .Property(a => a.Id).HasColumnName("albumid")
-                .ValueGeneratedOnAdd();
-            
+                .ToTable("Elbum")
+                .Property(a => a.Id).HasColumnName("AlbumId");
+
             modelBuilder.Entity<Customer>()
-                .ToTable("customer")
-                .Property(a => a.Id).HasColumnName("customerid")
-                .ValueGeneratedOnAdd();
-            
+                .ToTable("Customer")
+                .Property(a => a.Id).HasColumnName("CustomerId");
+
             modelBuilder.Entity<Employee>()
-                .ToTable("employee")
-                .Property(a => a.Id).HasColumnName("employeeid")
-                .ValueGeneratedOnAdd();
-            
+                .ToTable("Employee")
+                .Property(a => a.Id).HasColumnName("EmployeeId");
+
             modelBuilder.Entity<Invoice>()
-                .ToTable("invoice")
-                .Property(a => a.Id).HasColumnName("invoiceid")
-                .ValueGeneratedOnAdd();
-            
-            
+                .ToTable("Invoice")
+                .Property(a => a.Id).HasColumnName("InvoiceId");
+
+            modelBuilder.Entity<InvoiceLine>()
+                .ToTable("InvoiceLine")
+                .Property(a => a.Id).HasColumnName("InvoiceLineId");
+
+            modelBuilder.Entity<MediaType>()
+                .ToTable("MediaType")
+                .Property(a => a.Id).HasColumnName("MediaTypeId");
+
+            modelBuilder.Entity<Playlist>()
+                .ToTable("Playlist")
+                .Property(a => a.Id).HasColumnName("PlaylistId");
+
+            modelBuilder.Entity<Track>()
+                .ToTable("Track")
+                .Property(a => a.Id).HasColumnName("TrackId");
+
         }
     }
 }

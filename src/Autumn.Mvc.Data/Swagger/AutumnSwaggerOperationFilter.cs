@@ -48,93 +48,91 @@ namespace Autumn.Mvc.Data.Swagger
            
             IParameter parameter;
             
-            if (actionDescriptor.ActionName == "Put")
+            switch (actionDescriptor.ActionName)
             {
-                operation.Consumes.Add(ConsumeContentType);
+                case "Put":
+                    operation.Consumes.Add(ConsumeContentType);
 
-                parameter = operation.Parameters.Single(p => p.Name == "id");
-                parameter.Description = "Identifier of the object to update";
+                    parameter = operation.Parameters.Single(p => p.Name == "id");
+                    parameter.Description = "Identifier of the object to update";
 
-                parameter = operation.Parameters.Single(p => p.Name == "entityPutRequest");
-                parameter.Description = "New value of the object";
-                ((BodyParameter) parameter).Schema = entitySchemaPut;
-                parameter.Required = true;
+                    parameter = operation.Parameters.Single(p => p.Name == "entityPutRequest");
+                    parameter.Description = "New value of the object";
+                    ((BodyParameter) parameter).Schema = entitySchemaPut;
+                    parameter.Required = true;
 
-                operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
-                    new Response() {Schema = entitySchemaGet});
-            }
-            else if (actionDescriptor.ActionName == "Delete")
-            {
-                operation.Consumes.Add(ConsumeContentType);
+                    operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
+                        new Response() {Schema = entitySchemaGet});
+                    break;
+                case "Delete":
+                    operation.Consumes.Add(ConsumeContentType);
 
-                parameter = operation.Parameters.Single(p => p.Name == "id");
-                parameter.Description = "Identifier of the object to delete";
-                parameter.Required = true;
+                    parameter = operation.Parameters.Single(p => p.Name == "id");
+                    parameter.Description = "Identifier of the object to delete";
+                    parameter.Required = true;
 
-                operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
-                    new Response() {Schema = entitySchemaGet});
-            }
-            else if (actionDescriptor.ActionName == "Post")
-            {
-                operation.Consumes.Add(ConsumeContentType);
+                    operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
+                        new Response() {Schema = entitySchemaGet});
+                    break;
+                case "Post":
+                    operation.Consumes.Add(ConsumeContentType);
 
-                parameter = operation.Parameters.Single(p => p.Name == "entityPostRequest");
-                parameter.Description = "Value of the object to create";
-                parameter.Required = true;
-                ((BodyParameter) parameter).Schema = entitySchemaPost;
-                operation.Responses.Add(((int) HttpStatusCode.Created).ToString(),
-                    new Response() {Schema = entitySchemaGet, Description = "Created"});
-            }
-            else if (actionDescriptor.ActionName == "GetById")
-            {
-                parameter = operation.Parameters.Single(p => p.Name == "id");
-                parameter.Description = "Identifier of the object to search";
-                parameter.Required = true;
+                    parameter = operation.Parameters.Single(p => p.Name == "entityPostRequest");
+                    parameter.Description = "Value of the object to create";
+                    parameter.Required = true;
+                    ((BodyParameter) parameter).Schema = entitySchemaPost;
+                    operation.Responses.Add(((int) HttpStatusCode.Created).ToString(),
+                        new Response() {Schema = entitySchemaGet, Description = "Created"});
+                    break;
+                case "GetById":
+                    parameter = operation.Parameters.Single(p => p.Name == "id");
+                    parameter.Description = "Identifier of the object to search";
+                    parameter.Required = true;
 
-                operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
-                    new Response() {Schema = entitySchemaGet});
-                operation.Responses.Add(((int) HttpStatusCode.NotFound).ToString(), new Response(){Description = "Not Found"});
-            }
-            else
-            {
-                var genericPageType = typeof(Models.Paginations.Page<>);
-                var pageType = genericPageType.MakeGenericType(entityType);
-                var schema = GetOrRegistrySchema(pageType, "GET");
-                operation.Responses.Add("200", new Response() {Schema = schema, Description = "OK"});
-                operation.Responses.Add("206", new Response() {Schema = schema, Description = "Partial Content"});
-                operation.Parameters.Clear();
-                parameter = new NonBodyParameter
-                {
-                    Type = "string",
-                    In = "query",
-                    Description = "Query to search (cf. http://tools.ietf.org/html/draft-nottingham-atompub-fiql-00)",
-                    Name = AutumnApplication.Current.QueryFieldName
-                };
-                operation.Parameters.Add(parameter);
+                    operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
+                        new Response() {Schema = entitySchemaGet});
+                    operation.Responses.Add(((int) HttpStatusCode.NotFound).ToString(), new Response(){Description = "Not Found"});
+                    break;
+                default:
+                    var genericPageType = typeof(Models.Paginations.Page<>);
+                    var pageType = genericPageType.MakeGenericType(entityType);
+                    var schema = GetOrRegistrySchema(pageType, "GET");
+                    operation.Responses.Add("200", new Response() {Schema = schema, Description = "OK"});
+                    operation.Responses.Add("206", new Response() {Schema = schema, Description = "Partial Content"});
+                    operation.Parameters.Clear();
+                    parameter = new NonBodyParameter
+                    {
+                        Type = "string",
+                        In = "query",
+                        Description = "Query to search (cf. http://tools.ietf.org/html/draft-nottingham-atompub-fiql-00)",
+                        Name = AutumnApplication.Current.QueryFieldName
+                    };
+                    operation.Parameters.Add(parameter);
 
-                parameter = new NonBodyParameter
-                {
-                    In = "query",
-                    Type = "integer",
-                    Minimum = 0,
-                    Format = "int32",
-                    Description = "Size of the page",
-                    Default = AutumnApplication.Current.DefaultPageSize,
-                    Name = AutumnApplication.Current.PageSizeFieldName
-                };
-                operation.Parameters.Add(parameter);
+                    parameter = new NonBodyParameter
+                    {
+                        In = "query",
+                        Type = "integer",
+                        Minimum = 0,
+                        Format = "int32",
+                        Description = "Size of the page",
+                        Default = AutumnApplication.Current.DefaultPageSize,
+                        Name = AutumnApplication.Current.PageSizeFieldName
+                    };
+                    operation.Parameters.Add(parameter);
 
-                parameter = new NonBodyParameter
-                {
-                    In = "query",
-                    Type = "integer",
-                    Description = "Paging number (start to zero)",
-                    Minimum = 0,
-                    Format = "int32",
-                    Default = 0,
-                    Name = AutumnApplication.Current.PageNumberFieldName
-                };
-                operation.Parameters.Add(parameter);
+                    parameter = new NonBodyParameter
+                    {
+                        In = "query",
+                        Type = "integer",
+                        Description = "Paging number (start to zero)",
+                        Minimum = 0,
+                        Format = "int32",
+                        Default = 0,
+                        Name = AutumnApplication.Current.PageNumberFieldName
+                    };
+                    operation.Parameters.Add(parameter);
+                    break;
             }
         }
 

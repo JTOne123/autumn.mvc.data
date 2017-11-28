@@ -24,7 +24,7 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples
                         .Swagger())
                 .AddAutumnEntityFrameworkCoreMysql<ChinookContext>(config =>
                     config
-                        .ConnectionString("server=localhost;port=3306;database=chinook;uid=root;password=@utumn")
+                        .ConnectionString("server=localhost;port=3306;database=Chinook;uid=root;password=@utumn")
                         .Evolve()
                 );
         }

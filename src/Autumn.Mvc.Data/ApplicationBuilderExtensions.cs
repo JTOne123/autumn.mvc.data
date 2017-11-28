@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;

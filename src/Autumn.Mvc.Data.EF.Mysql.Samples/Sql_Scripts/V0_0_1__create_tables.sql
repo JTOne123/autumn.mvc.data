@@ -1,197 +1,183 @@
-﻿
-/*******************************************************************************
-   chinook database - version 1.4
-   script: chinook_mysql_autoincrementpks.sql
-   description: creates and populates the chinook database.
-   db server: mysql
-   author: luis rocha
-   license: http://www.codeplex.com/chinookdatabase/license
+﻿/*******************************************************************************
+   Create Tables
 ********************************************************************************/
-
-/*******************************************************************************
-   create tables
-********************************************************************************/
-create table album
+CREATE TABLE Album
 (
-    albumid int not null auto_increment,
-    title nvarchar(160) not null,
-    artistid int not null,
-    constraint pk_album primary key  (albumid)
+    AlbumId INT NOT NULL,
+    Title NVARCHAR(160) NOT NULL,
+    ArtistId INT NOT NULL,
+    CONSTRAINT PK_Album PRIMARY KEY  (AlbumId)
 );
 
-create table artist
+CREATE TABLE Artist
 (
-    artistid int not null auto_increment,
-    name nvarchar(120),
-    constraint pk_artist primary key  (artistid)
+    ArtistId INT NOT NULL,
+    Name NVARCHAR(120),
+    CONSTRAINT PK_Artist PRIMARY KEY  (ArtistId)
 );
 
-create table customer
+CREATE TABLE Customer
 (
-    customerid int not null auto_increment,
-    firstname nvarchar(40) not null,
-    lastname nvarchar(20) not null,
-    company nvarchar(80),
-    address nvarchar(70),
-    city nvarchar(40),
-    state nvarchar(40),
-    country nvarchar(40),
-    postalcode nvarchar(10),
-    phone nvarchar(24),
-    fax nvarchar(24),
-    email nvarchar(60) not null,
-    supportrepid int,
-    constraint pk_customer primary key  (customerid)
+    CustomerId INT NOT NULL,
+    FirstName NVARCHAR(40) NOT NULL,
+    LastName NVARCHAR(20) NOT NULL,
+    Company NVARCHAR(80),
+    Address NVARCHAR(70),
+    City NVARCHAR(40),
+    State NVARCHAR(40),
+    Country NVARCHAR(40),
+    PostalCode NVARCHAR(10),
+    Phone NVARCHAR(24),
+    Fax NVARCHAR(24),
+    Email NVARCHAR(60) NOT NULL,
+    SupportRepId INT,
+    CONSTRAINT PK_Customer PRIMARY KEY  (CustomerId)
 );
 
-create table employee
+CREATE TABLE Employee
 (
-    employeeid int not null auto_increment,
-    lastname nvarchar(20) not null,
-    firstname nvarchar(20) not null,
-    title nvarchar(30),
-    reportsto int,
-    birthdate datetime,
-    hiredate datetime,
-    address nvarchar(70),
-    city nvarchar(40),
-    state nvarchar(40),
-    country nvarchar(40),
-    postalcode nvarchar(10),
-    phone nvarchar(24),
-    fax nvarchar(24),
-    email nvarchar(60),
-    constraint pk_employee primary key  (employeeid)
+    EmployeeId INT NOT NULL,
+    LastName NVARCHAR(20) NOT NULL,
+    FirstName NVARCHAR(20) NOT NULL,
+    Title NVARCHAR(30),
+    ReportsTo INT,
+    BirthDate DATETIME,
+    HireDate DATETIME,
+    Address NVARCHAR(70),
+    City NVARCHAR(40),
+    State NVARCHAR(40),
+    Country NVARCHAR(40),
+    PostalCode NVARCHAR(10),
+    Phone NVARCHAR(24),
+    Fax NVARCHAR(24),
+    Email NVARCHAR(60),
+    CONSTRAINT PK_Employee PRIMARY KEY  (EmployeeId)
 );
 
-create table genre
+CREATE TABLE Genre
 (
-    genreid int not null auto_increment,
-    name nvarchar(120),
-    constraint pk_genre primary key  (genreid)
+    GenreId INT NOT NULL,
+    Name NVARCHAR(120),
+    CONSTRAINT PK_Genre PRIMARY KEY  (GenreId)
 );
 
-create table invoice
+CREATE TABLE Invoice
 (
-    invoiceid int not null auto_increment,
-    customerid int not null,
-    invoicedate datetime not null,
-    billingaddress nvarchar(70),
-    billingcity nvarchar(40),
-    billingstate nvarchar(40),
-    billingcountry nvarchar(40),
-    billingpostalcode nvarchar(10),
-    total numeric(10,2) not null,
-    constraint pk_invoice primary key  (invoiceid)
+    InvoiceId INT NOT NULL,
+    CustomerId INT NOT NULL,
+    InvoiceDate DATETIME NOT NULL,
+    BillingAddress NVARCHAR(70),
+    BillingCity NVARCHAR(40),
+    BillingState NVARCHAR(40),
+    BillingCountry NVARCHAR(40),
+    BillingPostalCode NVARCHAR(10),
+    Total NUMERIC(10,2) NOT NULL,
+    CONSTRAINT PK_Invoice PRIMARY KEY  (InvoiceId)
 );
 
-create table invoiceline
+CREATE TABLE InvoiceLine
 (
-    invoicelineid int not null auto_increment,
-    invoiceid int not null,
-    trackid int not null,
-    unitprice numeric(10,2) not null,
-    quantity int not null,
-    constraint pk_invoiceline primary key  (invoicelineid)
+    InvoiceLineId INT NOT NULL,
+    InvoiceId INT NOT NULL,
+    TrackId INT NOT NULL,
+    UnitPrice NUMERIC(10,2) NOT NULL,
+    Quantity INT NOT NULL,
+    CONSTRAINT PK_InvoiceLine PRIMARY KEY  (InvoiceLineId)
 );
 
-create table mediatype
+CREATE TABLE MediaType
 (
-    mediatypeid int not null auto_increment,
-    name nvarchar(120),
-    constraint pk_mediatype primary key  (mediatypeid)
+    MediaTypeId INT NOT NULL,
+    Name NVARCHAR(120),
+    CONSTRAINT PK_MediaType PRIMARY KEY  (MediaTypeId)
 );
 
-create table playlist
+CREATE TABLE Playlist
 (
-    playlistid int not null auto_increment,
-    name nvarchar(120),
-    constraint pk_playlist primary key  (playlistid)
+    PlaylistId INT NOT NULL,
+    Name NVARCHAR(120),
+    CONSTRAINT PK_Playlist PRIMARY KEY  (PlaylistId)
 );
 
-create table playlisttrack
+CREATE TABLE PlaylistTrack
 (
-    playlistid int not null,
-    trackid int not null,
-    constraint pk_playlisttrack primary key  (playlistid, trackid)
+    PlaylistId INT NOT NULL,
+    TrackId INT NOT NULL,
+    CONSTRAINT PK_PlaylistTrack PRIMARY KEY  (PlaylistId, TrackId)
 );
 
-create table track
+CREATE TABLE Track
 (
-    trackid int not null auto_increment,
-    name nvarchar(200) not null,
-    albumid int,
-    mediatypeid int not null,
-    genreid int,
-    composer nvarchar(220),
-    milliseconds int not null,
-    bytes int,
-    unitprice numeric(10,2) not null,
-    constraint pk_track primary key  (trackid)
+    TrackId INT NOT NULL,
+    Name NVARCHAR(200) NOT NULL,
+    AlbumId INT,
+    MediaTypeId INT NOT NULL,
+    GenreId INT,
+    Composer NVARCHAR(220),
+    Milliseconds INT NOT NULL,
+    Bytes INT,
+    UnitPrice NUMERIC(10,2) NOT NULL,
+    CONSTRAINT PK_Track PRIMARY KEY  (TrackId)
 );
 
 
 
 /*******************************************************************************
-   create primary key unique indexes
+   Create Primary Key Unique Indexes
 ********************************************************************************/
 
 /*******************************************************************************
-   create foreign keys
+   Create Foreign Keys
 ********************************************************************************/
-alter table album add constraint fk_albumartistid
-    foreign key (artistid) references artist (artistid) on delete no action on update no action;
+ALTER TABLE Album ADD CONSTRAINT FK_AlbumArtistId
+FOREIGN KEY (ArtistId) REFERENCES Artist (ArtistId) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-create index ifk_albumartistid on album (artistid);
+CREATE INDEX IFK_AlbumArtistId ON Album (ArtistId);
 
-alter table customer add constraint fk_customersupportrepid
-    foreign key (supportrepid) references employee (employeeid) on delete no action on update no action;
+ALTER TABLE Customer ADD CONSTRAINT FK_CustomerSupportRepId
+FOREIGN KEY (SupportRepId) REFERENCES Employee (EmployeeId) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-create index ifk_customersupportrepid on customer (supportrepid);
+CREATE INDEX IFK_CustomerSupportRepId ON Customer (SupportRepId);
 
-alter table employee add constraint fk_employeereportsto
-    foreign key (reportsto) references employee (employeeid) on delete no action on update no action;
+ALTER TABLE Employee ADD CONSTRAINT FK_EmployeeReportsTo
+FOREIGN KEY (ReportsTo) REFERENCES Employee (EmployeeId) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-create index ifk_employeereportsto on employee (reportsto);
+CREATE INDEX IFK_EmployeeReportsTo ON Employee (ReportsTo);
 
-alter table invoice add constraint fk_invoicecustomerid
-    foreign key (customerid) references customer (customerid) on delete no action on update no action;
+ALTER TABLE Invoice ADD CONSTRAINT FK_InvoiceCustomerId
+FOREIGN KEY (CustomerId) REFERENCES Customer (CustomerId) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-create index ifk_invoicecustomerid on invoice (customerid);
+CREATE INDEX IFK_InvoiceCustomerId ON Invoice (CustomerId);
 
-alter table invoiceline add constraint fk_invoicelineinvoiceid
-    foreign key (invoiceid) references invoice (invoiceid) on delete no action on update no action;
+ALTER TABLE InvoiceLine ADD CONSTRAINT FK_InvoiceLineInvoiceId
+FOREIGN KEY (InvoiceId) REFERENCES Invoice (InvoiceId) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-create index ifk_invoicelineinvoiceid on invoiceline (invoiceid);
+CREATE INDEX IFK_InvoiceLineInvoiceId ON InvoiceLine (InvoiceId);
 
-alter table invoiceline add constraint fk_invoicelinetrackid
-    foreign key (trackid) references track (trackid) on delete no action on update no action;
+ALTER TABLE InvoiceLine ADD CONSTRAINT FK_InvoiceLineTrackId
+FOREIGN KEY (TrackId) REFERENCES Track (TrackId) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-create index ifk_invoicelinetrackid on invoiceline (trackid);
+CREATE INDEX IFK_InvoiceLineTrackId ON InvoiceLine (TrackId);
 
-alter table playlisttrack add constraint fk_playlisttrackplaylistid
-    foreign key (playlistid) references playlist (playlistid) on delete no action on update no action;
+ALTER TABLE PlaylistTrack ADD CONSTRAINT FK_PlaylistTrackPlaylistId
+FOREIGN KEY (PlaylistId) REFERENCES Playlist (PlaylistId) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-alter table playlisttrack add constraint fk_playlisttracktrackid
-    foreign key (trackid) references track (trackid) on delete no action on update no action;
+ALTER TABLE PlaylistTrack ADD CONSTRAINT FK_PlaylistTrackTrackId
+FOREIGN KEY (TrackId) REFERENCES Track (TrackId) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-create index ifk_playlisttracktrackid on playlisttrack (trackid);
+CREATE INDEX IFK_PlaylistTrackTrackId ON PlaylistTrack (TrackId);
 
-alter table track add constraint fk_trackalbumid
-    foreign key (albumid) references album (albumid) on delete no action on update no action;
+ALTER TABLE Track ADD CONSTRAINT FK_TrackAlbumId
+FOREIGN KEY (AlbumId) REFERENCES Album (AlbumId) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-create index ifk_trackalbumid on track (albumid);
+CREATE INDEX IFK_TrackAlbumId ON Track (AlbumId);
 
-alter table track add constraint fk_trackgenreid
-    foreign key (genreid) references genre (genreid) on delete no action on update no action;
+ALTER TABLE Track ADD CONSTRAINT FK_TrackGenreId
+FOREIGN KEY (GenreId) REFERENCES Genre (GenreId) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-create index ifk_trackgenreid on track (genreid);
+CREATE INDEX IFK_TrackGenreId ON Track (GenreId);
 
-alter table track add constraint fk_trackmediatypeid
-    foreign key (mediatypeid) references mediatype (mediatypeid) on delete no action on update no action;
+ALTER TABLE Track ADD CONSTRAINT FK_TrackMediaTypeId
+FOREIGN KEY (MediaTypeId) REFERENCES MediaType (MediaTypeId) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-create index ifk_trackmediatypeid on track (mediatypeid);
-
-
-
-
+CREATE INDEX IFK_TrackMediaTypeId ON Track (MediaTypeId);
