@@ -15,7 +15,8 @@ script:
   - dotnet restore ./src/Autumn.Mvc.Data.sln
   - dotnet build -c Release -v ./src/Autumn.Mvc.Data.sln
   - dotnet test --no-build ./src/Autumn.Mvc.Data.Tests/Autumn.Mvc.Data.Tests.csproj
-  - dotnet pack -v --no-build --version-suffix "pre" /p:0.0.1 ./src/Autumn.Mvc.Data/Autumn.Mvc.Data.csproj 
-  - dotnet nuget push *.nupkg -k a3f9189e-6aa8-4754-9fa9-50a46268db00 -s https://www.nuget.org/api/v2/package
-
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: chmod +x ./deploy/deploy.sh && ./deploy/deploy.sh $NUGET_API_KEY $NUGET_SOURCE 1.0.0 Pre
 	
