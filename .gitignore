@@ -3,3 +3,4 @@ obj/
 .idea/
 nupkgs/
 src/Autumn.Mvc.Data.MongoDB.Samples/docker/data/
+nupkgs/
