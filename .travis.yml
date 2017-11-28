@@ -13,8 +13,8 @@ os:
   - linux
 script:
   - dotnet restore ./src/Autumn.Mvc.Data.sln
-  - dotnet build ./src/Autumn.Mvc.Data.sln
-  - dotnet test --no-build ./src/Autumn.Mvc.Data.Tests/Autumn.Mvc.Data.Tests.csproj
+  - dotnet build --configuration Release ./src/Autumn.Mvc.Data.sln
+  - dotnet test --configuration Release --no-build ./src/Autumn.Mvc.Data.Tests/Autumn.Mvc.Data.Tests.csproj
 
 deploy:
   - provider: script
