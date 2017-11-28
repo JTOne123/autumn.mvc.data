@@ -16,7 +16,8 @@ script:
   - dotnet build -c Release -v ./src/Autumn.Mvc.Data.sln
   - dotnet test --no-build ./src/Autumn.Mvc.Data.Tests/Autumn.Mvc.Data.Tests.csproj
 deploy:
-  skip_cleanup: true
-  provider: script
-  script: chmod +x ./deploy/deploy.sh && ./deploy/deploy.sh $NUGET_API_KEY $NUGET_SOURCE 1.0.0 Pre
+  - provider: script
+    script: chmod +x ./deploy/deploy.sh && ./deploy/deploy.sh $NUGET_API_KEY $NUGET_SOURCE 1.0.0 Pre
+    on:
+      branch: develop
 	
