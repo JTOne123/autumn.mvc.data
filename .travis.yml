@@ -19,6 +19,6 @@ script:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: chmod +x ./deploy/deploy.sh && ./deploy/deploy.sh $NUGET_API_KEY $NUGET_SOURCE 1.0.0 Pre
+    script: chmod +x ./deploy/deploy.sh && ./deploy/deploy.sh $NUGET_API_KEY $NUGET_SOURCE 1.0.0-Pre
     on:
       branch: develop	
