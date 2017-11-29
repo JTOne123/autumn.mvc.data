@@ -45,11 +45,11 @@ namespace Autumn.Mvc.Data.Models.Queries
         protected static Expression<Func<Exemple, bool>> Parse(string query, NamingStrategy namingStrategy=null)
         {
             var antlrInputStream = new AntlrInputStream(query);
-            var lexer = new QueryLexer(antlrInputStream);
+            var lexer = new AutumnQueryLexer(antlrInputStream);
             var commonTokenStream = new CommonTokenStream(lexer);
-            var parser = new QueryParser(commonTokenStream);
+            var parser = new AutumnQueryParser(commonTokenStream);
             var eval = parser.eval();
-            var visitor = new DefaultQueryVisitor<Exemple>(namingStrategy);
+            var visitor = new AutumnDefaultQueryVisitor<Exemple>(namingStrategy);
             return visitor.VisitEval(eval);
         }
         

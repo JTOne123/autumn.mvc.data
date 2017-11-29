@@ -8,7 +8,7 @@ namespace Autumn.Mvc.Data.Models.Paginations
         [Fact]
         public void IsEmptyPage()
         {
-            var expected = new Page<object>(null, null);
+            var expected = new AutumnPage<object>(null, null);
             Assert.False(expected.HasContent);
             Assert.False(expected.HasPrevious);
             Assert.False(expected.HasNext);
@@ -25,8 +25,8 @@ namespace Autumn.Mvc.Data.Models.Paginations
         [Fact]
         public void HasContentAndIsFirstPage()
         {
-            var expected = new Page<object>(new List<object>(new object[] {"1", "2"}),
-                new Pageable<object>(0, 2), 200);
+            var expected = new AutumnPage<object>(new List<object>(new object[] {"1", "2"}),
+                new AutumnPageable<object>(0, 2), 200);
 
             Assert.True(expected.HasContent);
             Assert.Equal(expected.Number, 0);
@@ -42,8 +42,8 @@ namespace Autumn.Mvc.Data.Models.Paginations
         [Fact]
         public void HasContentAndIsLastPage()
         {
-            var expected = new Page<object>(new List<object>(new object[] {"1", "2"}),
-                new Pageable<object>(199, 2), 200);
+            var expected = new AutumnPage<object>(new List<object>(new object[] {"1", "2"}),
+                new AutumnPageable<object>(199, 2), 200);
 
             Assert.True(expected.HasContent);
             Assert.Equal(expected.Number, 199);
@@ -60,8 +60,8 @@ namespace Autumn.Mvc.Data.Models.Paginations
         [Fact]
         public void HasContentAndHasPreviousAndHasNext()
         {
-            var expected = new Page<object>(new List<object>(new object[] {"1", "2"}),
-                new Pageable<object>(50, 2), 200);
+            var expected = new AutumnPage<object>(new List<object>(new object[] {"1", "2"}),
+                new AutumnPageable<object>(50, 2), 200);
 
             Assert.True(expected.HasContent);
             Assert.Equal(expected.Number, 50);

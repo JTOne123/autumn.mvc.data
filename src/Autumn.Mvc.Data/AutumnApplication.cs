@@ -6,7 +6,7 @@ using AutoMapper;
 using Autumn.Mvc.Data.Annotations;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
-using Autumn.Mvc.Data.Helpers;
+using Autumn.Mvc.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Newtonsoft.Json.Serialization;
@@ -33,6 +33,9 @@ namespace Autumn.Mvc.Data
         {
         }
 
+        /// <summary>
+        /// naming strategy of Autumn Application
+        /// </summary>
         public NamingStrategy NamingStrategy { get; private set; }
         public int DefaultPageSize { get; private set; }
         public string PageSizeFieldName { get; private set; }
@@ -91,7 +94,7 @@ namespace Autumn.Mvc.Data
                     break;
                 }
                 if (entityKeyInfo == null) continue;
-                var proxyTypes = CreateProxyRequestTypeHelper.CompileResultType(type);
+                var proxyTypes = AutumnModelHelper.CompileResultType(type);
                 items.Add(type,
                     new AutumnEntityInfo(type, proxyTypes, entityAttribute, entityKeyInfo, ignoreOperationAttribute));
             }
@@ -120,7 +123,7 @@ namespace Autumn.Mvc.Data
         {
             var routes = new Dictionary<Type, AttributeRouteModel>();
             var ignorePaths = new Dictionary<string, AutumnIgnoreOperationType>();
-            var baseType = typeof(RepositoryControllerAsync<,,,>);
+            var baseType = typeof(AutumnRepositoryControllerAsync<,,,>);
             foreach (var entityType in Current.EntitiesInfos.Keys)
             {
                 var info = Current.EntitiesInfos[entityType];

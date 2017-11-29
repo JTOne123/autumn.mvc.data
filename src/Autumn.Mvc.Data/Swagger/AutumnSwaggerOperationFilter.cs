@@ -6,7 +6,6 @@ using System.Net;
 using System.Reflection;
 using Autumn.Mvc.Data.Annotations;
 using Autumn.Mvc.Data.Controllers;
-using Autumn.Mvc.Data.Helpers;
 using Autumn.Mvc.Data.Models;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Newtonsoft.Json;
@@ -23,33 +22,48 @@ namespace Autumn.Mvc.Data.Swagger
         private static readonly ConcurrentDictionary<Type,Dictionary<string,Schema>> Caches = new ConcurrentDictionary<Type,Dictionary<string,Schema>>();
         private static readonly Schema AutumnErrorModelSchema;
 
+        /// <summary>
+        /// class initializer
+        /// </summary>
         static AutumnSwaggerOperationFilter()
         {
             AutumnErrorModelSchema = GetOrRegistrySchema(typeof(AutumnErrorModel), "GET");
         }
 
+        /// <summary>
+        /// apply operation description
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <param name="context"></param>
         public void Apply(Operation operation, OperationFilterContext context)
         {
             if (operation.Parameters == null) return;
             if (!(context.ApiDescription.ActionDescriptor is ControllerActionDescriptor actionDescriptor)) return;
             if (!actionDescriptor.ControllerTypeInfo.IsGenericType &&
                 actionDescriptor.ControllerTypeInfo.GetGenericTypeDefinition() !=
-                typeof(RepositoryControllerAsync<,,,>)) return;
+                typeof(AutumnRepositoryControllerAsync<,,,>)) return;
 
+            // find entity type
             var entityType = actionDescriptor.ControllerTypeInfo.GetGenericArguments()[0];
+            // find entity type info
             var entityInfo = AutumnApplication.Current.EntitiesInfos[entityType];
+            // register response swagger schema for GET request
             var entitySchemaGet = GetOrRegistrySchema(entityType,"GET");
+            // register request swagger schema for POST request
             var entitySchemaPost = GetOrRegistrySchema(entityInfo.ProxyTypes[AutumnIgnoreOperationPropertyType.Insert], "POST");
+            // register request swagger schema for PUT request
             var entitySchemaPut = GetOrRegistrySchema(entityInfo.ProxyTypes[AutumnIgnoreOperationPropertyType.Update], "PUT");
             
             operation.Responses = new ConcurrentDictionary<string, Response>();
+            // add generic reponse for internal error from server
             operation.Responses.Add(((int)HttpStatusCode.InternalServerError).ToString(), new Response() {Schema = AutumnErrorModelSchema});
             operation.Consumes.Clear();
            
             IParameter parameter;
-            
+            // create operation description in term of ActionName
             switch (actionDescriptor.ActionName)
             {
+                // operation is "Put"
                 case "Put":
                     operation.Consumes.Add(ConsumeContentType);
 
@@ -94,7 +108,7 @@ namespace Autumn.Mvc.Data.Swagger
                     operation.Responses.Add(((int) HttpStatusCode.NotFound).ToString(), new Response(){Description = "Not Found"});
                     break;
                 default:
-                    var genericPageType = typeof(Models.Paginations.Page<>);
+                    var genericPageType = typeof(Models.Paginations.AutumnPage<>);
                     var pageType = genericPageType.MakeGenericType(entityType);
                     var schema = GetOrRegistrySchema(pageType, "GET");
                     operation.Responses.Add("200", new Response() {Schema = schema, Description = "OK"});
@@ -137,12 +151,12 @@ namespace Autumn.Mvc.Data.Swagger
         }
 
         /// <summary>
-        /// build schema
+        /// build schema 
         /// </summary>
         /// <param name="property"></param>
         /// <param name="method"></param>
         /// <returns></returns>
-        private static Schema BuildSchema(PropertyInfo property,string method = "GET")
+        private static Schema BuildSchema(PropertyInfo property, string method = "GET")
         {
             if (method != "GET")
             {
@@ -228,6 +242,12 @@ namespace Autumn.Mvc.Data.Swagger
             return result;
         }
 
+        /// <summary>
+        /// register in cache ( if not exist) and return swagger schema for the type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="method"></param>
+        /// <returns></returns>
         private static Schema GetOrRegistrySchema(Type type,string method)
         {
             lock (Caches)

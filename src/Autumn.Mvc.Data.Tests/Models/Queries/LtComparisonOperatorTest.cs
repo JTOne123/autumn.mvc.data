@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq.Expressions;
-using Autumn.Mvc.Data.Helpers;
 using Autumn.Mvc.Data.Models.Queries.Exceptions;
 using Xunit;
 
@@ -18,8 +17,8 @@ namespace Autumn.Mvc.Data.Models.Queries
         [Fact]
         public void LtNotEnougthArgumentExceptionTest()
         {
-            Assert.Throws<QueryComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple<"); });
-            Assert.Throws<QueryComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple=lt="); });
+            Assert.Throws<AutumnQueryComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple<"); });
+            Assert.Throws<AutumnQueryComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple=lt="); });
         }
 
         /// <summary>
@@ -29,8 +28,8 @@ namespace Autumn.Mvc.Data.Models.Queries
         [Fact]
         public void LtTooManyArgumentExceptionTest()
         {
-            Assert.Throws<QueryComparisonTooManyArgumentException>(() => { Parse("Int32Exemple<(1,2)"); });
-            Assert.Throws<QueryComparisonTooManyArgumentException>(() => { Parse("Int32Exemple=lt=(1,2)"); });
+            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("Int32Exemple<(1,2)"); });
+            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("Int32Exemple=lt=(1,2)"); });
         }
 
         /// <summary>
@@ -44,32 +43,32 @@ namespace Autumn.Mvc.Data.Models.Queries
         [Fact]
         public void LtInvalidComparatorSelectionExceptionTest()
         {
-            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
                  Parse("StringExemple<'"+GetRandom<string>()+"'");
             });
 
-            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
                 Parse("StringExemple=lt="+GetRandom<string>()+"'");
             });
             
-            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
                 Parse("BooleanExemple<true");
             });
 
-            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
                 Parse("BooleanExemple=lt=true");
             });
             
-            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
                 Parse("NullableBooleanExemple<true");
             });
 
-            Assert.Throws<QueryComparisonInvalidComparatorSelectionException>(() =>
+            Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
                 Parse("NullableBooleanExemple=lt=true");
             });
@@ -83,7 +82,7 @@ namespace Autumn.Mvc.Data.Models.Queries
             var v = valueToString ?? Convert.ToString(value,CultureInfo.InvariantCulture);
             var parameter = Expression.Parameter(typeof(Exemple));
             var memberExpression =
-                CommonHelper.GetMemberExpressionValue<Exemple>(parameter, propertyName, null);
+                AutumnQueryHelper.GetMemberExpressionValue<Exemple>(parameter, propertyName, null);
 
             var actual = Expression.Lambda<Func<Exemple, bool>>(Expression.LessThan(
                 memberExpression.Expression,

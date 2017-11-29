@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Autumn.Mvc.Data.Configurations.Exceptions;
 using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Configurations
@@ -122,7 +121,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// <param name="defaultApiVersion"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="AutumnSettingsException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public AutumnOptionsBuilder DefaultApiVersion(string defaultApiVersion)
         {
             if (string.IsNullOrWhiteSpace(defaultApiVersion))
@@ -131,7 +130,7 @@ namespace Autumn.Mvc.Data.Configurations
             }
             if (!Regex.IsMatch(defaultApiVersion, "v[0-9]+"))
             {
-                throw new AutumnSettingsException("invalid version see regular expression v[0-9]+");
+                throw new ArgumentException("invalid version see regular expression v[0-9]+");
             }
             _autumnSettings.DefaultApiVersion = defaultApiVersion;
             return this;

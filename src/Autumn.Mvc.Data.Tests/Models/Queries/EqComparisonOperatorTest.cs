@@ -2,18 +2,13 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
-using Autumn.Mvc.Data.Helpers;
 using Autumn.Mvc.Data.Models.Queries.Exceptions;
-using Newtonsoft.Json.Serialization;
 using Xunit;
 
 namespace Autumn.Mvc.Data.Models.Queries
 {
     public class EqComparisonOperatorTest : ComparisonTest
     {
-
-        private static readonly NamingStrategy _camelCase = new CamelCaseNamingStrategy();
-        private static readonly NamingStrategy _snakeCase = new SnakeCaseNamingStrategy();
 
         /// <summary>
         /// test : StringExemple==
@@ -30,7 +25,7 @@ namespace Autumn.Mvc.Data.Models.Queries
 
             foreach (var item in expected)
             {
-                Assert.Throws<QueryComparisonNotEnoughtArgumentException>(() => { Parse(item); });
+                Assert.Throws<AutumnQueryComparisonNotEnoughtArgumentException>(() => { Parse(item); });
             }
         }
 
@@ -40,8 +35,8 @@ namespace Autumn.Mvc.Data.Models.Queries
         [Fact]
         public void EqNotEnougthArgumentTest()
         {
-            Assert.Throws<QueryComparisonTooManyArgumentException>(() => { Parse("StringExemple==('a','b')"); });
-            Assert.Throws<QueryComparisonTooManyArgumentException>(() => { Parse("StringExemple=eq=('a','b')"); });
+            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("StringExemple==('a','b')"); });
+            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("StringExemple=eq=('a','b')"); });
         }
 
         /// <summary>
@@ -53,7 +48,7 @@ namespace Autumn.Mvc.Data.Models.Queries
         {
             var parameter = Expression.Parameter(typeof(Exemple));
             var argument = GetRandom<string>();
-            var memberExpression = CommonHelper.GetMemberExpressionValue<Exemple>(parameter, "StringExemple", null);
+            var memberExpression = AutumnQueryHelper.GetMemberExpressionValue<Exemple>(parameter, "StringExemple", null);
 
             var actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Equal(
                 memberExpression.Expression,
@@ -80,7 +75,7 @@ namespace Autumn.Mvc.Data.Models.Queries
             #region Datetime? & yyyy-MM-dd
             var parameter = Expression.Parameter(typeof(Exemple));
             var memberExpression =
-                CommonHelper.GetMemberExpressionValue<Exemple>(parameter, "NullableDateTimeExemple", null);
+                AutumnQueryHelper.GetMemberExpressionValue<Exemple>(parameter, "NullableDateTimeExemple", null);
 
             var actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Equal(
                 memberExpression.Expression,
@@ -119,7 +114,7 @@ namespace Autumn.Mvc.Data.Models.Queries
             #region Datetime & yyyy-MM-dd
             var parameter = Expression.Parameter(typeof(Exemple));
             var memberExpression =
-                CommonHelper.GetMemberExpressionValue<Exemple>(parameter, "DateTimeExemple", null);
+                AutumnQueryHelper.GetMemberExpressionValue<Exemple>(parameter, "DateTimeExemple", null);
 
             var actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Equal(
                 memberExpression.Expression,
@@ -275,7 +270,7 @@ namespace Autumn.Mvc.Data.Models.Queries
             var v = valueToString ?? Convert.ToString(value,CultureInfo.InvariantCulture);
             var parameter = Expression.Parameter(typeof(Exemple));
             var memberExpression =
-                CommonHelper.GetMemberExpressionValue<Exemple>(parameter, propertyName, null);
+                AutumnQueryHelper.GetMemberExpressionValue<Exemple>(parameter, propertyName, null);
 
             var actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Equal(
                 memberExpression.Expression,
