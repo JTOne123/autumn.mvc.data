@@ -147,7 +147,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : NullableInt16Exemple=eq=1
         /// </summary>
         [Fact]
-        public void EqNullableInt16Test()
+        public void NullableInt16Test()
         {
             Assert.True(Eq<short?>(1));
         }
@@ -157,7 +157,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : Int16Exemple=eq=1
         /// </summary>
         [Fact]
-        public void EqInt16Test()
+        public void Int16Test()
         {
             Assert.True(Eq<short>(1));
         }
@@ -167,7 +167,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : NullableInt32Exemple=eq=1
         /// </summary>
         [Fact]
-        public void EqNullableInt32Test()
+        public void NullableInt32Test()
         {
             Assert.True(Eq<int?>(1));
         }
@@ -177,7 +177,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : Int16Exemple=eq=1
         /// </summary>
         [Fact]
-        public void EqInt32Test()
+        public void Int32Test()
         {
             Assert.True(Eq<int>(1));
         }
@@ -187,7 +187,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : NullableInt64Exemple=eq=1
         /// </summary>
         [Fact]
-        public void EqNullableInt64Test()
+        public void NullableInt64Test()
         {
             Assert.True(Eq<long?>(1));
         }
@@ -197,7 +197,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : Int16Exemple=eq=1
         /// </summary>
         [Fact]
-        public void EqInt64Test()
+        public void Int64Test()
         {
             Assert.True(Eq<long>(1));
         }
@@ -208,7 +208,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : NullableSingleExemple=eq=...
         /// </summary>
         [Fact]
-        public void EqNullableSingleTest()
+        public void NullableSingleTest()
         {
             Assert.True(Eq<float?>((float)1.5));
         }
@@ -218,7 +218,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : SingleExemple=eq=...
         /// </summary>
         [Fact]
-        public void EqSingleTest()
+        public void SingleTest()
         {
             Assert.True(Eq<float>((float)1.5));
         }
@@ -228,7 +228,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : NullableDoubleExemple=eq=...
         /// </summary>
         [Fact]
-        public void EqNullableDoubleTest()
+        public void NullableDoubleTest()
         {
             Assert.True(Eq<double?>((double)1.5));
         }
@@ -238,7 +238,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : DoubleExemple=eq=...
         /// </summary>
         [Fact]
-        public void EqDoubleTest()
+        public void DoubleTest()
         {
             Assert.True(Eq<double>((double)1.5));
         }
@@ -249,7 +249,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : NullableDecimalExemple=eq=...
         /// </summary>
         [Fact]
-        public void EqNullableDecimalTest()
+        public void NullableDecimalTest()
         {
             Assert.True(Eq<decimal?>((decimal)1.5));
         }
@@ -259,7 +259,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         /// test : DecimalExemple=eq=...
         /// </summary>
         [Fact]
-        public void EqDecimalTest()
+        public void DecimalTest()
         {
             Assert.True(Eq<decimal>((decimal)1.5));
         }

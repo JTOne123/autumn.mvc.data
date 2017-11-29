@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Autumn.Mvc.Data.Tests.Models.Paginations
 {
-    public class PageTest
+    public class AutumnPageTest
     {
         [Fact]
         public void IsEmptyPage()

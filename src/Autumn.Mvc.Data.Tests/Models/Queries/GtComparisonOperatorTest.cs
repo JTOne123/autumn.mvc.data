@@ -7,8 +7,9 @@ using Xunit;
 
 namespace Autumn.Mvc.Data.Tests.Models.Queries
 {
-    public class LtComparisonOperatorTest : ComparisonTest
+    public class GtComparisonOperatorTest : ComparisonTest
     {
+
         /// <summary>
         /// test : Int32Exemple < ...
         /// test : Int32Exemple =lt= ...
@@ -16,8 +17,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void NotEnougthArgumentExceptionTest()
         {
-            Assert.Throws<AutumnQueryComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple<"); });
-            Assert.Throws<AutumnQueryComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple=lt="); });
+            Assert.Throws<AutumnQueryComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple<="); });
+            Assert.Throws<AutumnQueryComparisonNotEnoughtArgumentException>(() => { Parse("Int32Exemple=le="); });
         }
 
         /// <summary>
@@ -27,8 +28,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void TooManyArgumentExceptionTest()
         {
-            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("Int32Exemple<(1,2)"); });
-            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("Int32Exemple=lt=(1,2)"); });
+            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("Int32Exemple<=(1,2)"); });
+            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("Int32Exemple=le=(1,2)"); });
         }
 
         /// <summary>
@@ -44,32 +45,32 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         {
             Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
-                Parse("StringExemple<'" + GetRandom<string>() + "'");
+                Parse("StringExemple<='" + GetRandom<string>() + "'");
             });
 
             Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
-                Parse("StringExemple=lt=" + GetRandom<string>() + "'");
+                Parse("StringExemple=le=" + GetRandom<string>() + "'");
             });
 
             Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
-                Parse("BooleanExemple<true");
+                Parse("BooleanExemple<=true");
             });
 
             Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
-                Parse("BooleanExemple=lt=true");
+                Parse("BooleanExemple=le=true");
             });
 
             Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
-                Parse("NullableBooleanExemple<true");
+                Parse("NullableBooleanExemple<=true");
             });
 
             Assert.Throws<AutumnQueryComparisonInvalidComparatorSelectionException>(() =>
             {
-                Parse("NullableBooleanExemple=lt=true");
+                Parse("NullableBooleanExemple=le=true");
             });
         }
 
@@ -80,7 +81,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void NullableInt16Test()
         {
-            Assert.True(Lt<short?>(1));
+            Assert.True(Gt<short?>(1));
         }
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void Int16Test()
         {
-            Assert.True(Lt<short>(1));
+            Assert.True(Gt<short>(1));
         }
 
         /// <summary>
@@ -100,7 +101,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void NullableInt32Test()
         {
-            Assert.True(Lt<int?>(1));
+            Assert.True(Gt<int?>(1));
         }
 
         /// <summary>
@@ -110,7 +111,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void Int32Test()
         {
-            Assert.True(Lt<int>(1));
+            Assert.True(Gt<int>(1));
         }
 
         /// <summary>
@@ -120,7 +121,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void NullableInt64Test()
         {
-            Assert.True(Lt<long?>(1));
+            Assert.True(Gt<long?>(1));
         }
 
         /// <summary>
@@ -130,7 +131,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void Int64Test()
         {
-            Assert.True(Lt<long>(1));
+            Assert.True(Gt<long>(1));
         }
 
 
@@ -141,7 +142,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void NullableSingleTest()
         {
-            Assert.True(Lt<float?>((float) 1.5));
+            Assert.True(Gt<float?>((float) 1.5));
         }
 
         /// <summary>
@@ -151,7 +152,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void SingleTest()
         {
-            Assert.True(Lt<float>((float) 1.5));
+            Assert.True(Gt<float>((float) 1.5));
         }
 
         /// <summary>
@@ -161,7 +162,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void NullableDoubleTest()
         {
-            Assert.True(Lt<double?>((double) 1.5));
+            Assert.True(Gt<double?>((double) 1.5));
         }
 
         /// <summary>
@@ -171,7 +172,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void DoubleTest()
         {
-            Assert.True(Lt<double>((double) 1.5));
+            Assert.True(Gt<double>((double) 1.5));
         }
 
 
@@ -182,7 +183,7 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void NullableDecimalTest()
         {
-            Assert.True(Lt<decimal?>((decimal) 1.5));
+            Assert.True(Gt<decimal?>((decimal) 1.5));
         }
 
         /// <summary>
@@ -192,11 +193,11 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         [Fact]
         public void DecimalTest()
         {
-            Assert.True(Lt<decimal>((decimal) 1.5));
+            Assert.True(Gt<decimal>((decimal) 1.5));
         }
 
 
-        private static bool Lt<T>(T value, string valueToString = null)
+        private static bool Gt<T>(T value, string valueToString = null)
         {
             var type = typeof(T).IsGenericType ? typeof(T).GetGenericArguments()[0] : typeof(T);
             var propertyName = (typeof(T).IsGenericType ? "Nullable" : "") + type.Name + "Exemple";
@@ -205,14 +206,14 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
             var memberExpression =
                 AutumnQueryHelper.GetMemberExpressionValue<Exemple>(parameter, propertyName, null);
 
-            var actual = Expression.Lambda<Func<Exemple, bool>>(Expression.LessThan(
+            var actual = Expression.Lambda<Func<Exemple, bool>>(Expression.GreaterThan(
                 memberExpression.Expression,
                 Expression.Constant(value, typeof(T))), parameter);
 
-            var expected = Parse(propertyName + "<" + v);
+            var expected = Parse(propertyName + ">" + v);
             Assert.Equal(actual.ToString(), expected.ToString());
 
-            expected = Parse(propertyName + "=lt=" + v);
+            expected = Parse(propertyName + "=gt=" + v);
             Assert.Equal(actual.ToString(), expected.ToString());
             return true;
         }
