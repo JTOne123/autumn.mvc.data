@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using Autumn.Mvc.Data.Models.Paginations;
 using Xunit;
 
-namespace Autumn.Mvc.Data.Models.Paginations
+namespace Autumn.Mvc.Data.Tests.Models.Paginations
 {
     public class PageTest
     {

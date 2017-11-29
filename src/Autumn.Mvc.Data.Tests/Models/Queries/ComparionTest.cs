@@ -2,9 +2,10 @@
 using System.Globalization;
 using System.Linq.Expressions;
 using Antlr4.Runtime;
+using Autumn.Mvc.Data.Models.Queries;
 using Newtonsoft.Json.Serialization;
 
-namespace Autumn.Mvc.Data.Models.Queries
+namespace Autumn.Mvc.Data.Tests.Models.Queries
 {
     public class ComparisonTest
     {

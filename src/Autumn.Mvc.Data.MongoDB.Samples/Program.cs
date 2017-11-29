@@ -3,7 +3,7 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Autumn.Mvc.Data.Samples
+namespace Autumn.Mvc.Data.MongoDB.Samples
 {
     public class Program
     {

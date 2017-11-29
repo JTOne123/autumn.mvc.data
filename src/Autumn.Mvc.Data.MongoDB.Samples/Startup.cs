@@ -1,12 +1,11 @@
-﻿using Autumn.Mvc.Data.MongoDB;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 
-namespace Autumn.Mvc.Data.Samples
+namespace Autumn.Mvc.Data.MongoDB.Samples
 {
     public class Startup
     {

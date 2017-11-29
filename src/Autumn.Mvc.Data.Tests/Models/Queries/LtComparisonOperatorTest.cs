@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq.Expressions;
+using Autumn.Mvc.Data.Models.Queries;
 using Autumn.Mvc.Data.Models.Queries.Exceptions;
 using Xunit;
 
-namespace Autumn.Mvc.Data.Models.Queries
+namespace Autumn.Mvc.Data.Tests.Models.Queries
 {
     public class LtComparisonOperatorTest : ComparisonTest
     {
