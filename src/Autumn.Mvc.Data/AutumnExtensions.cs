@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json.Serialization;
 
@@ -15,7 +16,8 @@ namespace Autumn.Mvc.Data
         {
             if (string.IsNullOrWhiteSpace(value)) return value;
             if (value.Length == 1) return value.ToLowerInvariant();
-            return value[0].ToString().ToLower() + value.Substring(1);
+            var result = ToPascalCase(value);
+            return result[0].ToString(CultureInfo.InvariantCulture).ToLowerInvariant() + result.Substring(1);
         }
 
         /// <summary>

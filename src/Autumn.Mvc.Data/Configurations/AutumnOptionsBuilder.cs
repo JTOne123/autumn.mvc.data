@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Autumn.Mvc.Data.Configurations.Exceptions;
 using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Configurations
@@ -9,6 +11,23 @@ namespace Autumn.Mvc.Data.Configurations
     {
 
         private readonly AutumnOptions _autumnSettings;
+        private readonly Dictionary<string, string> _fieldNames=new Dictionary<string, string>();
+
+        private void CkeckAndRegisterFieldName(string value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value)) throw new ArgumentNullException(nameof(value));
+            if (Regex.Match(value, @"(_)?([A-Za-z0-9]((_)?[A-Za-z0-9])*(_)?)").Value!=value)
+                throw new AutumnInvalidFormatFieldNameException(fieldName,value);
+            var check = value.Trim();
+            foreach (var item in _fieldNames.Keys)
+            {
+                if (item == fieldName) continue;
+                if (_fieldNames[item].ToLowerInvariant() == check)
+                    throw new AutumnAlreadyFieldNameUsedException(item, value);
+            }
+
+            _fieldNames[fieldName] = value.Trim();
+        }
 
         /// <summary>
         /// class initializer 
@@ -24,6 +43,22 @@ namespace Autumn.Mvc.Data.Configurations
         /// <returns></returns>
         public AutumnOptions Build()
         {
+            if (_fieldNames.ContainsKey("PageNumberFieldName"))
+            {
+                _autumnSettings.PageNumberFieldName = _fieldNames["PageNumberFieldName"];
+            }
+            if (_fieldNames.ContainsKey("PageSizeFieldName"))
+            {
+                _autumnSettings.PageSizeFieldName = _fieldNames["PageSizeFieldName"];
+            }
+            if (_fieldNames.ContainsKey("SortFieldName"))
+            {
+                _autumnSettings.SortFieldName = _fieldNames["SortFieldName"];
+            }
+            if (_fieldNames.ContainsKey("QueryFieldName"))
+            {
+                _autumnSettings.QueryFieldName = _fieldNames["QueryFieldName"];
+            }
             return _autumnSettings;
         }
         
@@ -41,13 +76,14 @@ namespace Autumn.Mvc.Data.Configurations
         /// <summary>
         /// configuration of page size
         /// </summary>
-        /// <param name="parameterName">query parameter id for page size</param>
+        /// <param name="pageSizeFieldName">query parameter id for page size</param>
         /// <param name="pageSize">default page size</param>
         /// <returns></returns>
-        public AutumnOptionsBuilder PageSizeFieldName(string parameterName,
+        public AutumnOptionsBuilder PageSizeFieldName(string pageSizeFieldName,
             int? pageSize = null)
         {
-            _autumnSettings.PageSizeFieldName = parameterName;
+            
+            CkeckAndRegisterFieldName(pageSizeFieldName,"PageSizeFieldName");
             return this;
         }
 
@@ -58,11 +94,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// <returns></returns>
         public AutumnOptionsBuilder PageNumberFieldName(string pageNumberFieldName)
         {
-            if (string.IsNullOrWhiteSpace(pageNumberFieldName))
-            {
-                throw new ArgumentNullException(nameof(pageNumberFieldName));
-            }
-            _autumnSettings.PageNumberFieldName = pageNumberFieldName;
+            CkeckAndRegisterFieldName(pageNumberFieldName,"PageNumberFieldName");
             return this;
         }
 
@@ -75,11 +107,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// <exception cref="ArgumentNullException"></exception>
         public AutumnOptionsBuilder SortFieldName(string sortFieldName)
         {
-            if (string.IsNullOrWhiteSpace(sortFieldName))
-            {
-                throw new ArgumentNullException(nameof(sortFieldName));
-            }
-            _autumnSettings.SortFieldName = sortFieldName;
+            CkeckAndRegisterFieldName(sortFieldName,"SortFieldName");
             return this;
         }
         
@@ -91,11 +119,7 @@ namespace Autumn.Mvc.Data.Configurations
         /// <exception cref="ArgumentNullException"></exception>
         public AutumnOptionsBuilder QueryFieldName(string queryFieldName)
         {
-            if (string.IsNullOrWhiteSpace(queryFieldName))
-            {
-                throw new ArgumentNullException(nameof(queryFieldName));
-            }
-            _autumnSettings.QueryFieldName = queryFieldName;
+            CkeckAndRegisterFieldName(queryFieldName,"QueryFieldName");
             return this;
         }
 
