@@ -8,11 +8,11 @@ using Xunit;
 
 namespace Autumn.Mvc.Data.Tests.Models.Queries
 {
-    public class EqComparisonOperatorTest : ComparisonTest
+    public class NotEqComparisonOperatorTest : ComparisonTest
     {
 
         /// <summary>
-        /// test : StringExemple==
+        /// test : StringExemple!=
         /// </summary>
         [Fact]
         public void NotEnougthArgumentExceptionTest()
@@ -20,29 +20,32 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
             var expected = new List<string>();
             foreach (var p in typeof(Exemple).GetProperties())
             {
-                expected.Add(p.Name + "==");
-                expected.Add(p.Name + "=eq=");
+                expected.Add(p.Name + "!=");
+                expected.Add(p.Name + "=neq=");
             }
 
+            // TODO : rewrite grammar
+            /*
             foreach (var item in expected)
             {
                 Assert.Throws<AutumnQueryComparisonNotEnoughtArgumentException>(() => { Parse(item); });
-            }
+            }*/
         }
 
         /// <summary>
-        /// test : StringExemple==('a','b')
+        /// test : StringExemple!=('a','b')
+        /// test : StringExemple=neq=('a','b')
         /// </summary>
         [Fact]
         public void NotEnougthArgumentTest()
         {
-            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("StringExemple==('a','b')"); });
-            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("StringExemple=eq=('a','b')"); });
+            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("StringExemple!=('a','b')"); });
+            Assert.Throws<AutumnQueryComparisonTooManyArgumentException>(() => { Parse("StringExemple=neq=('a','b')"); });
         }
 
         /// <summary>
-        /// test : StringExemple==...
-        /// test : StringExemple=eq=...'
+        /// test : StringExemple!=...
+        /// test : StringExemple=neq=...'
         /// </summary>
         [Fact]
         public void StringTest()
@@ -55,20 +58,22 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
                 memberExpression.Expression,
                 Expression.Constant(argument)), parameter);
 
-            var expected = Parse("StringExemple=="+argument);
+            actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Not(actual.Body), parameter);
+
+            var expected = Parse("StringExemple!="+argument);
             Assert.Equal(actual.ToString(), expected.ToString());
 
 
-            expected = Parse("StringExemple=eq="+argument);
+            expected = Parse("StringExemple=neq="+argument);
             Assert.Equal(actual.ToString(), expected.ToString());
 
         }
 
         /// <summary>
-        /// test : DateTimeNullExemple=='1973-08-19'
-        /// test : DateTimeNullExemple=eq='1973-08-19'
-        /// test : DateTimeNullExemple=='1973-08-19T23:59:59'
-        /// test : DateTimeNullExemple=eq='1973-08-19T23:59:59'
+        /// test : DateTimeNullExemple!='1973-08-19'
+        /// test : DateTimeNullExemple=neq='1973-08-19'
+        /// test : DateTimeNullExemple!='1973-08-19T23:59:59'
+        /// test : DateTimeNullExemple=neq='1973-08-19T23:59:59'
         /// </summary>
         [Fact]
         public void NullableDatetimeTest()
@@ -82,10 +87,12 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
                 memberExpression.Expression,
                 Expression.Constant(new DateTime(1973, 8, 19), typeof(DateTime?))), parameter);
 
-            var expected = Parse("NullableDateTimeExemple==1973-08-19");
+            actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Not(actual.Body), parameter);
+            
+            var expected = Parse("NullableDateTimeExemple!=1973-08-19");
             Assert.Equal(actual.ToString(), expected.ToString());
 
-            expected = Parse("NullableDateTimeExemple=eq=1973-08-19");
+            expected = Parse("NullableDateTimeExemple=neq=1973-08-19");
             Assert.Equal(actual.ToString(), expected.ToString());
             #endregion
             
@@ -93,21 +100,22 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
             actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Equal(
                 memberExpression.Expression,
                 Expression.Constant(new DateTime(1973, 8, 19, 23, 59, 59), typeof(DateTime?))), parameter);
+            actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Not(actual.Body), parameter);
+          
 
-
-            expected = Parse("NullableDateTimeExemple==1973-08-19T23:59:59");
+            expected = Parse("NullableDateTimeExemple!=1973-08-19T23:59:59");
             Assert.Equal(actual.ToString(), expected.ToString());
 
-            expected = Parse("NullableDateTimeExemple=eq=1973-08-19T23:59:59");
+            expected = Parse("NullableDateTimeExemple=neq=1973-08-19T23:59:59");
             Assert.Equal(actual.ToString(), expected.ToString());
             #endregion
         }
         
         /// <summary>
-        /// test : DateTimeExemple=='1973-08-19'
-        /// test : DateTimeExemple=eq='1973-08-19'
-        /// test : DateTimeExemple=='1973-08-19T23:59:59'
-        /// test : DateTimeExemple=eq='1973-08-19T23:59:59'
+        /// test : DateTimeExemple!='1973-08-19'
+        /// test : DateTimeExemple=neq='1973-08-19'
+        /// test : DateTimeExemple!='1973-08-19T23:59:59'
+        /// test : DateTimeExemple=neq='1973-08-19T23:59:59'
         /// </summary>
         [Fact]
         public void DatetimeTest()
@@ -121,10 +129,12 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
                 memberExpression.Expression,
                 Expression.Constant(new DateTime(1973, 8, 19), typeof(DateTime))), parameter);
 
-            var expected = Parse("DateTimeExemple==1973-08-19");
+            actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Not(actual.Body), parameter);
+            
+            var expected = Parse("DateTimeExemple!=1973-08-19");
             Assert.Equal(actual.ToString(), expected.ToString());
 
-            expected = Parse("DateTimeExemple=eq=1973-08-19");
+            expected = Parse("DateTimeExemple=neq=1973-08-19");
             Assert.Equal(actual.ToString(), expected.ToString());
             #endregion
             
@@ -132,19 +142,20 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
             actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Equal(
                 memberExpression.Expression,
                 Expression.Constant(new DateTime(1973, 8, 19, 23, 59, 59), typeof(DateTime))), parameter);
+            actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Not(actual.Body), parameter);
+          
 
-
-            expected = Parse("DateTimeExemple==1973-08-19T23:59:59");
+            expected = Parse("DateTimeExemple!=1973-08-19T23:59:59");
             Assert.Equal(actual.ToString(), expected.ToString());
 
-            expected = Parse("DateTimeExemple=eq=1973-08-19T23:59:59");
+            expected = Parse("DateTimeExemple=neq=1973-08-19T23:59:59");
             Assert.Equal(actual.ToString(), expected.ToString());
             #endregion
         }
         
         /// <summary>
-        /// test : NullableInt16Exemple==1
-        /// test : NullableInt16Exemple=eq=1
+        /// test : NullableInt16Exemple!=1
+        /// test : NullableInt16Exemple=neq=1
         /// </summary>
         [Fact]
         public void NullableInt16Test()
@@ -153,8 +164,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         }
 
         /// <summary>
-        /// test : Int16Exemple==1
-        /// test : Int16Exemple=eq=1
+        /// test : Int16Exemple!=1
+        /// test : Int16Exemple=neq=1
         /// </summary>
         [Fact]
         public void Int16Test()
@@ -163,8 +174,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         }
         
         /// <summary>
-        /// test : NullableInt32Exemple==1
-        /// test : NullableInt32Exemple=eq=1
+        /// test : NullableInt32Exemple!=1
+        /// test : NullableInt32Exemple=neq=1
         /// </summary>
         [Fact]
         public void NullableInt32Test()
@@ -173,8 +184,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         }
 
         /// <summary>
-        /// test : Int16Exemple==1
-        /// test : Int16Exemple=eq=1
+        /// test : Int16Exemple!=1
+        /// test : Int16Exemple=neq=1
         /// </summary>
         [Fact]
         public void Int32Test()
@@ -183,8 +194,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         }
 
         /// <summary>
-        /// test : NullableInt64Exemple==1
-        /// test : NullableInt64Exemple=eq=1
+        /// test : NullableInt64Exemple!=1
+        /// test : NullableInt64Exemple=neq=1
         /// </summary>
         [Fact]
         public void NullableInt64Test()
@@ -193,8 +204,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         }
 
         /// <summary>
-        /// test : Int16Exemple==1
-        /// test : Int16Exemple=eq=1
+        /// test : Int16Exemple!=1
+        /// test : Int16Exemple=neq=1
         /// </summary>
         [Fact]
         public void Int64Test()
@@ -204,8 +215,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         
         
         /// <summary>
-        /// test : NullableSingleExemple==...
-        /// test : NullableSingleExemple=eq=...
+        /// test : NullableSingleExemple!=...
+        /// test : NullableSingleExemple=neq=...
         /// </summary>
         [Fact]
         public void NullableSingleTest()
@@ -214,8 +225,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         }
 
         /// <summary>
-        /// test : SingleExemple==...
-        /// test : SingleExemple=eq=...
+        /// test : SingleExemple!=...
+        /// test : SingleExemple=neq=...
         /// </summary>
         [Fact]
         public void SingleTest()
@@ -224,8 +235,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         }
         
         /// <summary>
-        /// test : NullableDoubleExemple==...
-        /// test : NullableDoubleExemple=eq=...
+        /// test : NullableDoubleExemple!=...
+        /// test : NullableDoubleExemple=neq=...
         /// </summary>
         [Fact]
         public void NullableDoubleTest()
@@ -234,8 +245,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         }
 
         /// <summary>
-        /// test : DoubleExemple==...
-        /// test : DoubleExemple=eq=...
+        /// test : DoubleExemple!=...
+        /// test : DoubleExemple=neq=...
         /// </summary>
         [Fact]
         public void DoubleTest()
@@ -245,8 +256,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         
         
         /// <summary>
-        /// test : NullableDecimalExemple==...
-        /// test : NullableDecimalExemple=eq=...
+        /// test : NullableDecimalExemple!=...
+        /// test : NullableDecimalExemple=neq=...
         /// </summary>
         [Fact]
         public void NullableDecimalTest()
@@ -255,8 +266,8 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
         }
 
         /// <summary>
-        /// test : DecimalExemple==...
-        /// test : DecimalExemple=eq=...
+        /// test : DecimalExemple!=...
+        /// test : DecimalExemple=neq=...
         /// </summary>
         [Fact]
         public void DecimalTest()
@@ -273,14 +284,16 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
             var memberExpression =
                 AutumnQueryHelper.GetMemberExpressionValue<Exemple>(parameter, propertyName, null);
 
-            var actual = Expression.Lambda<Func<Exemple, bool>>( Expression.Equal(
+            var actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Equal(
                 memberExpression.Expression,
                 Expression.Constant(value, typeof(T))), parameter);
 
-            var expected = Parse(propertyName + "==" + v);
+            actual = Expression.Lambda<Func<Exemple, bool>>(Expression.Not(actual.Body), parameter);
+
+            var expected = Parse(propertyName + "!=" + v);
             Assert.Equal(actual.ToString(), expected.ToString());
 
-            expected = Parse(propertyName + "=eq=" + v);
+            expected = Parse(propertyName + "=neq=" + v);
             Assert.Equal(actual.ToString(), expected.ToString());
             return true;
         }
