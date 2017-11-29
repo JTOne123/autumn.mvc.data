@@ -101,8 +101,8 @@ namespace Autumn.Mvc.Data.Models.Queries
             if (context == null) throw new ArgumentException("context");
             var expressionValue =
                 GetMemberExpressionValue<T>(parameter, context, namingStrategy);
-            if (expressionValue.Property.PropertyType.IsValueType || (expressionValue.Property.PropertyType.IsGenericType &&
-                expressionValue.Property.PropertyType.GetGenericTypeDefinition() != typeof(Nullable<>)))
+            if (expressionValue.Property.PropertyType.IsValueType && !(expressionValue.Property.PropertyType.IsGenericType &&
+                expressionValue.Property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>)))
                 throw new AutumnQueryComparisonInvalidComparatorSelectionException(context);
             
             var values = GetValues(typeof(bool), context.arguments());
