@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Net.Http;
 using System.Reflection;
 using AutoMapper;
 using Autumn.Mvc.Data.Annotations;
@@ -47,9 +48,9 @@ namespace Autumn.Mvc.Data
         public bool UseSwagger { get; set; }
         public static AutumnApplication Current { get; }
         public IReadOnlyDictionary<Type, AttributeRouteModel> Routes { get; private set; }
-        public IReadOnlyDictionary<string, AutumnIgnoreOperationType> IgnoresPaths { get; set; }
         public IReadOnlyDictionary<Type, AutumnEntityInfo> EntitiesInfos { get; private set; }
-
+        public IReadOnlyDictionary<string,IReadOnlyList<HttpMethod>> IgnoreOperations { get; private set; }
+        
         public static void Initialize(AutumnOptions autumnOptions,Assembly callingAssembly)
         {
             lock (Current)
@@ -84,7 +85,6 @@ namespace Autumn.Mvc.Data
             {
                 var entityAttribute = type.GetCustomAttribute<AutumnEntityAttribute>(false);
                 if (entityAttribute == null) continue;
-                var ignoreOperationAttribute = type.GetCustomAttribute<AutumnIgnoreOperationAttribute>(false);
                 AutumnEntityKeyInfo entityKeyInfo = null;
                 foreach (var property in type.GetProperties())
                 {
@@ -94,9 +94,9 @@ namespace Autumn.Mvc.Data
                     break;
                 }
                 if (entityKeyInfo == null) continue;
-                var proxyTypes = AutumnModelHelper.CompileResultType(type);
+                var proxyTypes = AutumnModelHelper.BuildModelsRequestTypes(type);
                 items.Add(type,
-                    new AutumnEntityInfo(type, proxyTypes, entityAttribute, entityKeyInfo, ignoreOperationAttribute));
+                    new AutumnEntityInfo(type, proxyTypes, entityAttribute, entityKeyInfo));
             }
 
             Mapper.Reset();
@@ -105,7 +105,7 @@ namespace Autumn.Mvc.Data
             {
                 foreach (var entityInfo in items.Values)
                 {
-                    foreach (var proxyType in entityInfo.ProxyTypes.Values)
+                    foreach (var proxyType in entityInfo.ProxyRequestTypes.Values)
                     {
                         c.CreateMap(proxyType, entityInfo.EntityType);
                     }
@@ -122,7 +122,7 @@ namespace Autumn.Mvc.Data
         private static void BuildRoutes(AutumnOptions autumnOptions)
         {
             var routes = new Dictionary<Type, AttributeRouteModel>();
-            var ignorePaths = new Dictionary<string, AutumnIgnoreOperationType>();
+            var ignoreOperations = new Dictionary<string, IReadOnlyList<HttpMethod>>();
             var baseType = typeof(AutumnRepositoryControllerAsync<,,,>);
             foreach (var entityType in Current.EntitiesInfos.Keys)
             {
@@ -145,18 +145,16 @@ namespace Autumn.Mvc.Data
                 var entityKeyType = info.KeyInfo.Property.PropertyType;
                 var controllerType = baseType.MakeGenericType(
                     info.EntityType,
-                    info.ProxyTypes[AutumnIgnoreOperationPropertyType.Insert],
-                    info.ProxyTypes[AutumnIgnoreOperationPropertyType.Update],
+                    info.ProxyRequestTypes[HttpMethod.Post],
+                    info.ProxyRequestTypes[HttpMethod.Put],
                     entityKeyType);
                 var attributeRouteModel = new AttributeRouteModel(new RouteAttribute(name));
                 routes.Add(controllerType, attributeRouteModel);
-                if (info.IgnoreOperations != null)
-                {
-                    ignorePaths.Add("/" + name, info.IgnoreOperations.Value);
-                }
+                ignoreOperations.Add("/"+name, info.IgnoreOperations);
             }
-            Current.IgnoresPaths = new ReadOnlyDictionary<string, AutumnIgnoreOperationType>(ignorePaths);
             Current.Routes = new ReadOnlyDictionary<Type, AttributeRouteModel>(routes);
+            Current.IgnoreOperations =
+                new ReadOnlyDictionary<string, IReadOnlyList<HttpMethod>>(ignoreOperations);
         }
     }
 }

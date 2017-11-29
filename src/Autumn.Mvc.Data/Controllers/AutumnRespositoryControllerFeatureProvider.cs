@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
-using Autumn.Mvc.Data.Configurations;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 

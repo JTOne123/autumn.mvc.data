@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using Autumn.Mvc.Data.Annotations;
 using Autumn.Mvc.Data.Controllers;
@@ -19,7 +20,7 @@ namespace Autumn.Mvc.Data.Swagger
     {
 
         private const string ConsumeContentType = "application/json";
-        private static readonly ConcurrentDictionary<Type,Dictionary<string,Schema>> Caches = new ConcurrentDictionary<Type,Dictionary<string,Schema>>();
+        private static readonly ConcurrentDictionary<Type,Dictionary<HttpMethod,Schema>> Caches = new ConcurrentDictionary<Type,Dictionary<HttpMethod,Schema>>();
         private static readonly Schema AutumnErrorModelSchema;
 
         /// <summary>
@@ -27,7 +28,7 @@ namespace Autumn.Mvc.Data.Swagger
         /// </summary>
         static AutumnSwaggerOperationFilter()
         {
-            AutumnErrorModelSchema = GetOrRegistrySchema(typeof(AutumnErrorModel), "GET");
+            AutumnErrorModelSchema = GetOrRegistrySchema(typeof(AutumnErrorModel), HttpMethod.Get);
         }
 
         /// <summary>
@@ -48,11 +49,11 @@ namespace Autumn.Mvc.Data.Swagger
             // find entity type info
             var entityInfo = AutumnApplication.Current.EntitiesInfos[entityType];
             // register response swagger schema for GET request
-            var entitySchemaGet = GetOrRegistrySchema(entityType,"GET");
+            var entitySchemaGet = GetOrRegistrySchema(entityType,HttpMethod.Get);
             // register request swagger schema for POST request
-            var entitySchemaPost = GetOrRegistrySchema(entityInfo.ProxyTypes[AutumnIgnoreOperationPropertyType.Insert], "POST");
+            var entitySchemaPost = GetOrRegistrySchema(entityInfo.ProxyRequestTypes[HttpMethod.Post], HttpMethod.Post);
             // register request swagger schema for PUT request
-            var entitySchemaPut = GetOrRegistrySchema(entityInfo.ProxyTypes[AutumnIgnoreOperationPropertyType.Update], "PUT");
+            var entitySchemaPut = GetOrRegistrySchema(entityInfo.ProxyRequestTypes[HttpMethod.Put], HttpMethod.Put);
             
             operation.Responses = new ConcurrentDictionary<string, Response>();
             // add generic reponse for internal error from server
@@ -110,7 +111,7 @@ namespace Autumn.Mvc.Data.Swagger
                 default:
                     var genericPageType = typeof(Models.Paginations.AutumnPage<>);
                     var pageType = genericPageType.MakeGenericType(entityType);
-                    var schema = GetOrRegistrySchema(pageType, "GET");
+                    var schema = GetOrRegistrySchema(pageType, HttpMethod.Get);
                     operation.Responses.Add("200", new Response() {Schema = schema, Description = "OK"});
                     operation.Responses.Add("206", new Response() {Schema = schema, Description = "Partial Content"});
                     operation.Parameters.Clear();
@@ -154,29 +155,20 @@ namespace Autumn.Mvc.Data.Swagger
         /// build schema 
         /// </summary>
         /// <param name="property"></param>
-        /// <param name="method"></param>
+        /// <param name="httpMethod"></param>
         /// <returns></returns>
-        private static Schema BuildSchema(PropertyInfo property, string method = "GET")
+        private static Schema BuildSchema(PropertyInfo property,HttpMethod httpMethod)
         {
-            if (method != "GET")
+            if (httpMethod != HttpMethod.Get)
             {
                 var attribute = property.GetCustomAttribute<AutumnIgnoreOperationPropertyAttribute>();
                 if (attribute != null)
                 {
-                    switch (attribute.OperationTypes)
-                    {
-                        case AutumnIgnoreOperationPropertyType.Insert  when method == "POST":
-                            return null;
-                        case AutumnIgnoreOperationPropertyType.Update when method == "PUT":
-                            return null;
-                        // exclusion property vert PUT or POST and AutumnIgnore.Type==All
-                        default:
-                            return null;
-                    }
-                    
+                    if (!attribute.Insertable && httpMethod == HttpMethod.Post) return null;
+                    if (!attribute.Updatable && httpMethod == HttpMethod.Put) return null;
                 }
             }
-            
+
             var result = new Schema();
             if (property.PropertyType == typeof(string))
             {
@@ -227,16 +219,16 @@ namespace Autumn.Mvc.Data.Swagger
                     property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
                     result.Type = "array";
-                    result.Items = GetOrRegistrySchema(property.PropertyType.GetGenericArguments()[0],method);
+                    result.Items = GetOrRegistrySchema(property.PropertyType.GetGenericArguments()[0],httpMethod);
                 }
                 else if (property.PropertyType.IsArray)
                 {
                     result.Type = "array";
-                    result.Items = GetOrRegistrySchema(property.PropertyType, method);
+                    result.Items = GetOrRegistrySchema(property.PropertyType, httpMethod);
                 }
                 else
                 {
-                    result = GetOrRegistrySchema(property.PropertyType, method);
+                    result = GetOrRegistrySchema(property.PropertyType, httpMethod);
                 }
             }
             return result;
@@ -248,12 +240,12 @@ namespace Autumn.Mvc.Data.Swagger
         /// <param name="type"></param>
         /// <param name="method"></param>
         /// <returns></returns>
-        private static Schema GetOrRegistrySchema(Type type,string method)
+        private static Schema GetOrRegistrySchema(Type type,HttpMethod method)
         {
             lock (Caches)
             {
                 if (Caches.ContainsKey(type) && Caches[type].ContainsKey(method)) return Caches[type][method];
-                if (!Caches.ContainsKey(type)) Caches[type] = new Dictionary<string, Schema>();
+                if (!Caches.ContainsKey(type)) Caches[type] = new Dictionary<HttpMethod, Schema>();
                 var o = Activator.CreateInstance(type);
                 var stringify = JsonConvert.SerializeObject(o);
                 var expected = JObject.Parse(stringify);

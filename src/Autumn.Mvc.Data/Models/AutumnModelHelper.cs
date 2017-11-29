@@ -3,18 +3,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Linq.Expressions;
+using System.Net.Http;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using Autumn.Mvc.Data.Annotations;
 using Autumn.Mvc.Data.Models.Paginations;
 using Autumn.Mvc.Data.Models.Queries;
-using Autumn.Mvc.Data.Models.Queries.Exceptions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Models
 {
@@ -62,50 +58,40 @@ namespace Autumn.Mvc.Data.Models
 
         #endregion
 
-               
-        public static IReadOnlyDictionary<AutumnIgnoreOperationPropertyType, Type> CompileResultType(Type originType)
+
+        public static IReadOnlyDictionary<HttpMethod, Type> BuildModelsRequestTypes(Type originType)
         {
-            var typeBuilderPost = GetTypeBuilder(originType, AutumnIgnoreOperationPropertyType.Insert);
+            var typeBuilderPost = GetTypeBuilder(originType, HttpMethod.Post);
             typeBuilderPost.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName |
                                                      MethodAttributes.RTSpecialName);
 
-            var typeBuilderPut = GetTypeBuilder(originType, AutumnIgnoreOperationPropertyType.Update);
+            var typeBuilderPut = GetTypeBuilder(originType, HttpMethod.Put);
             typeBuilderPut.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName |
                                                     MethodAttributes.RTSpecialName);
             foreach (var property in originType.GetProperties())
             {
-                CreateProperty(typeBuilderPost, property, AutumnIgnoreOperationPropertyType.Insert);
-                CreateProperty(typeBuilderPut, property, AutumnIgnoreOperationPropertyType.Update);
+                TryAddProperty(typeBuilderPost, property, HttpMethod.Post);
+                TryAddProperty(typeBuilderPut, property, HttpMethod.Put);
             }
 
-            var result = new Dictionary<AutumnIgnoreOperationPropertyType, Type>
+            var result = new Dictionary<HttpMethod, Type>
             {
-                [AutumnIgnoreOperationPropertyType.Insert] = typeBuilderPost.CreateTypeInfo().AsType(),
-                [AutumnIgnoreOperationPropertyType.Update] = typeBuilderPut.CreateTypeInfo().AsType()
+                [HttpMethod.Post] = typeBuilderPost.CreateTypeInfo().AsType(),
+                [HttpMethod.Put] = typeBuilderPut.CreateTypeInfo().AsType()
             };
 
-            return new ReadOnlyDictionary<AutumnIgnoreOperationPropertyType, Type>(result);
+            return new ReadOnlyDictionary<HttpMethod, Type>(result);
         }
-    
 
-    /// <summary>
+
+        /// <summary>
         /// create type builder
         /// </summary>
-        /// <param name="originType"></param>
-        /// <param name="operationPropertyType"></param>
+        /// <param name="httpMethod"></param>
         /// <returns></returns>
-        private static TypeBuilder GetTypeBuilder(Type originType, AutumnIgnoreOperationPropertyType operationPropertyType)
+        private static TypeBuilder GetTypeBuilder(Type originType, HttpMethod httpMethod)
         {
-            var typeSignature = originType.Name;
-            switch (operationPropertyType)
-            {
-                    case AutumnIgnoreOperationPropertyType.Insert:
-                        typeSignature += "Post";
-                        break;
-                    default:
-                        typeSignature += "Put";
-                        break;
-            }
+            var typeSignature = string.Format("{0}{1}Request", originType.Name, httpMethod.Method);
             typeSignature += "Request";
             var an = new AssemblyName(typeSignature);
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(an, AssemblyBuilderAccess.Run);
@@ -126,15 +112,16 @@ namespace Autumn.Mvc.Data.Models
         /// </summary>
         /// <param name="typeBuilder"></param>
         /// <param name="propertyInfo"></param>
-        /// <param name="operationPropertyType"></param>
-        private static void CreateProperty(TypeBuilder typeBuilder, PropertyInfo propertyInfo, AutumnIgnoreOperationPropertyType operationPropertyType)
+        /// <param name="httpMethod"></param>
+        private static void TryAddProperty(TypeBuilder typeBuilder, PropertyInfo propertyInfo, HttpMethod httpMethod)
         {
             var ignoreAttribute = propertyInfo.GetCustomAttribute<AutumnIgnoreOperationPropertyAttribute>();
-           
-            if (ignoreAttribute?.OperationTypes == (AutumnIgnoreOperationPropertyType.Insert | AutumnIgnoreOperationPropertyType.Update)) return;
-            if (ignoreAttribute?.OperationTypes == AutumnIgnoreOperationPropertyType.Update  && operationPropertyType == AutumnIgnoreOperationPropertyType.Update) return;
-            if (ignoreAttribute?.OperationTypes == AutumnIgnoreOperationPropertyType.Insert && operationPropertyType == AutumnIgnoreOperationPropertyType.Insert) return;
-
+            if (ignoreAttribute != null)
+            {
+                if (!ignoreAttribute.Insertable && httpMethod == HttpMethod.Post) return;
+                if (!ignoreAttribute.Updatable && httpMethod == HttpMethod.Put) return;
+            } 
+          
             var propertyName = propertyInfo.Name;
             var propertyType = propertyInfo.PropertyType;
             var fieldBuilder = typeBuilder.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);

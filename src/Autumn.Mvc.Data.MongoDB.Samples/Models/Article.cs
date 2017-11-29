@@ -6,9 +6,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace Autumn.Mvc.Data.MongoDB.Samples.Models
 {
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Name = "articles", Version = "v1")]
-    [AutumnIgnoreOperation(AutumnIgnoreOperationType.Insert | AutumnIgnoreOperationType.Update |
-                           AutumnIgnoreOperationType.Delete)]
+    [AutumnEntity(Name = "articles", Version = "v1",Deletable = false,Updatable = false)]
     public class Article : AbstractEntity
     {
         [Required]
@@ -20,8 +18,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     }
 
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Name = "articles", Version = "v2")]
-    [AutumnIgnoreOperation(AutumnIgnoreOperationType.Insert)]
+    [AutumnEntity(Name = "articles", Version = "v2",Insertable = false)]
     public class ArticleV2 : Article
     {
         [BsonElement("publish_date")]

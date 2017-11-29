@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -7,7 +10,7 @@ namespace Autumn.Mvc.Data.Middlewares
     public class AutumnIgnoreOperationMiddleware
     {
         private readonly RequestDelegate _next;
-        private static Dictionary<string, List<string>> _exclusions;
+        private static readonly Dictionary<string, List<string>> Exclusions;
       
         public AutumnIgnoreOperationMiddleware(RequestDelegate next)
         {
@@ -20,9 +23,9 @@ namespace Autumn.Mvc.Data.Middlewares
             var path = context.Request.Path;
             if (method == "POST" || method == "PUT" || method == "DELETE")
             {
-                if (_exclusions[method].Contains(Path(method, path)))
+                if (Exclusions[method].Contains(Path(method, path)))
                 {
-                    context.Response.StatusCode = 404;
+                    context.Response.StatusCode = (int) HttpStatusCode.NotFound;
                 }
                 else
                 {
@@ -35,7 +38,6 @@ namespace Autumn.Mvc.Data.Middlewares
             }
         }
 
-
         static string Path(string method, string path)
         {
             if ( method == "PUT" || method == "DELETE")
@@ -47,21 +49,20 @@ namespace Autumn.Mvc.Data.Middlewares
         
         static AutumnIgnoreOperationMiddleware()
         {
-            _exclusions = new Dictionary<string, List<string>>
+            Exclusions = new Dictionary<string, List<string>>
             {
                 {"POST", new List<string>()},
                 {"PUT", new List<string>()},
                 {"DELETE", new List<string>()}
             };
-            foreach (var item in AutumnApplication.Current.IgnoresPaths)
+            foreach (var item in AutumnApplication.Current.IgnoreOperations)
             {
-                var ignore = ((int) item.Value).ToString().PadLeft(3, '0');
-                if (ignore[0] == '1')
-                    _exclusions["POST"].Add(item.Key);
-                if (ignore[1] == '1')
-                    _exclusions["PUT"].Add(item.Key);
-                if (ignore[2] == '1')
-                    _exclusions["DELETE"].Add(item.Key);
+                if (item.Value.Contains(HttpMethod.Post))
+                    Exclusions["POST"].Add(item.Key);
+                if (item.Value.Contains(HttpMethod.Put))
+                    Exclusions["PUT"].Add(item.Key);
+                if (item.Value.Contains(HttpMethod.Delete))
+                    Exclusions["DELETE"].Add(item.Key);
             }
         }
     }

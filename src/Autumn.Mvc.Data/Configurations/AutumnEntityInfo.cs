@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Net.Http;
 using System.Text.RegularExpressions;
-using Autumn.Mvc.Data;
 using Autumn.Mvc.Data.Annotations;
 
 
@@ -14,17 +15,15 @@ namespace Autumn.Mvc.Data.Configurations
         public string Name { get; }
         public string ControllerName { get; }
         public AutumnEntityKeyInfo KeyInfo { get; }
-        public AutumnIgnoreOperationType? IgnoreOperations { get;  }
-        public IReadOnlyDictionary<AutumnIgnoreOperationPropertyType, Type> ProxyTypes { get; }
+        public IReadOnlyDictionary<HttpMethod, Type> ProxyRequestTypes { get; }
+        public IReadOnlyList<HttpMethod> IgnoreOperations { get; }
 
-        public AutumnEntityInfo(Type entityType, IReadOnlyDictionary<AutumnIgnoreOperationPropertyType, Type> proxyTypes,
+        public AutumnEntityInfo(Type entityType, IReadOnlyDictionary<HttpMethod, Type> proxyRequestTypes,
             AutumnEntityAttribute entityAttribute,
-            AutumnEntityKeyInfo keyInfo,
-            AutumnIgnoreOperationAttribute ignoreOperationAttribute = null)
+            AutumnEntityKeyInfo keyInfo)
         {
-            IgnoreOperations = ignoreOperationAttribute?.OperationTypes;
             EntityType = entityType;
-            ProxyTypes = proxyTypes;
+            ProxyRequestTypes = proxyRequestTypes;
             ApiVersion =
                 Regex.Match(entityAttribute.Version ?? string.Empty, "v[0-9]+", RegexOptions.IgnoreCase).Success
                     ? entityAttribute.Version
@@ -36,6 +35,21 @@ namespace Autumn.Mvc.Data.Configurations
             {
                 ControllerName += "s";
             }
+            
+            var ignoreOperations = new List<HttpMethod>();
+            if (!entityAttribute.Insertable)
+            {
+                ignoreOperations.Add(HttpMethod.Post);
+            }
+            if (!entityAttribute.Updatable)
+            {
+                ignoreOperations.Add(HttpMethod.Put);
+            }
+            if (!entityAttribute.Deletable)
+            {
+                ignoreOperations.Add(HttpMethod.Delete);
+            }
+            IgnoreOperations = new ReadOnlyCollection<HttpMethod>(ignoreOperations);
         }
     }
 }
