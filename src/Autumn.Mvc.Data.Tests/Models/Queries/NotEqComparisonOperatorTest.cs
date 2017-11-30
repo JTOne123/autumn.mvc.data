@@ -24,12 +24,10 @@ namespace Autumn.Mvc.Data.Tests.Models.Queries
                 expected.Add(p.Name + "=neq=");
             }
 
-            // TODO : rewrite grammar
-            /*
             foreach (var item in expected)
             {
                 Assert.Throws<AutumnQueryComparisonNotEnoughtArgumentException>(() => { Parse(item); });
-            }*/
+            }
         }
 
         /// <summary>

@@ -20,7 +20,7 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
         {
             services
                 .AddAutumn(config =>
-                    config
+                    config 
                         .QueryFieldName("search")
                         .Pluralized()
                         .Swagger())

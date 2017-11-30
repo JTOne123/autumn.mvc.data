@@ -1,11 +1,12 @@
 grammar AutumnQuery;
 
+
 LETTER 	: 'a'..'z'|'A'..'Z';
 ANY : . ; 
-selector	: ~('\'' |  '(' | ')' | ';' | ',' | '=' | '~' | '<' | '>' |' '| '!' )+;	
+selector	: ~('('| ')'| ';'|','|'='|'<'|'>'|' '|'!'|'\''|'"')+;	
 
 eval 	:	
-	or
+	or EOF
 	;
 	
 or	:
@@ -64,6 +65,6 @@ arguments
 	| value 
 	;
 value	
-	: single_quote
-	| double_quote
-	|~('(' | ')' | ';' | ',' | '=' | '~' | '<' | '>')+;
+	: ~('('| ')'| ';'|','|'='|'<'|'>'|' '|'!'|'\''|'"')+
+	| single_quote
+	| double_quote;
