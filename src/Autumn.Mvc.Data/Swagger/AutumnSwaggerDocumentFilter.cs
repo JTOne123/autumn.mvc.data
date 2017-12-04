@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net.Http;
+using Autumn.Mvc.Configurations;
+using Autumn.Mvc.Data.Configurations;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -7,6 +10,12 @@ namespace Autumn.Mvc.Data.Swagger
 {
     public class AutumnSwaggerDocumentFilter : IDocumentFilter
     {
+        private AutumnSettings _settings;
+
+        public AutumnSwaggerDocumentFilter(AutumnSettings settings)
+        {
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        }
         
         public void Apply(SwaggerDocument swaggerDoc, DocumentFilterContext context)
         {
@@ -14,8 +23,8 @@ namespace Autumn.Mvc.Data.Swagger
             {
                 var pathItem = swaggerDoc.Paths[key];
                 var path = key.Replace("{id}", string.Empty).TrimEnd('/').TrimStart('/');
-                if (!AutumnApplication.Current.IgnoreOperations.ContainsKey(path)) continue;
-                var ignores = AutumnApplication.Current.IgnoreOperations[path];
+                if (!_settings.DataSettings().IgnoreOperations.ContainsKey(path)) continue;
+                var ignores = _settings.DataSettings().IgnoreOperations[path];
                 if (ignores.Contains(HttpMethod.Post))
                 {
                     pathItem.Post = null;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Autumn.Mvc.Data.Models.Paginations;
+using Autumn.Mvc.Models.Paginations;
 
 namespace Autumn.Mvc.Data.Repositories
 {
@@ -10,7 +10,7 @@ namespace Autumn.Mvc.Data.Repositories
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <typeparam name="TKey"></typeparam>
-    public interface IAutumnCrudPageableRepositoryAsync<TEntity, in TKey>
+    public interface ICrudPageableRepositoryAsync<TEntity, in TKey>
         where TEntity : class
     {
         /// <summary>
@@ -24,9 +24,9 @@ namespace Autumn.Mvc.Data.Repositories
         /// find entity by criteria
         /// </summary>
         /// <param name="filter"></param>
-        /// <param name="autumnPageable"></param>
+        /// <param name="pageable"></param>
         /// <returns></returns>
-        Task<AutumnPage<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter=null, AutumnPageable<TEntity> autumnPageable=null);
+        Task<Page<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter=null, IPageable<TEntity> pageable=null);
 
         /// <summary>
         /// create entity

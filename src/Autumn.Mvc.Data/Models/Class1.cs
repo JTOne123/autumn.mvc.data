@@ -6,59 +6,12 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
 using Autumn.Mvc.Data.Annotations;
-using Autumn.Mvc.Data.Models.Paginations;
-using Autumn.Mvc.Data.Models.Queries;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Autumn.Mvc.Data.Models
 {
-    public static class AutumnModelHelper
+    public static class DataModelHelper
     {
-        private static readonly Dictionary<Type, IModelBinder> ExpressionModelBinders =
-            new Dictionary<Type, IModelBinder>();
-
-        private static readonly Dictionary<Type, IModelBinder> PageableModelBinders =
-            new Dictionary<Type, IModelBinder>();
-
-
-        #region GetExpressionModelBinder
-
-        public static IModelBinder GetExpressionModelBinder(Type type)
-        {
-            lock (ExpressionModelBinders)
-            {
-                if (ExpressionModelBinders.ContainsKey(type)) return ExpressionModelBinders[type];
-                var entityType = type
-                    .GetGenericArguments()[0]
-                    .GetGenericArguments()[0];
-                var modelBinderType = typeof(AutumnQueryModelBinder<>).MakeGenericType(entityType);
-                ExpressionModelBinders.Add(type,(IModelBinder)Activator.CreateInstance(modelBinderType));
-                return ExpressionModelBinders[type];
-            }
-        }
-
-        #endregion
-
-        #region GetPageableModelBinder
-
-        public static IModelBinder GetPageableModelBinder(Type type)
-        {
-            lock (PageableModelBinders)
-            {
-                if (PageableModelBinders.ContainsKey(type)) return PageableModelBinders[type];
-                var entityType = type
-                    .GetGenericArguments()[0];
-                var modelBinderType = typeof(AutumnPageableModelBinder<>).MakeGenericType(entityType);
-                PageableModelBinders.Add(type,(IModelBinder) Activator.CreateInstance(modelBinderType));
-                return PageableModelBinders[type];
-            }
-        }
-
-        #endregion
-
-
         public static IReadOnlyDictionary<HttpMethod, Type> BuildModelsRequestTypes(Type originType)
         {
             var typeBuilderPost = GetTypeBuilder(originType, HttpMethod.Post);
@@ -315,18 +268,6 @@ namespace Autumn.Mvc.Data.Models
                 constructorInfo.Item2);
         }
         
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="stateDictionary"></param>
-        /// <returns></returns>
-        public static string ToMessage(this ModelStateDictionary stateDictionary)
-        {
-            var stringbuilder = new StringBuilder();
-            foreach (var item in stateDictionary.Values)
-            foreach (var error in item.Errors)
-                stringbuilder.Append(error.ErrorMessage);
-            return stringbuilder.ToString();
-        }
+       
     }
 }

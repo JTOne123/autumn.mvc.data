@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using Autumn.Mvc.Configurations;
+using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
@@ -8,22 +10,22 @@ namespace Autumn.Mvc.Data
 {
     public static class AutumnApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseAutumn(this IApplicationBuilder app, ILoggerFactory loggerFactory = null)
+        public static IApplicationBuilder UseAutumnData(this IApplicationBuilder app, ILoggerFactory loggerFactory = null)
         {
             if (app == null)
                 throw new ArgumentNullException(nameof(app));
 
-            var result = app;
-            result = result
-                .UseMiddleware(typeof(AutumnErrorHandlingMiddleware))
-                .UseMiddleware(typeof(AutumnIgnoreOperationMiddleware));
+            var settings = (AutumnSettings) app.ApplicationServices.GetService(typeof(AutumnSettings));
 
-            if (!AutumnApplication.Current.UseSwagger) return result;
+            var result = app
+                .UseMiddleware<AutumnIgnoreOperationMiddleware>(settings);
+
+            //if (!AutumnApplication.Current.UseSwagger) return result;
 
             result = app.UseSwagger();
             result = result.UseSwaggerUI(c =>
             {
-                foreach (var version in AutumnApplication.Current.EntitiesInfos.Values.Select(e => e.ApiVersion)
+                foreach (var version in settings.DataSettings().EntitiesInfos.Values.Select(e => e.ApiVersion)
                     .Distinct())
                 {
                     c.SwaggerEndpoint(string.Format("/swagger/{0}/swagger.json", version),

@@ -14,28 +14,32 @@ namespace Autumn.Mvc.Data.Configurations
         public string ApiVersion { get; }
         public string Name { get; }
         public string ControllerName { get; }
+        public AutumnDataSettings Settings { get; set; }
         public AutumnEntityKeyInfo KeyInfo { get; }
         public IReadOnlyDictionary<HttpMethod, Type> ProxyRequestTypes { get; }
         public IReadOnlyList<HttpMethod> IgnoreOperations { get; }
 
-        public AutumnEntityInfo(Type entityType, IReadOnlyDictionary<HttpMethod, Type> proxyRequestTypes,
+        public AutumnEntityInfo(AutumnDataSettings dataSettings, Type entityType, IReadOnlyDictionary<HttpMethod, Type> proxyRequestTypes,
             AutumnEntityAttribute entityAttribute,
             AutumnEntityKeyInfo keyInfo)
         {
-            EntityType = entityType;
-            ProxyRequestTypes = proxyRequestTypes;
+            Settings = dataSettings ?? throw new ArgumentNullException(nameof(dataSettings));
+            EntityType = entityType ?? throw new ArgumentNullException(nameof(entityType));
+            ProxyRequestTypes = proxyRequestTypes ?? throw new ArgumentNullException(nameof(proxyRequestTypes));
             ApiVersion =
                 Regex.Match(entityAttribute.Version ?? string.Empty, "v[0-9]+", RegexOptions.IgnoreCase).Success
                     ? entityAttribute.Version
-                    : AutumnApplication.Current.DefaultApiVersion;
+                    : Settings.ApiVersion;
             Name = entityAttribute.Name ?? entityType.Name;
             KeyInfo = keyInfo;
-            ControllerName = Name.ToCase(AutumnApplication.Current.NamingStrategy);
-            if (AutumnApplication.Current.PluralizeController && !ControllerName.EndsWith("s"))
+            if (Settings.Parent.NamingStrategy != null)
+            {
+                ControllerName = Settings.Parent.NamingStrategy.GetPropertyName(Name, false);
+            }
+            if (Settings.PluralizeController && !ControllerName.EndsWith("s"))
             {
                 ControllerName += "s";
             }
-            
             var ignoreOperations = new List<HttpMethod>();
             if (!entityAttribute.Insertable)
             {

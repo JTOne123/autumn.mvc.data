@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Autumn.Mvc.Data.Controllers.Exceptions;
-using Autumn.Mvc.Data.Models.Paginations;
+using Autumn.Mvc.Models.Paginations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Autumn.Mvc.Data.Controllers
@@ -14,7 +14,7 @@ namespace Autumn.Mvc.Data.Controllers
     /// <typeparam name="TEntityPost">entity type post operation</typeparam>
     /// <typeparam name="TEntityPut">entity type put operation</typeparam>
     /// <typeparam name="TKey">key of entity</typeparam>
-    public interface IAutumnRepositoryControllerAsync<TEntity, in TEntityPost, in TEntityPut, in TKey> 
+    public interface IRepositoryControllerAsync<TEntity, in TEntityPost, in TEntityPut, in TKey> 
         where TEntity : class
         where TEntityPost : class
         where TEntityPut : class
@@ -35,7 +35,7 @@ namespace Autumn.Mvc.Data.Controllers
         /// <param name="autumnPageable"></param>
         /// <returns></returns>
         /// <exception cref="AutumnGetOperationException"></exception>
-        Task<IActionResult> Get(Expression<Func<TEntity, bool>> filter, AutumnPageable<TEntity> autumnPageable);
+        Task<IActionResult> Get(Expression<Func<TEntity, bool>> filter, IPageable<TEntity> autumnPageable);
         
         /// <summary>
         /// add new entity in repository

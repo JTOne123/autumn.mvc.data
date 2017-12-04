@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Autumn.Mvc.Configurations;
 using Microsoft.AspNetCore.Http;
 
 namespace Autumn.Mvc.Data.Middlewares
@@ -10,11 +11,13 @@ namespace Autumn.Mvc.Data.Middlewares
     public class AutumnIgnoreOperationMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly AutumnSettings _settings;
         private static readonly Dictionary<string, List<string>> Exclusions;
-      
-        public AutumnIgnoreOperationMiddleware(RequestDelegate next)
+
+        public AutumnIgnoreOperationMiddleware(RequestDelegate next, AutumnSettings settings)
         {
             _next = next;
+            _settings = settings;
         }
 
         public async Task Invoke(HttpContext context)

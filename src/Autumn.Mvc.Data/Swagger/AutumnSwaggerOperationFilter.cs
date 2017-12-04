@@ -5,9 +5,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using Autumn.Mvc.Configurations;
 using Autumn.Mvc.Data.Annotations;
+using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
-using Autumn.Mvc.Data.Models;
+using Autumn.Mvc.Models.Paginations;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,7 +24,13 @@ namespace Autumn.Mvc.Data.Swagger
         private const string ConsumeContentType = "application/json";
         private static readonly ConcurrentDictionary<Type,Dictionary<HttpMethod,Schema>> Caches = new ConcurrentDictionary<Type,Dictionary<HttpMethod,Schema>>();
         private static readonly Schema AutumnErrorModelSchema;
+        private readonly AutumnSettings _settings;
 
+        public AutumnSwaggerOperationFilter(AutumnSettings settings)
+        {
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        }
+        
         /// <summary>
         /// class initializer
         /// </summary>
@@ -42,12 +50,12 @@ namespace Autumn.Mvc.Data.Swagger
             if (!(context.ApiDescription.ActionDescriptor is ControllerActionDescriptor actionDescriptor)) return;
             if (!actionDescriptor.ControllerTypeInfo.IsGenericType &&
                 actionDescriptor.ControllerTypeInfo.GetGenericTypeDefinition() !=
-                typeof(AutumnRepositoryControllerAsync<,,,>)) return;
+                typeof(RepositoryControllerAsync<,,,>)) return;
 
             // find entity type
             var entityType = actionDescriptor.ControllerTypeInfo.GetGenericArguments()[0];
             // find entity type info
-            var entityInfo = AutumnApplication.Current.EntitiesInfos[entityType];
+            var entityInfo = _settings.DataSettings().EntitiesInfos[entityType];
             // register response swagger schema for GET request
             var entitySchemaGet = GetOrRegistrySchema(entityType,HttpMethod.Get);
             // register request swagger schema for POST request
@@ -109,7 +117,7 @@ namespace Autumn.Mvc.Data.Swagger
                     operation.Responses.Add(((int) HttpStatusCode.NotFound).ToString(), new Response(){Description = "Not Found"});
                     break;
                 default:
-                    var genericPageType = typeof(Models.Paginations.AutumnPage<>);
+                    var genericPageType = typeof(Page<>);
                     var pageType = genericPageType.MakeGenericType(entityType);
                     var schema = GetOrRegistrySchema(pageType, HttpMethod.Get);
                     operation.Responses.Add("200", new Response() {Schema = schema, Description = "OK"});
@@ -120,7 +128,7 @@ namespace Autumn.Mvc.Data.Swagger
                         Type = "string",
                         In = "query",
                         Description = "Query to search (cf. http://tools.ietf.org/html/draft-nottingham-atompub-fiql-00)",
-                        Name = AutumnApplication.Current.QueryFieldName
+                        Name = _settings.QueryField
                     };
                     operation.Parameters.Add(parameter);
 
@@ -131,8 +139,8 @@ namespace Autumn.Mvc.Data.Swagger
                         Minimum = 0,
                         Format = "int32",
                         Description = "Size of the page",
-                        Default = AutumnApplication.Current.DefaultPageSize,
-                        Name = AutumnApplication.Current.PageSizeFieldName
+                        Default = _settings.PageSize,
+                        Name = _settings.PageSizeField
                     };
                     operation.Parameters.Add(parameter);
 
@@ -144,7 +152,7 @@ namespace Autumn.Mvc.Data.Swagger
                         Minimum = 0,
                         Format = "int32",
                         Default = 0,
-                        Name = AutumnApplication.Current.PageNumberFieldName
+                        Name = _settings.PageNumberField
                     };
                     operation.Parameters.Add(parameter);
                     break;

@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Autumn.Mvc.Configurations;
 using Autumn.Mvc.Data.Configurations;
-using Autumn.Mvc.Data.Models.Paginations;
-using Autumn.Mvc.Data.Models.Queries;
+using Autumn.Mvc.Models.Paginations;
+using Autumn.Mvc.Models.Queries;
 
 namespace Autumn.Mvc.Data.Repositories
 {
-    public abstract class AutumnCrudPageableRepositoryAsync<TEntity,TKey> : IAutumnCrudPageableRepositoryAsync<TEntity,TKey>
+    public abstract class CrudPageableRepositoryAsync<TEntity,TKey> : ICrudPageableRepositoryAsync<TEntity,TKey>
         where TEntity : class
     {
 
         private readonly ParameterExpression _parameter;
-         protected AutumnEntityInfo EntityInfo { get; }
+        private readonly AutumnSettings _settings;
+        private readonly AutumnEntityInfo _entityInfo;
 
-        protected AutumnCrudPageableRepositoryAsync()
+        protected CrudPageableRepositoryAsync(AutumnSettings settings)
         {
-            EntityInfo = AutumnApplication.Current.EntitiesInfos[typeof(TEntity)];
             _parameter = Expression.Parameter(typeof(TEntity));
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _entityInfo = _settings.DataSettings().EntitiesInfos[typeof(TEntity)];
         }
 
         #region FindOneAsync
@@ -26,7 +29,7 @@ namespace Autumn.Mvc.Data.Repositories
         {
             var filter = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
-                    Expression.Property(_parameter, EntityInfo.KeyInfo.Property),
+                    Expression.Property(_parameter, _entityInfo.KeyInfo.Property),
                     Expression.Constant(id)
                 )
                 , _parameter
@@ -42,16 +45,16 @@ namespace Autumn.Mvc.Data.Repositories
         
         #region FindAsync
 
-        public async Task<AutumnPage<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter = null,
-            AutumnPageable<TEntity> autumnPageable = null)
+        public async Task<Page<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter = null,
+            IPageable<TEntity> pageable = null)
         {
             return await OnFindAsync(
-                filter ?? AutumnQueryHelper.True<TEntity>(),
-                autumnPageable ?? new AutumnPageable<TEntity>(0, AutumnApplication.Current.DefaultPageSize)
+                filter ?? QueryExpressionHelper.True<TEntity>(),
+                pageable ?? new Pageable<TEntity>(0, _settings.PageSize)
             );
         }
-
-        protected abstract Task<AutumnPage<TEntity>> OnFindAsync(Expression<Func<TEntity,bool>> filter,AutumnPageable<TEntity> autumnPageable); 
+       
+        protected abstract Task<Page<TEntity>> OnFindAsync(Expression<Func<TEntity,bool>> filter,IPageable<TEntity> pageable); 
         
         #endregion
 
@@ -72,7 +75,7 @@ namespace Autumn.Mvc.Data.Repositories
         {
             var filter = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
-                    Expression.Property(_parameter, EntityInfo.KeyInfo.Property),
+                    Expression.Property(_parameter, _entityInfo.KeyInfo.Property),
                     Expression.Constant(id)
                 ),
                 _parameter
@@ -90,7 +93,7 @@ namespace Autumn.Mvc.Data.Repositories
         {
             var filter = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
-                    Expression.Property(_parameter, EntityInfo.KeyInfo.Property),
+                    Expression.Property(_parameter, _entityInfo.KeyInfo.Property),
                     Expression.Constant(id)
                 )
                 ,
