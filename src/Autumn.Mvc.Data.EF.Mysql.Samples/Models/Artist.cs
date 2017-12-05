@@ -6,7 +6,7 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
     /// <summary>
     /// Entity class for Artist
     /// </summary>
-    [AutumnEntity( Version = "v1")]
+    [Entity( Version = "v1")]
     public class Artist : AbstractEntity
     {
         /// <summary>

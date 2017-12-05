@@ -11,8 +11,8 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
         /// <summary>
         /// Id of Entity
         /// </summary>
-        [AutumnKey()]
-        [AutumnIgnoreOperationProperty()]
+        [Annotations.Key()]
+        [IgnoreOperationProperty()]
         [Range(0, int.MaxValue)]
         public int Id { get; set; }
     }

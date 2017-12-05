@@ -8,20 +8,20 @@ using Autumn.Mvc.Data.Annotations;
 
 namespace Autumn.Mvc.Data.Configurations
 {
-    public class AutumnEntityInfo
+    public class EntityInfo
     {
         public Type EntityType { get; }
         public string ApiVersion { get; }
         public string Name { get; }
         public string ControllerName { get; }
         public AutumnDataSettings Settings { get; set; }
-        public AutumnEntityKeyInfo KeyInfo { get; }
+        public EntityKeyInfo KeyInfo { get; }
         public IReadOnlyDictionary<HttpMethod, Type> ProxyRequestTypes { get; }
         public IReadOnlyList<HttpMethod> IgnoreOperations { get; }
 
-        public AutumnEntityInfo(AutumnDataSettings dataSettings, Type entityType, IReadOnlyDictionary<HttpMethod, Type> proxyRequestTypes,
-            AutumnEntityAttribute entityAttribute,
-            AutumnEntityKeyInfo keyInfo)
+        public EntityInfo(AutumnDataSettings dataSettings, Type entityType, IReadOnlyDictionary<HttpMethod, Type> proxyRequestTypes,
+            EntityAttribute entityAttribute,
+            EntityKeyInfo keyInfo)
         {
             Settings = dataSettings ?? throw new ArgumentNullException(nameof(dataSettings));
             EntityType = entityType ?? throw new ArgumentNullException(nameof(entityType));

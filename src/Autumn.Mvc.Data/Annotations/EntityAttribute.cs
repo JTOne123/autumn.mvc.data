@@ -6,7 +6,7 @@ namespace Autumn.Mvc.Data.Annotations
     /// attribute to assign a class as an Autumn entity
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class AutumnEntityAttribute : Attribute
+    public class EntityAttribute : Attribute
     {
         /// <summary>
         /// name of entity, used by the API to define the path to the resource {version}/{name}

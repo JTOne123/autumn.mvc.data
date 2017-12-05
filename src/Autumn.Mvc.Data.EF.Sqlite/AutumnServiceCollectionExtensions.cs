@@ -49,7 +49,7 @@ namespace Autumn.Mvc.Data.EF.Sqlite
 
             serviceCollection.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(TContext)));
             serviceCollection.AddScoped(typeof(IAutumnCrudPageableRepositoryAsync<,>),
-                typeof(AutumnEntityFrameworkCrudPageableRepositoryAsync<,>));
+                typeof(EntityFrameworkCrudPageableRepositoryAsync<,>));
 
 
             return serviceCollection;

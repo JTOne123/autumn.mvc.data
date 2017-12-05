@@ -2,19 +2,20 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Autumn.Mvc.Data.Models.Paginations;
+using Autumn.Mvc.Configurations;
 using Autumn.Mvc.Data.Repositories;
+using Autumn.Mvc.Models.Paginations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Autumn.Mvc.Data.EF.Repositories
 {
-    public class AutumnEntityFrameworkCrudPageableRepositoryAsync<TEntity,TKey> : AutumnCrudPageableRepositoryAsync<TEntity,TKey> 
+    public class EntityFrameworkCrudPageableRepositoryAsync<TEntity,TKey> : CrudPageableRepositoryAsync<TEntity,TKey> , IDisposable
         where TEntity :class
     {
 
         private readonly DbContext _dbContext;
 
-        public AutumnEntityFrameworkCrudPageableRepositoryAsync(DbContext dbContext)
+        public EntityFrameworkCrudPageableRepositoryAsync(AutumnSettings settings, DbContext dbContext):base(settings)
         {
             _dbContext = dbContext;
         }
@@ -26,8 +27,8 @@ namespace Autumn.Mvc.Data.EF.Repositories
                 .SingleOrDefaultAsync(filter);
         }
 
-        protected override async Task<AutumnPage<TEntity>> OnFindAsync(Expression<Func<TEntity, bool>> filter,
-            AutumnPageable<TEntity> autumnPageable)
+        protected override async Task<IPage<TEntity>> OnFindAsync(Expression<Func<TEntity, bool>> filter,
+            IPageable<TEntity> autumnPageable)
         {
             var count = await _dbContext.Set<TEntity>()
                 .AsNoTracking()
@@ -41,17 +42,17 @@ namespace Autumn.Mvc.Data.EF.Repositories
             var limit = autumnPageable.PageSize;
             find = find.Skip(offset)
                 .Take(limit);
-            if (autumnPageable.AutumnSort?.OrderBy?.Count() > 0)
+            if (autumnPageable.Sort?.OrderBy?.Count() > 0)
             {
-                find = autumnPageable.AutumnSort.OrderBy.Aggregate(find, (current, order) => current.OrderBy(order));
+                find = autumnPageable.Sort.OrderBy.Aggregate(find, (current, order) => current.OrderBy(order));
             }
-            if (autumnPageable.AutumnSort?.OrderDescendingBy?.Count() > 0)
+            if (autumnPageable.Sort?.OrderDescendingBy?.Count() > 0)
             {
-                find = autumnPageable.AutumnSort.OrderDescendingBy.Aggregate(find,
+                find = autumnPageable.Sort.OrderDescendingBy.Aggregate(find,
                     (current, order) => current.OrderByDescending(order));
             }
             var content = await find.ToListAsync();
-            return new AutumnPage<TEntity>(content, autumnPageable, count);
+            return new Page<TEntity>(content, autumnPageable, count);
         }
 
         protected override async Task<TEntity> OnInsertAsync(TEntity entity)

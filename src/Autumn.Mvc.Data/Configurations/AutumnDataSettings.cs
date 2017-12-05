@@ -11,7 +11,7 @@ namespace Autumn.Mvc.Data.Configurations
     {
         public AutumnSettings Parent { get; private set; }
         public IReadOnlyDictionary<Type, AttributeRouteModel> Routes { get; set; }
-        public IReadOnlyDictionary<Type, AutumnEntityInfo> EntitiesInfos { get; set; }
+        public IReadOnlyDictionary<Type, EntityInfo> EntitiesInfos { get; set; }
         public IReadOnlyDictionary<string, IReadOnlyList<HttpMethod>> IgnoreOperations { get; set; }
         public bool UseSwagger { get; set; }
         public bool PluralizeController { get; set; }

@@ -4,7 +4,7 @@ using Autumn.Mvc.Data.Annotations;
 
 namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
 {
-    [AutumnEntity]
+    [Entity]
     public class Employee : AbstractEntityWithAddress
     {
         [Required]

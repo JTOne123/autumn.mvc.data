@@ -14,7 +14,7 @@ namespace Autumn.Mvc.Data.Repositories
 
         private readonly ParameterExpression _parameter;
         private readonly AutumnSettings _settings;
-        private readonly AutumnEntityInfo _entityInfo;
+        private readonly EntityInfo _entityInfo;
 
         protected CrudPageableRepositoryAsync(AutumnSettings settings)
         {
@@ -45,7 +45,7 @@ namespace Autumn.Mvc.Data.Repositories
         
         #region FindAsync
 
-        public async Task<Page<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter = null,
+        public async Task<IPage<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter = null,
             IPageable<TEntity> pageable = null)
         {
             return await OnFindAsync(
@@ -54,7 +54,7 @@ namespace Autumn.Mvc.Data.Repositories
             );
         }
        
-        protected abstract Task<Page<TEntity>> OnFindAsync(Expression<Func<TEntity,bool>> filter,IPageable<TEntity> pageable); 
+        protected abstract Task<IPage<TEntity>> OnFindAsync(Expression<Func<TEntity,bool>> filter,IPageable<TEntity> pageable); 
         
         #endregion
 

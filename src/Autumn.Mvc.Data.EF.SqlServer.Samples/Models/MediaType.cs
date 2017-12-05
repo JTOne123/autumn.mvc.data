@@ -6,7 +6,7 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
     /// <summary>
     /// Entity class for media type
     /// </summary>
-    [AutumnEntity]
+    [Entity]
     public class MediaType : AbstractEntity
     {
         [MaxLength(120)]

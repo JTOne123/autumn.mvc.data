@@ -26,7 +26,7 @@ namespace Autumn.Mvc.Data.Repositories
         /// <param name="filter"></param>
         /// <param name="pageable"></param>
         /// <returns></returns>
-        Task<Page<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter=null, IPageable<TEntity> pageable=null);
+        Task<IPage<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter=null, IPageable<TEntity> pageable=null);
 
         /// <summary>
         /// create entity

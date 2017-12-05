@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace Autumn.Mvc.Data.MongoDB.Samples.Models
 {
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Name = "customers",Version = "v1")]
+    [Entity(Name = "customers",Version = "v1")]
     public class Customer : AbstractEntity
     {    
         [Required]
@@ -19,7 +19,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     }
     
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Name = "customers",Version = "v2")]
+    [Entity(Name = "customers",Version = "v2")]
     public class CustomerV2 : Customer
     {
 
@@ -35,11 +35,11 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     }
 
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Name = "customers", Version = "v3")]
+    [Entity(Name = "customers", Version = "v3")]
     public class CustomerV3 : Customer
     {
 
-        [AutumnIgnoreOperationProperty(Insertable = true)]
+        [IgnoreOperationProperty(Insertable = true)]
         [BsonElement("active")]
         public bool? Active { get; set; }
     }
@@ -47,7 +47,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     
     
     [BsonIgnoreExtraElements]
-    [AutumnEntity(Name = "customers", Version = "v4")]
+    [Entity(Name = "customers", Version = "v4")]
     public class CustomerV4 : AbstractEntity
     {
 

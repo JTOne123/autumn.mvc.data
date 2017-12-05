@@ -6,7 +6,7 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
     /// <summary>
     /// Entity class for Album
     /// </summary>
-    [AutumnEntity]
+    [Entity]
     public class Album : AbstractEntity
     {
         /// <summary>

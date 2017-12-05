@@ -5,8 +5,8 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
 {
     public abstract class AbstractEntity
     {
-        [AutumnKey()]
-        [AutumnIgnoreOperationProperty()]
+        [Annotations.Key()]
+        [IgnoreOperationProperty()]
         [Range(0, int.MaxValue)]
         public int Id { get; set; }
     }

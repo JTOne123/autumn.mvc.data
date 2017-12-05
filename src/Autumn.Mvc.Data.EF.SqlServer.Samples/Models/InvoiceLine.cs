@@ -2,7 +2,7 @@
 
 namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
 {
-    [AutumnEntity(Version = "v2")]
+    [Entity(Version = "v2")]
     public class InvoiceLine : AbstractEntity
     {
         /// <summary>

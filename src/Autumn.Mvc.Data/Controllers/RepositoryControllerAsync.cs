@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Autumn.Mvc.Configurations;
 using Autumn.Mvc.Data.Configurations;
-using Autumn.Mvc.Data.Controllers.Exceptions;
-using Autumn.Mvc.Data.Models.Exceptions;
+using Autumn.Mvc.Data.Models;
 using Autumn.Mvc.Data.Repositories;
 using Autumn.Mvc.Models.Paginations;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +27,7 @@ namespace Autumn.Mvc.Data.Controllers
         where TEntityPut : class 
     {
         private readonly ICrudPageableRepositoryAsync<TEntity,TKey> _repository;
-        private readonly AutumnEntityInfo _entityInfo;
+        private readonly EntityInfo _entityInfo;
         private readonly AutumnSettings _settings;
 
         /// <summary>
@@ -53,13 +52,16 @@ namespace Autumn.Mvc.Data.Controllers
         {
             try
             {
+                if (!ModelState.IsValid) 
+                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModel(ModelState));
+                
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NotFound();
                 return Ok(result);
             }
             catch (Exception e)
             {
-                throw new GetByIdOperationException(e);
+                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModel(e));
             }
         }
         
@@ -68,6 +70,9 @@ namespace Autumn.Mvc.Data.Controllers
         {
             try
             {
+                if (!ModelState.IsValid) 
+                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModel(ModelState));
+                
                 var result = await _repository.FindAsync(filter, pageable);
                 return result.TotalElements == result.NumberOfElements
                     ? Ok(result)
@@ -75,7 +80,7 @@ namespace Autumn.Mvc.Data.Controllers
             }
             catch (Exception e)
             {
-                throw new AutumnGetOperationException(e);
+                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModel(e));
             }
         }
 
@@ -84,7 +89,9 @@ namespace Autumn.Mvc.Data.Controllers
         {
             try
             {
-                if (!ModelState.IsValid) throw new AutumnModelStateException(ModelState);
+                if (!ModelState.IsValid) 
+                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModel(ModelState));
+       
                 var entity = Mapper.Map<TEntity>(entityPostRequest);
                 var result = await _repository.InsertAsync(entity);
                 var uri = string.Format("{0}/{1}", Request.HttpContext.Request.Path.ToString().TrimEnd('/'),
@@ -93,7 +100,7 @@ namespace Autumn.Mvc.Data.Controllers
             }
             catch (Exception e)
             {
-                throw new AutumnPostOperationException(e);
+                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModel(e));
             }
         }
 
@@ -102,7 +109,9 @@ namespace Autumn.Mvc.Data.Controllers
         {
             try
             {
-                if (!ModelState.IsValid) throw new AutumnModelStateException(ModelState);
+                if (!ModelState.IsValid) 
+                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModel(ModelState));
+       
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NoContent();
                 result = await _repository.DeleteAsync(id);
@@ -110,7 +119,7 @@ namespace Autumn.Mvc.Data.Controllers
             }
             catch (Exception e)
             {
-                throw new AutumnDeleteOperationException(e);
+                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModel(e));
             }
         }
 
@@ -120,7 +129,9 @@ namespace Autumn.Mvc.Data.Controllers
         {
             try
             {
-                if (!ModelState.IsValid) throw new AutumnModelStateException(ModelState);
+                if (!ModelState.IsValid) 
+                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModel(ModelState));
+       
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NoContent();
                 Mapper.Map(entityPutRequest, result);
@@ -129,7 +140,7 @@ namespace Autumn.Mvc.Data.Controllers
             }
             catch (Exception e)
             {
-                throw new AutumnPutOperationException(e);
+                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModel(e));
             }
         }
     }

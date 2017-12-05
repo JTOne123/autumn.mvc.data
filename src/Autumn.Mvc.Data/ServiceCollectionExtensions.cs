@@ -10,7 +10,7 @@ using Swashbuckle.AspNetCore.Swagger;
 
 namespace Autumn.Mvc.Data
 {
-    public static class AutumnServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
     
         private static string Logo()
@@ -53,7 +53,7 @@ namespace Autumn.Mvc.Data
             
             services.AddMvc().ConfigureApplicationPartManager(p =>
             {
-                p.FeatureProviders.Add(new AutumnRespositoryControllerFeatureProvider(settings));
+                p.FeatureProviders.Add(new RespositoryControllerFeatureProvider(settings));
             });
 
             if (dataSettings.UseSwagger)
@@ -65,8 +65,8 @@ namespace Autumn.Mvc.Data
                     {
                         c.SwaggerDoc(version, new Info {Title = "api", Version = version});
                     }
-                    c.DocumentFilter<AutumnSwaggerDocumentFilter>();
-                    c.OperationFilter<AutumnSwaggerOperationFilter>();
+                    c.DocumentFilter<SwaggerDocumentFilter>();
+                    c.OperationFilter<SwaggerOperationFilter>();
 
                 });
             }

@@ -35,23 +35,23 @@ namespace Autumn.Mvc.Data.Configurations
         /// </summary>
         private static void BuildEntitiesInfos(AutumnDataSettings settings,Assembly callingAssembly)
         {
-            var items = new Dictionary<Type, AutumnEntityInfo>();
+            var items = new Dictionary<Type, EntityInfo>();
             foreach (var type in (settings.EntityAssembly ?? callingAssembly).GetTypes())
             {
-                var entityAttribute = type.GetCustomAttribute<AutumnEntityAttribute>(false);
+                var entityAttribute = type.GetCustomAttribute<EntityAttribute>(false);
                 if (entityAttribute == null) continue;
-                AutumnEntityKeyInfo entityKeyInfo = null;
+                EntityKeyInfo entityKeyInfo = null;
                 foreach (var property in type.GetProperties())
                 {
-                    var keyAttribute = property.GetCustomAttribute<AutumnKeyAttribute>();
+                    var keyAttribute = property.GetCustomAttribute<KeyAttribute>();
                     if (keyAttribute == null) continue;
-                    entityKeyInfo = new AutumnEntityKeyInfo(property, keyAttribute);
+                    entityKeyInfo = new EntityKeyInfo(property, keyAttribute);
                     break;
                 }
                 if (entityKeyInfo == null) continue;
                 var proxyTypes = DataModelHelper.BuildModelsRequestTypes(type);
                 items.Add(type,
-                    new AutumnEntityInfo(settings, type, proxyTypes, entityAttribute, entityKeyInfo));
+                    new EntityInfo(settings, type, proxyTypes, entityAttribute, entityKeyInfo));
             }
 
             Mapper.Reset();
@@ -67,7 +67,7 @@ namespace Autumn.Mvc.Data.Configurations
                 }
             });
 
-            settings.EntitiesInfos = new ReadOnlyDictionary<Type, AutumnEntityInfo>(items);
+            settings.EntitiesInfos = new ReadOnlyDictionary<Type, EntityInfo>(items);
         }
 
         /// <summary>

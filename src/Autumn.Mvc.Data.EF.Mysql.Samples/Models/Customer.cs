@@ -3,7 +3,7 @@ using Autumn.Mvc.Data.Annotations;
 
 namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
 {
-    [AutumnEntity]
+    [Entity]
     public class Customer : AbstractEntityWithAddress
     {
         [Required]

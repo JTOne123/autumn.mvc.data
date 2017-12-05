@@ -3,11 +3,11 @@ using Autumn.Mvc.Data.Annotations;
 
 namespace Autumn.Mvc.Data.Configurations
 {
-    public class AutumnEntityKeyInfo
+    public class EntityKeyInfo
     {
         public PropertyInfo Property { get; }
 
-        public AutumnEntityKeyInfo(PropertyInfo property, AutumnKeyAttribute keyAttribute)
+        public EntityKeyInfo(PropertyInfo property, KeyAttribute keyAttribute)
         {
             Property = property;
         }

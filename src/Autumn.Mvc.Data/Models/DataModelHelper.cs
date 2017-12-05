@@ -68,7 +68,7 @@ namespace Autumn.Mvc.Data.Models
         /// <param name="httpMethod"></param>
         private static void TryAddProperty(TypeBuilder typeBuilder, PropertyInfo propertyInfo, HttpMethod httpMethod)
         {
-            var ignoreAttribute = propertyInfo.GetCustomAttribute<AutumnIgnoreOperationPropertyAttribute>();
+            var ignoreAttribute = propertyInfo.GetCustomAttribute<IgnoreOperationPropertyAttribute>();
             if (ignoreAttribute != null)
             {
                 if (!ignoreAttribute.Insertable && httpMethod == HttpMethod.Post) return;
@@ -184,7 +184,7 @@ namespace Autumn.Mvc.Data.Models
         private static CustomAttributeBuilder BuildCustomAttribute(Attribute attribute)
         {
             var type = attribute.GetType();
-            if (type == typeof(AutumnIgnoreOperationPropertyAttribute)) return null;
+            if (type == typeof(IgnoreOperationPropertyAttribute)) return null;
             if (!type.IsSubclassOf(typeof(ValidationAttribute)) && type.Namespace != "Newtonsoft.Json") return null;
 
             var constructorInfo = BuildConstuctorInfos(attribute);

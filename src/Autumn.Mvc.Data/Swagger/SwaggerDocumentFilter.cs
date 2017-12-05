@@ -8,11 +8,11 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Autumn.Mvc.Data.Swagger
 {
-    public class AutumnSwaggerDocumentFilter : IDocumentFilter
+    public class SwaggerDocumentFilter : IDocumentFilter
     {
-        private AutumnSettings _settings;
+        private readonly AutumnSettings _settings;
 
-        public AutumnSwaggerDocumentFilter(AutumnSettings settings)
+        public SwaggerDocumentFilter(AutumnSettings settings)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }

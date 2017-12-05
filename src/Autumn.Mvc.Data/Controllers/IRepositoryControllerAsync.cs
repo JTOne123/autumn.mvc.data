@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Autumn.Mvc.Data.Controllers.Exceptions;
 using Autumn.Mvc.Models.Paginations;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,7 +24,6 @@ namespace Autumn.Mvc.Data.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        /// <exception cref="GetByIdOperationException"></exception>
         Task<IActionResult> GetById(TKey id);
         
         /// <summary>
@@ -34,7 +32,6 @@ namespace Autumn.Mvc.Data.Controllers
         /// <param name="filter"></param>
         /// <param name="autumnPageable"></param>
         /// <returns></returns>
-        /// <exception cref="AutumnGetOperationException"></exception>
         Task<IActionResult> Get(Expression<Func<TEntity, bool>> filter, IPageable<TEntity> autumnPageable);
         
         /// <summary>
@@ -42,7 +39,6 @@ namespace Autumn.Mvc.Data.Controllers
         /// </summary>
         /// <param name="entityPostRequest">entity to add</param>
         /// <returns></returns>
-        /// <exception cref="AutumnPostOperationException"></exception>
         Task<IActionResult> Post(TEntityPost entityPostRequest);
         
         /// <summary>
@@ -50,7 +46,6 @@ namespace Autumn.Mvc.Data.Controllers
         /// </summary>
         /// <param name="id">id of entity to delete</param>
         /// <returns></returns>
-        /// <exception cref="AutumnDeleteOperationException"></exception>
         Task<IActionResult> Delete(TKey id);
         
         /// <summary>
@@ -59,7 +54,6 @@ namespace Autumn.Mvc.Data.Controllers
         /// <param name="entityPutRequest">new entity value</param>
         /// <param name="id">id of entity to update</param>
         /// <returns></returns>
-        /// <exception cref="AutumnPutOperationException"></exception>
         Task<IActionResult> Put(TEntityPut entityPutRequest, TKey id);
     }
 }

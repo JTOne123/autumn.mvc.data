@@ -4,7 +4,7 @@ using Autumn.Mvc.Data.Annotations;
 
 namespace Autumn.Mvc.Data.EF.SqlServer.Samples.Models
 {
-    [AutumnEntity(Version = "v2")]
+    [Entity(Version = "v2")]
     public class Invoice : AbstractEntity
     {
         [Required]

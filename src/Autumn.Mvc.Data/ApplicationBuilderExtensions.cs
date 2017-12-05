@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Autumn.Mvc.Data
 {
-    public static class AutumnApplicationBuilderExtensions
+    public static class ApplicationBuilderExtensions
     {
         public static IApplicationBuilder UseAutumnData(this IApplicationBuilder app, ILoggerFactory loggerFactory = null)
         {
@@ -16,14 +16,9 @@ namespace Autumn.Mvc.Data
                 throw new ArgumentNullException(nameof(app));
 
             var settings = (AutumnSettings) app.ApplicationServices.GetService(typeof(AutumnSettings));
-
-            var result = app
-                .UseMiddleware<AutumnIgnoreOperationMiddleware>(settings);
-
-            //if (!AutumnApplication.Current.UseSwagger) return result;
-
-            result = app.UseSwagger();
-            result = result.UseSwaggerUI(c =>
+            app = app.UseMiddleware<IgnoreOperationMiddleware>(settings);
+            app = app.UseSwagger();
+            app = app.UseSwaggerUI(c =>
             {
                 foreach (var version in settings.DataSettings().EntitiesInfos.Values.Select(e => e.ApiVersion)
                     .Distinct())
@@ -32,7 +27,7 @@ namespace Autumn.Mvc.Data
                         string.Format("API {0}", version));
                 }
             });
-            return result;
+            return app;
         }
     }
 }

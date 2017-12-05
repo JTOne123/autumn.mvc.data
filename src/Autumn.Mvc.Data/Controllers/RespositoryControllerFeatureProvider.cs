@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace Autumn.Mvc.Data.Controllers
 {
-    public class AutumnRespositoryControllerFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
+    public class RespositoryControllerFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
         private readonly AutumnSettings _settings;
 
-        public AutumnRespositoryControllerFeatureProvider(AutumnSettings settings)
+        public RespositoryControllerFeatureProvider(AutumnSettings settings)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }

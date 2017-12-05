@@ -9,36 +9,29 @@ using Autumn.Mvc.Configurations;
 using Autumn.Mvc.Data.Annotations;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
+using Autumn.Mvc.Data.Models;
 using Autumn.Mvc.Models.Paginations;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen; 
 
 namespace Autumn.Mvc.Data.Swagger
 {
-    public class AutumnSwaggerOperationFilter : IOperationFilter
+    public class SwaggerOperationFilter : IOperationFilter
     {
 
         private const string ConsumeContentType = "application/json";
         private static readonly ConcurrentDictionary<Type,Dictionary<HttpMethod,Schema>> Caches = new ConcurrentDictionary<Type,Dictionary<HttpMethod,Schema>>();
-        private static readonly Schema AutumnErrorModelSchema;
         private readonly AutumnSettings _settings;
 
-        public AutumnSwaggerOperationFilter(AutumnSettings settings)
+        public SwaggerOperationFilter(AutumnSettings settings)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
-        
-        /// <summary>
-        /// class initializer
-        /// </summary>
-        static AutumnSwaggerOperationFilter()
-        {
-            AutumnErrorModelSchema = GetOrRegistrySchema(typeof(AutumnErrorModel), HttpMethod.Get);
-        }
-
+       
         /// <summary>
         /// apply operation description
         /// </summary>
@@ -57,15 +50,19 @@ namespace Autumn.Mvc.Data.Swagger
             // find entity type info
             var entityInfo = _settings.DataSettings().EntitiesInfos[entityType];
             // register response swagger schema for GET request
-            var entitySchemaGet = GetOrRegistrySchema(entityType,HttpMethod.Get);
+            var entitySchemaGet = GetOrRegistrySchema(entityType,HttpMethod.Get,_settings.NamingStrategy);
             // register request swagger schema for POST request
-            var entitySchemaPost = GetOrRegistrySchema(entityInfo.ProxyRequestTypes[HttpMethod.Post], HttpMethod.Post);
+            var entitySchemaPost = GetOrRegistrySchema(entityInfo.ProxyRequestTypes[HttpMethod.Post], HttpMethod.Post,_settings.NamingStrategy);
             // register request swagger schema for PUT request
-            var entitySchemaPut = GetOrRegistrySchema(entityInfo.ProxyRequestTypes[HttpMethod.Put], HttpMethod.Put);
-            
+            var entitySchemaPut = GetOrRegistrySchema(entityInfo.ProxyRequestTypes[HttpMethod.Put], HttpMethod.Put,_settings.NamingStrategy);
+
+            var errorSchema = GetOrRegistrySchema(typeof(ErrorModel), HttpMethod.Get, _settings.NamingStrategy);
             operation.Responses = new ConcurrentDictionary<string, Response>();
             // add generic reponse for internal error from server
-            operation.Responses.Add(((int)HttpStatusCode.InternalServerError).ToString(), new Response() {Schema = AutumnErrorModelSchema});
+            operation.Responses.Add(((int)HttpStatusCode.BadRequest).ToString(), new Response() {Schema = errorSchema});
+            // add generic reponse for internal error from server
+            operation.Responses.Add(((int)HttpStatusCode.InternalServerError).ToString(), new Response() {Schema = errorSchema});
+         
             operation.Consumes.Clear();
            
             IParameter parameter;
@@ -119,7 +116,7 @@ namespace Autumn.Mvc.Data.Swagger
                 default:
                     var genericPageType = typeof(Page<>);
                     var pageType = genericPageType.MakeGenericType(entityType);
-                    var schema = GetOrRegistrySchema(pageType, HttpMethod.Get);
+                    var schema = GetOrRegistrySchema(pageType, HttpMethod.Get,_settings.NamingStrategy);
                     operation.Responses.Add("200", new Response() {Schema = schema, Description = "OK"});
                     operation.Responses.Add("206", new Response() {Schema = schema, Description = "Partial Content"});
                     operation.Parameters.Clear();
@@ -159,17 +156,11 @@ namespace Autumn.Mvc.Data.Swagger
             }
         }
 
-        /// <summary>
-        /// build schema 
-        /// </summary>
-        /// <param name="property"></param>
-        /// <param name="httpMethod"></param>
-        /// <returns></returns>
-        private static Schema BuildSchema(PropertyInfo property,HttpMethod httpMethod)
+        private static Schema BuildSchema(PropertyInfo property, HttpMethod httpMethod, NamingStrategy namingStrategy)
         {
             if (httpMethod != HttpMethod.Get)
             {
-                var attribute = property.GetCustomAttribute<AutumnIgnoreOperationPropertyAttribute>();
+                var attribute = property.GetCustomAttribute<IgnoreOperationPropertyAttribute>();
                 if (attribute != null)
                 {
                     if (!attribute.Insertable && httpMethod == HttpMethod.Post) return null;
@@ -227,28 +218,22 @@ namespace Autumn.Mvc.Data.Swagger
                     property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
                     result.Type = "array";
-                    result.Items = GetOrRegistrySchema(property.PropertyType.GetGenericArguments()[0],httpMethod);
+                    result.Items = GetOrRegistrySchema(property.PropertyType.GetGenericArguments()[0],httpMethod,namingStrategy);
                 }
                 else if (property.PropertyType.IsArray)
                 {
                     result.Type = "array";
-                    result.Items = GetOrRegistrySchema(property.PropertyType, httpMethod);
+                    result.Items = GetOrRegistrySchema(property.PropertyType, httpMethod,namingStrategy);
                 }
                 else
                 {
-                    result = GetOrRegistrySchema(property.PropertyType, httpMethod);
+                    result = GetOrRegistrySchema(property.PropertyType, httpMethod,namingStrategy);
                 }
             }
             return result;
         }
 
-        /// <summary>
-        /// register in cache ( if not exist) and return swagger schema for the type
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        private static Schema GetOrRegistrySchema(Type type,HttpMethod method)
+        private static Schema GetOrRegistrySchema(Type type, HttpMethod method, NamingStrategy namingStrategy)
         {
             lock (Caches)
             {
@@ -260,10 +245,10 @@ namespace Autumn.Mvc.Data.Swagger
                 var result = new Schema {Properties = new ConcurrentDictionary<string, Schema>()};
                 foreach (var propertyName in expected.Properties())
                 {
-                    var name = propertyName.Name.ToCase(AutumnApplication.Current.NamingStrategy);
+                    var name = namingStrategy.GetPropertyName(propertyName.Name, false);
                     var property = type.GetProperty(propertyName.Name);
                     if (property == null) continue;
-                    var propertySchema = BuildSchema(property, method);
+                    var propertySchema = BuildSchema(property, method, namingStrategy);
                     if (propertySchema != null)
                     {
                         result.Properties.Add(name, propertySchema);

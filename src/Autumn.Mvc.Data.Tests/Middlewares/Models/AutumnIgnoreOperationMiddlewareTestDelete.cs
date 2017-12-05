@@ -2,10 +2,10 @@
 
 namespace Autumn.Mvc.Data.Middlewares.Models
 {
-    [AutumnEntity(Deletable = false)]
+    [Entity(Deletable = false)]
     public class AutumnIgnoreOperationMiddlewareTestDelete
     {
-        [AutumnKey]
+        [Key]
         public int Test { get; set; }
     }
 }
