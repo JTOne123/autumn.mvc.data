@@ -17,6 +17,7 @@ namespace Autumn.Mvc.Data.Configurations
         public bool PluralizeController { get; set; } = true;
         public string ApiVersion { get; set; } = "v1";
         public Assembly EntityAssembly { get; set; }
+        public string ConnectionString { get; set; }
 
         public AutumnDataSettings(AutumnSettings parent)
         {

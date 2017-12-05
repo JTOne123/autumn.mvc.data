@@ -1,12 +1,14 @@
-﻿namespace Autumn.Mvc.Data.MongoDB.Configurations
+﻿using Autumn.Mvc.Data.Configurations;
+
+namespace Autumn.Mvc.Data.MongoDB.Configurations
 {
     public class AutumnMongoDBSettingsBuilder
     {
-        private AutumnMongoSettings _settings;
+        private  AutumnMongoDBSettings _settings;
 
-        public AutumnMongoDBSettingsBuilder()
+        public AutumnMongoDBSettingsBuilder(AutumnDataSettings parent)
         {
-            _settings=new AutumnMongoSettings();
+            _settings = new AutumnMongoDBSettings(parent);
         }
 
         public AutumnMongoDBSettingsBuilder ConnectionString(string connectionString)
@@ -21,7 +23,7 @@
             return this;
         }
 
-        public AutumnMongoSettings Build()
+        public AutumnMongoDBSettings Build()
         {
             return _settings;
         }

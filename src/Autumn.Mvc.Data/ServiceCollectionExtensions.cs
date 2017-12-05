@@ -47,12 +47,10 @@ namespace Autumn.Mvc.Data
 
             var autumnDataSettingsBuilder =
                 new AutumnDataSettingsBuilder(settings.DataSettings(), Assembly.GetCallingAssembly());
-            if (autumnDataSettingsBuilderAction != null)
-            {
-                autumnDataSettingsBuilderAction(autumnDataSettingsBuilder);
-            }
-            var dataSettings = autumnDataSettingsBuilder.Build();
 
+            autumnDataSettingsBuilderAction?.Invoke(autumnDataSettingsBuilder);
+            var dataSettings = autumnDataSettingsBuilder.Build();
+            services.AddSingleton(dataSettings);
             services.AddMvc
             (
                 c =>

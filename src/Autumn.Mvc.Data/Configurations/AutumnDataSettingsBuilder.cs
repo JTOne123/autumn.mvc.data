@@ -29,9 +29,31 @@ namespace Autumn.Mvc.Data.Configurations
             BuildRoutes(_settings);
             return _settings;
         }
-        
-        
 
+        public AutumnDataSettingsBuilder ApiVersion(string version)
+        {
+            _settings.ApiVersion = version;
+            return this;
+        }
+
+        public AutumnDataSettingsBuilder Swagger(bool use = true)
+        {
+            _settings.UseSwagger = use;
+            return this;
+        }
+
+        public AutumnDataSettingsBuilder PluralizeController(bool use = true)
+        {
+            _settings.PluralizeController = use;
+            return this;
+        }
+
+        public AutumnDataSettingsBuilder EntityAssembly(Assembly assembly)
+        {
+            _settings.EntityAssembly = assembly;
+            return this;
+        }
+        
         /// <summary>         
         /// build EntitiesInfos
         /// </summary>

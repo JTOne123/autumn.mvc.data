@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Linq;
+using Autumn.Mvc.Data.Configurations;
+using Autumn.Mvc.Data.EF.Configuration;
 using Autumn.Mvc.Data.EF.Repositories;
-using Autumn.Mvc.Data.EF.SqlServer.Configuration;
 using Autumn.Mvc.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -13,17 +15,23 @@ namespace Autumn.Mvc.Data.EF.SqlServer
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddAutumnEntityFrameworkCoreSqlServer<TContext>(
-            this IServiceCollection serviceCollection,
-            Action<EntityFrameworkCoreSqlServerSettingsBuilder> autumnSqlServerOptionsAction,
+            this IServiceCollection services,
+            Action<EntityFrameworkCoreSettingsBuilder> autumnSqlServerOptionsAction,
             Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null,
             ILoggerFactory loggerFactory = null)
             where TContext : DbContext
         {
-            var builder = new EntityFrameworkCoreSqlServerSettingsBuilder();
+            
+            var service = services.Single(c =>
+                c.ServiceType == typeof(AutumnDataSettings) && c.Lifetime == ServiceLifetime.Singleton);
+            var dataSettings = (AutumnDataSettings) service.ImplementationInstance;
+            
+            var builder = new EntityFrameworkCoreSettingsBuilder(dataSettings);
             autumnSqlServerOptionsAction(builder);
-            var settings = builder.Build();
-
-            if (settings.Evolve)
+            var entityFrameworkCoreSettings = builder.Build();
+            services.AddSingleton(entityFrameworkCoreSettings);
+            
+            if (entityFrameworkCoreSettings.UseEvolve)
             {
                 var logger = loggerFactory?.CreateLogger("Evolve");
                 Action<string> log = Console.WriteLine;
@@ -35,25 +43,24 @@ namespace Autumn.Mvc.Data.EF.SqlServer
                     };
                 }
 
-                using (var connection = new SqlConnection((settings.ConnectionString)))
+                using (var connection = new SqlConnection((entityFrameworkCoreSettings.ConnectionString)))
                 {
                     var evolve = new Evolve.Evolve(connection, log);
                     evolve.Migrate();
                 }
             }
 
-            serviceCollection.AddDbContextPool<TContext>(o =>
+            services.AddDbContextPool<TContext>(o =>
             {
-                o.UseSqlServer(settings.ConnectionString, sqlServerOptionsAction);
+                o.UseSqlServer(entityFrameworkCoreSettings.ConnectionString, sqlServerOptionsAction);
             });
 
-            serviceCollection.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(TContext)));
+            services.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(TContext)));
 
-            serviceCollection.AddScoped(typeof(ICrudPageableRepositoryAsync<,>),
+            services.AddScoped(typeof(ICrudPageableRepositoryAsync<,>),
                 typeof(EntityFrameworkCrudPageableRepositoryAsync<,>));
 
-
-            return serviceCollection;
+            return services;
         }
     }
 }

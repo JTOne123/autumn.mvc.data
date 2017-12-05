@@ -2,59 +2,57 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Autumn.Mvc.Data.Models.Paginations;
+using Autumn.Mvc.Configurations;
+using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.MongoDB.Configurations;
 using Autumn.Mvc.Data.Repositories;
+using Autumn.Mvc.Models.Paginations;
 using MongoDB.Driver;
 
 namespace Autumn.Mvc.Data.MongoDB.Repositories
 {
-    public class AutumnMongoDBCrudPageableRepositoryAsync<TEntity,TKey> : AutumnCrudPageableRepositoryAsync<TEntity,TKey> 
-        where TEntity :class
+    public class MongoDBCrudPageableRepositoryAsync<TEntity, TKey> : CrudPageableRepositoryAsync<TEntity, TKey>
+        where TEntity : class
     {
         private readonly IMongoCollection<TEntity> _collection;
         private readonly FilterDefinitionBuilder<TEntity> _filterDefinitionBuilder;
 
-        /// <summary>
-        /// initialise une new instance of class
-        /// </summary>
-        /// <param name="settings"></param>
-        public AutumnMongoDBCrudPageableRepositoryAsync(AutumnMongoSettings settings)
+        public MongoDBCrudPageableRepositoryAsync(AutumnSettings settings, AutumnMongoDBSettings mongoDbSettings) :
+            base(settings)
         {
             _filterDefinitionBuilder = new FilterDefinitionBuilder<TEntity>();
-            var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.Database);
-            var collectionName = EntityInfo.Name;
+            var client = new MongoClient(mongoDbSettings.ConnectionString);
+            var database = client.GetDatabase(mongoDbSettings.Database);
+            var collectionName = settings.DataSettings().EntitiesInfos[typeof(TEntity)].Name;
             _collection = database.GetCollection<TEntity>(collectionName);
         }
 
         #region FindOneAsync
-        
+
         protected override async Task<TEntity> OnFindOneAsync(Expression<Func<TEntity, bool>> filter)
         {
             return await _collection
-                            .Find(filter)
-                            .SingleOrDefaultAsync();
+                .Find(filter)
+                .SingleOrDefaultAsync();
         }
-        
+
         #endregion
-        
+
         #region FindAsync
 
-        protected override async Task<AutumnPage<TEntity>> OnFindAsync(Expression<Func<TEntity, bool>> filter,
-            AutumnPageable<TEntity> autumnPageable)
+        protected override async Task<IPage<TEntity>> OnFindAsync(Expression<Func<TEntity, bool>> filter,
+            IPageable<TEntity> pageable)
         {
-
             var count = (int) await _collection.CountAsync(filter);
             var find = _collection.Find(filter);
 
-            var offset = autumnPageable.PageNumber * autumnPageable.PageSize;
-            var limit = autumnPageable.PageSize;
+            var offset = pageable.PageNumber * pageable.PageSize;
+            var limit = pageable.PageSize;
             find = find.Skip(offset).Limit(limit);
-            if (autumnPageable.AutumnSort?.OrderBy?.Count() > 0)
+            if (pageable.Sort?.OrderBy?.Count() > 0)
             {
                 var isFirst = true;
-                foreach (var item in autumnPageable.AutumnSort.OrderBy)
+                foreach (var item in pageable.Sort.OrderBy)
                 {
                     if (isFirst)
                     {
@@ -67,10 +65,10 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
                     }
                 }
             }
-            if (autumnPageable.AutumnSort?.OrderDescendingBy?.Count() > 0)
+            if (pageable.Sort?.OrderDescendingBy?.Count() > 0)
             {
                 var isFirst = true;
-                foreach (var item in autumnPageable.AutumnSort.OrderDescendingBy)
+                foreach (var item in pageable.Sort.OrderDescendingBy)
                 {
                     if (isFirst)
                     {
@@ -84,11 +82,11 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
                 }
             }
             var content = await find.ToListAsync();
-            return new AutumnPage<TEntity>(content, autumnPageable, count);
+            return new Page<TEntity>(content, pageable, count);
         }
 
         #endregion
-        
+
         #region InsertAsync
 
         protected override async Task<TEntity> OnInsertAsync(TEntity entity)
@@ -96,25 +94,24 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
             await _collection.InsertOneAsync(entity);
             return entity;
         }
-        
+
         #endregion
 
         #region UpdateAsync
-        
+
         protected override async Task<TEntity> OnUpdateAsync(TEntity entity, Expression<Func<TEntity, bool>> filter)
         {
             var filterDefinition = _filterDefinitionBuilder.Where(filter);
             await _collection.ReplaceOneAsync(filterDefinition, entity);
             return entity;
         }
-        
+
         #endregion
-        
+
         #region DeleteAsync
 
         protected override async Task<TEntity> OnDeleteAsync(Expression<Func<TEntity, bool>> filter)
         {
-
             var filterDefinition = _filterDefinitionBuilder.Where(filter);
             return await _collection.FindOneAndDeleteAsync(filterDefinition);
         }

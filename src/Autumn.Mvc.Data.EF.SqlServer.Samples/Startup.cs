@@ -22,7 +22,8 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
                 .AddAutumn(config =>
                     config
                         .QueryFieldName("search"))
-                .AddAutumnData()
+                .AddAutumnData(
+                    )
                 .AddAutumnEntityFrameworkCoreSqlServer<ChinookContext>(config =>
                     config
                         .ConnectionString("server=localhost;database=master;User Id=sa;password=@utUmn_mvc_D@t@!")

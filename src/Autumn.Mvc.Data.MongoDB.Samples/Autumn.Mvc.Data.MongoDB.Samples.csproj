@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.1" />
+    <PackageReference Include="Autumn.Mvc" Version="0.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="1.1.0" />
@@ -19,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Autumn.Mvc.Data.MongoDB\Autumn.Mvc.Data.MongoDB.csproj" />
+    <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
     <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -25,9 +25,9 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
                 .AddAutumn(config =>
                     config
                         .QueryFieldName("Search")
-                        .NamingStrategy(new SnakeCaseNamingStrategy())
-                        .Pluralized()
-                        .Swagger())
+                        .NamingStrategy(new SnakeCaseNamingStrategy()))
+                .AddAutumnData(config => config
+                    .Swagger())
                 .AddAutumnMongo(config =>
                     config
                         .ConnectionString(
@@ -45,7 +45,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
             }
 
             app
-                .UseAutumn(loggerFactory)
+                .UseAutumnData()
                 .UseMvc();
         }
     }
