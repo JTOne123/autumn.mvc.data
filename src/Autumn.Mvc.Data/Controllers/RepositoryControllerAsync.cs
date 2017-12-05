@@ -20,7 +20,6 @@ namespace Autumn.Mvc.Data.Controllers
     /// <typeparam name="TEntityPost">entity type post operation</typeparam>
     /// <typeparam name="TEntityPut">entity type put operation</typeparam>
     /// <typeparam name="TKey">key of entity</typeparam>
-    [AutumnRepositoryControllerNameConvention]
     public class RepositoryControllerAsync<TEntity,TEntityPost, TEntityPut, TKey> : Controller, IRepositoryControllerAsync<TEntity, TEntityPost, TEntityPut, TKey>
         where TEntity : class 
         where TEntityPost : class 

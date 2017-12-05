@@ -156,6 +156,102 @@ namespace Autumn.Mvc.Data.Swagger
             }
         }
 
+        private static bool IsPrimitiveType(Type type)
+        {
+            if (type == typeof(string) ||
+                type == typeof(short) ||
+                type == typeof(short?) ||
+                type == typeof(int) ||
+                type == typeof(int?) ||
+                type == typeof(long) ||
+                type == typeof(long?) || type == typeof(decimal) ||
+                type == typeof(decimal?) ||
+                type == typeof(double) ||
+                type == typeof(double?) || type == typeof(DateTime) ||
+                type == typeof(DateTime?) || type == typeof(DateTimeOffset) ||
+                type == typeof(DateTimeOffset?) || type == typeof(byte) ||
+                type == typeof(byte?) || type == typeof(bool) ||
+                type == typeof(bool?))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static Schema BuildSchema(Type type, HttpMethod httpMethod, NamingStrategy namingStrategy)
+        {
+            var result = new Schema();
+            if (type == typeof(string))
+            {
+                result.Type = "string";
+            }
+            else if (type == typeof(short) ||
+                     type == typeof(short?) ||
+                     type == typeof(int) ||
+                     type == typeof(int?))
+            {
+                result.Type = "integer";
+                result.Format = "int32";
+            }
+            else if (type == typeof(long) ||
+                     type == typeof(long?))
+            {
+                result.Type = "integer";
+                result.Format = "int64";
+            }
+            else if (type == typeof(decimal) ||
+                     type == typeof(decimal?) ||
+                     type == typeof(double) ||
+                     type == typeof(double?))
+            {
+                result.Type = "number";
+                result.Format = "double";
+            }
+            else if (type == typeof(DateTime) ||
+                     type == typeof(DateTime?))
+            {
+                result.Type = "string";
+                result.Format = "date-time";
+            }
+            else if (type == typeof(DateTimeOffset) ||
+                     type == typeof(DateTimeOffset?))
+            {
+                result.Type = "string";
+                result.Format = "date-time";
+            }
+            else if (type == typeof(byte) ||
+                     type == typeof(byte?))
+            {
+                result.Type = "string";
+                result.Format = "byte";
+            }
+            else if (type == typeof(bool) ||
+                     type == typeof(bool?))
+            {
+                result.Type = "boolean";
+            }
+            else
+            {
+                if (type.IsGenericType &&
+                    type.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    result.Type = "array";
+                    result.Items = GetOrRegistrySchema(type.GetGenericArguments()[0],httpMethod,namingStrategy);
+                }
+                else if (type.IsArray)
+                {
+                    result.Type = "array";
+                    result.Items = GetOrRegistrySchema(type, httpMethod,namingStrategy);
+                }
+                else
+                {
+                    result = GetOrRegistrySchema(type, httpMethod,namingStrategy);
+                }
+            }
+            return result;
+        }
+
+
         private static Schema BuildSchema(PropertyInfo property, HttpMethod httpMethod, NamingStrategy namingStrategy)
         {
             if (httpMethod != HttpMethod.Get)
@@ -167,70 +263,7 @@ namespace Autumn.Mvc.Data.Swagger
                     if (!attribute.Updatable && httpMethod == HttpMethod.Put) return null;
                 }
             }
-
-            var result = new Schema();
-            if (property.PropertyType == typeof(string))
-            {
-                result.Type = "string";
-            }
-            else if (property.PropertyType == typeof(short) ||
-                     property.PropertyType == typeof(short?) ||
-                     property.PropertyType == typeof(int) ||
-                     property.PropertyType == typeof(int?))
-            {
-                result.Type = "integer";
-                result.Format = "int32";
-            }
-            else if (property.PropertyType == typeof(long) ||
-                     property.PropertyType == typeof(long?))
-            {
-                result.Type = "integer";
-                result.Format = "int64";
-            }
-            else if (property.PropertyType == typeof(decimal) ||
-                     property.PropertyType == typeof(decimal?) ||
-                     property.PropertyType == typeof(double) ||
-                     property.PropertyType == typeof(double?))
-            {
-                result.Type = "number";
-                result.Format = "double";
-            }
-            else if (property.PropertyType == typeof(DateTime) ||
-                     property.PropertyType == typeof(DateTime?))
-            {
-                result.Type = "string";
-                result.Format = "date-time";
-            }
-            else if (property.PropertyType == typeof(byte) ||
-                     property.PropertyType == typeof(byte?))
-            {
-                result.Type = "string";
-                result.Format = "byte";
-            }
-            else if (property.PropertyType == typeof(bool) ||
-                     property.PropertyType == typeof(bool?))
-            {
-                result.Type = "boolean";
-            }
-            else
-            {
-                if (property.PropertyType.IsGenericType &&
-                    property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
-                {
-                    result.Type = "array";
-                    result.Items = GetOrRegistrySchema(property.PropertyType.GetGenericArguments()[0],httpMethod,namingStrategy);
-                }
-                else if (property.PropertyType.IsArray)
-                {
-                    result.Type = "array";
-                    result.Items = GetOrRegistrySchema(property.PropertyType, httpMethod,namingStrategy);
-                }
-                else
-                {
-                    result = GetOrRegistrySchema(property.PropertyType, httpMethod,namingStrategy);
-                }
-            }
-            return result;
+            return BuildSchema(property.PropertyType, httpMethod, namingStrategy);
         }
 
         private static Schema GetOrRegistrySchema(Type type, HttpMethod method, NamingStrategy namingStrategy)
@@ -239,6 +272,35 @@ namespace Autumn.Mvc.Data.Swagger
             {
                 if (Caches.ContainsKey(type) && Caches[type].ContainsKey(method)) return Caches[type][method];
                 if (!Caches.ContainsKey(type)) Caches[type] = new Dictionary<HttpMethod, Schema>();
+                if (IsPrimitiveType(type))
+                {
+                    return BuildSchema(type, method, namingStrategy);
+                }
+                if (type.IsInterface)
+                {
+                    if (type.IsGenericType)
+                    {
+                        if (type.GetGenericTypeDefinition() == typeof(IPageable<>))
+                        {
+                            type = typeof(Pageable<>).MakeGenericType(type.GetGenericArguments()[0]);
+                        }
+
+                        if (type.GetGenericTypeDefinition() == typeof(IPage<>))
+                        {
+                            type = typeof(Page<>).MakeGenericType(type.GetGenericArguments()[0]);
+                        }
+
+                        if (type.GetGenericTypeDefinition() == typeof(IList<>))
+                        {
+                            var schema = GetOrRegistrySchema(type.GetGenericArguments()[0], method, namingStrategy);
+                            return new Schema()
+                            {
+                                Type = "array",
+                                Items = schema
+                            };
+                        }
+                    }
+                }
                 var o = Activator.CreateInstance(type);
                 var stringify = JsonConvert.SerializeObject(o);
                 var expected = JObject.Parse(stringify);

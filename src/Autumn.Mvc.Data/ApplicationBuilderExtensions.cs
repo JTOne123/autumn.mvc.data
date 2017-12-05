@@ -10,11 +10,10 @@ namespace Autumn.Mvc.Data
 {
     public static class ApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseAutumnData(this IApplicationBuilder app, ILoggerFactory loggerFactory = null)
+        public static IApplicationBuilder UseAutumnData(this IApplicationBuilder app)
         {
             if (app == null)
                 throw new ArgumentNullException(nameof(app));
-
             var settings = (AutumnSettings) app.ApplicationServices.GetService(typeof(AutumnSettings));
             app = app.UseMiddleware<IgnoreOperationMiddleware>(settings);
             app = app.UseSwagger();

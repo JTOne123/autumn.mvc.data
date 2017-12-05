@@ -13,16 +13,14 @@ namespace Autumn.Mvc.Data.Configurations
         public IReadOnlyDictionary<Type, AttributeRouteModel> Routes { get; set; }
         public IReadOnlyDictionary<Type, EntityInfo> EntitiesInfos { get; set; }
         public IReadOnlyDictionary<string, IReadOnlyList<HttpMethod>> IgnoreOperations { get; set; }
-        public bool UseSwagger { get; set; }
-        public bool PluralizeController { get; set; }
-        public string ApiVersion { get; set; }
+        public bool UseSwagger { get; set; } = true;
+        public bool PluralizeController { get; set; } = true;
+        public string ApiVersion { get; set; } = "v1";
         public Assembly EntityAssembly { get; set; }
 
         public AutumnDataSettings(AutumnSettings parent)
         {
             Parent = parent;
-            PluralizeController = true;
-            ApiVersion = "v1";
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Autumn.Mvc.Data.Configurations
     {
         private readonly AutumnDataSettings _settings;
         private readonly Assembly _callingAssembly;
-
+      
         public AutumnDataSettingsBuilder(AutumnDataSettings settings, Assembly callingAssembly)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -29,6 +29,8 @@ namespace Autumn.Mvc.Data.Configurations
             BuildRoutes(_settings);
             return _settings;
         }
+        
+        
 
         /// <summary>         
         /// build EntitiesInfos

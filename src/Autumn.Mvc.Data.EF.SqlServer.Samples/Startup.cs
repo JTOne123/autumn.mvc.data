@@ -20,13 +20,12 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
         {
             services
                 .AddAutumn(config =>
-                    config 
-                        .QueryFieldName("search")
-                        .Pluralized()
-                        .Swagger())
+                    config
+                        .QueryFieldName("search"))
+                .AddAutumnData()
                 .AddAutumnEntityFrameworkCoreSqlServer<ChinookContext>(config =>
                     config
-                        .ConnectionString("server=localhost;database=Chinook;User Id=sa;password=16gG1158#3")
+                        .ConnectionString("server=localhost;database=master;User Id=sa;password=@utUmn_mvc_D@t@!")
                         .Evolve()
                 );
         }
@@ -40,7 +39,7 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
                 app.UseDeveloperExceptionPage();
             }
             app
-                .UseAutumn(loggerFactory)
+                .UseAutumnData()
                 .UseMvc();
         }
     }

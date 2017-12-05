@@ -34,24 +34,32 @@ namespace Autumn.Mvc.Data
         }
 
         public static IServiceCollection AddAutumnData(this IServiceCollection services,
-            Action<AutumnDataSettingsBuilder> autumnDataSettingsBuilderAction)
+            Action<AutumnDataSettingsBuilder> autumnDataSettingsBuilderAction = null)
         {
 
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
-            if (autumnDataSettingsBuilderAction == null)
-                throw new ArgumentNullException(nameof(autumnDataSettingsBuilderAction));
-
+     
             Console.WriteLine(Logo());
             var service = services.Single(c =>
                 c.ServiceType == typeof(AutumnSettings) && c.Lifetime == ServiceLifetime.Singleton);
             var settings = (AutumnSettings) service.ImplementationInstance;
-            
-            var autumnDataSettingsBuilder = new AutumnDataSettingsBuilder(settings.DataSettings(),Assembly.GetCallingAssembly());
-            autumnDataSettingsBuilderAction(autumnDataSettingsBuilder);
+
+            var autumnDataSettingsBuilder =
+                new AutumnDataSettingsBuilder(settings.DataSettings(), Assembly.GetCallingAssembly());
+            if (autumnDataSettingsBuilderAction != null)
+            {
+                autumnDataSettingsBuilderAction(autumnDataSettingsBuilder);
+            }
             var dataSettings = autumnDataSettingsBuilder.Build();
-            
-            services.AddMvc().ConfigureApplicationPartManager(p =>
+
+            services.AddMvc
+            (
+                c =>
+                {
+                    c.Conventions.Add(new RepositoryControllerNameConvention(dataSettings));
+                }
+            ).ConfigureApplicationPartManager(p =>
             {
                 p.FeatureProviders.Add(new RespositoryControllerFeatureProvider(settings));
             });

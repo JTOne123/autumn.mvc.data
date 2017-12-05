@@ -2,7 +2,7 @@
 
 namespace Autumn.Mvc.Data.EF.SqlServer.Configuration
 {
-    public class AutumnEntityFrameworkCoreSqlServerSettings : AutumnEntityFrameworkCoreSettings
+    public class EntityFrameworkCoreSqlServerSettings : AutumnEntityFrameworkCoreSettings
     {
 
         

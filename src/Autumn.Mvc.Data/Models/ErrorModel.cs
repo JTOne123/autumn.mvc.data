@@ -9,6 +9,11 @@ namespace Autumn.Mvc.Data.Models
         public List<string> Messages { get; set; }
         public string StackTrace { get; set; }
 
+        public ErrorModel()
+        {
+            
+        }
+
         public ErrorModel(ModelStateDictionary modelState)
         {
             Messages = new List<string>();

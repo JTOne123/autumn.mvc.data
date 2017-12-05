@@ -10,16 +10,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Autumn.Mvc.Data.EF.SqlServer
 {
-    public static class AutumnServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddAutumnEntityFrameworkCoreSqlServer<TContext>(
             this IServiceCollection serviceCollection,
-            Action<AutumnEntityFrameworkCoreSqlServerSettingsBuilder> autumnSqlServerOptionsAction,
+            Action<EntityFrameworkCoreSqlServerSettingsBuilder> autumnSqlServerOptionsAction,
             Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null,
             ILoggerFactory loggerFactory = null)
             where TContext : DbContext
         {
-            var builder = new AutumnEntityFrameworkCoreSqlServerSettingsBuilder();
+            var builder = new EntityFrameworkCoreSqlServerSettingsBuilder();
             autumnSqlServerOptionsAction(builder);
             var settings = builder.Build();
 
@@ -49,7 +49,7 @@ namespace Autumn.Mvc.Data.EF.SqlServer
 
             serviceCollection.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(TContext)));
 
-            serviceCollection.AddScoped(typeof(IAutumnCrudPageableRepositoryAsync<,>),
+            serviceCollection.AddScoped(typeof(ICrudPageableRepositoryAsync<,>),
                 typeof(EntityFrameworkCrudPageableRepositoryAsync<,>));
 
 
