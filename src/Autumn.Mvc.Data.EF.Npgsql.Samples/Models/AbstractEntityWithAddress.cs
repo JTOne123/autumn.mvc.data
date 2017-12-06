@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
+namespace Autumn.Mvc.Data.EF.Npgsql.Samples.Models
 {
     public abstract class AbstractEntityWithAddress : AbstractEntity
     {

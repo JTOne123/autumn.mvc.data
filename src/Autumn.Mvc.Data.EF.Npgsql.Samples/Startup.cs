@@ -1,44 +1,40 @@
 ﻿using System;
-using System.Data.SqlClient;
 using Autumn.Mvc.Data.EF.Configuration;
-using Autumn.Mvc.Data.EF.Mysql.Samples.Models;
+using Autumn.Mvc.Data.EF.Npgsql.Samples.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Serialization;
+using Npgsql;
 
-namespace Autumn.Mvc.Data.EF.SqlServer.Samples
+namespace Autumn.Mvc.Data.EF.Npgsql.Samples
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
-        {
-            _hostingEnvironment = env;
-        }
-
-         private IHostingEnvironment _hostingEnvironment;
-       
         // This method gets called by the runtime. Use this method to add services to the container.
+        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services
                 .AddAutumn(config =>
                     config
-                        .QueryFieldName("search"))
-                .AddAutumnData(
-                    )
-                .AddAutumnEntityFrameworkCoreSqlServer<ChinookContext>(config =>
+                        .NamingStrategy(new SnakeCaseNamingStrategy()))
+                .AddAutumnData(config =>
                     config
-                        .ConnectionString("server=localhost;database=master;User Id=sa;password=@utUmn_mvc_D@t@!")
-                        
+                        .ApiVersion("v1")
+                        .PluralizeController(true)
+                )
+                .AddAutumnEntityFrameworkCoreNpgsql<ChinookContext>(config =>
+                    config
+                        .ConnectionString("server=localhost;Port=5432;Database=chinook;User Id=chinook;password=@utUmn_mvc_D@t@!")
                 );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env,ILoggerFactory loggerFactory)
         {
-
-            if (!env.IsProduction())
+            if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -58,7 +54,7 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
                     };
                 }
 
-                using (var connection = new SqlConnection((entityFrameworkCoreSettings.ConnectionString)))
+                using (var connection = new NpgsqlConnection(entityFrameworkCoreSettings.ConnectionString))
                 {
                     var evolve = new Evolve.Evolve(connection, log);
                     evolve.Migrate();

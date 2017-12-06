@@ -1,24 +1,18 @@
 ﻿using System;
-using System.Data.SqlClient;
 using Autumn.Mvc.Data.EF.Configuration;
 using Autumn.Mvc.Data.EF.Mysql.Samples.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
 
-namespace Autumn.Mvc.Data.EF.SqlServer.Samples
+namespace Autumn.Mvc.Data.EF.Mysql.Samples
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
-        {
-            _hostingEnvironment = env;
-        }
-
-         private IHostingEnvironment _hostingEnvironment;
-       
         // This method gets called by the runtime. Use this method to add services to the container.
+        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services
@@ -26,19 +20,18 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
                     config
                         .QueryFieldName("search"))
                 .AddAutumnData(
-                    )
-                .AddAutumnEntityFrameworkCoreSqlServer<ChinookContext>(config =>
+                )
+                .AddAutumnEntityFrameworkCoreMysql<ChinookContext>(config =>
                     config
-                        .ConnectionString("server=localhost;database=master;User Id=sa;password=@utUmn_mvc_D@t@!")
+                        .ConnectionString("server=localhost;database=chinook;port=3306;Uid=chinook;password=@utUmn_mvc_D@t@!")
                         
                 );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env,ILoggerFactory loggerFactory)
         {
-
-            if (!env.IsProduction())
+            if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -58,8 +51,28 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
                     };
                 }
 
-                using (var connection = new SqlConnection((entityFrameworkCoreSettings.ConnectionString)))
+                using (var connection = new MySqlConnection(entityFrameworkCoreSettings.ConnectionString))
                 {
+                    #region bug Evolve   
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = @"CREATE TABLE IF NOT EXISTS `changelog` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` tinyint(4) unsigned  DEFAULT NULL,
+  `version` varchar(50) DEFAULT NULL,
+  `description` varchar(200) NOT NULL,
+  `name` varchar(300) NOT NULL,
+  `checksum` varchar(32) DEFAULT NULL,
+  `installed_by` varchar(100) NOT NULL,
+  `installed_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `success` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ";
+                        command.ExecuteNonQuery();
+                    }
+                    #endregion
+                    
                     var evolve = new Evolve.Evolve(connection, log);
                     evolve.Migrate();
                 }

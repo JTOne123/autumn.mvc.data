@@ -12,7 +12,7 @@ namespace Autumn.Mvc.Data.EF.Npgsql
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAutumnEntityFrameworkCoreNgsql<TContext>(
+        public static IServiceCollection AddAutumnEntityFrameworkCoreNpgsql<TContext>(
             this IServiceCollection services,
             Action<EntityFrameworkCoreSettingsBuilder> autumnEntityFrameworkSettingsAction,
             Action<NpgsqlDbContextOptionsBuilder> npgsqlOptionsAction = null)

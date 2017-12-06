@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
+namespace Autumn.Mvc.Data.EF.Npgsql.Samples.Models
 {
     public class ChinookContext : DbContext
     {

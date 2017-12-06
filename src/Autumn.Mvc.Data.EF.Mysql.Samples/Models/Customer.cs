@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Autumn.Mvc.Data.Annotations;
+using Autumn.Mvc.Data.EF.Mysql.Samples.Models;
 
 namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
 {
