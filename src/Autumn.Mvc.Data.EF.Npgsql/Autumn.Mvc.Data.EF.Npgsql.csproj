@@ -10,6 +10,7 @@
     <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Autumn.Mvc" Version="0.1.1" />
     <PackageReference Include="Evolve" Version="1.7.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.0.0" />
   </ItemGroup>

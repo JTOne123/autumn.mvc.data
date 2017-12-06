@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Linq;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.EF.Configuration;
@@ -9,19 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
-namespace Autumn.Mvc.Data.EF.SqlServer
+namespace Autumn.Mvc.Data.EF.Npgsql
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAutumnEntityFrameworkCoreSqlServer<TContext>(
+        public static IServiceCollection AddAutumnEntityFrameworkCoreNgsql<TContext>(
             this IServiceCollection services,
             Action<EntityFrameworkCoreSettingsBuilder> autumnEntityFrameworkSettingsAction,
-            Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null,
+            Action<NpgsqlDbContextOptionsBuilder> npgsqlOptionsAction = null,
             ILoggerFactory loggerFactory = null)
             where TContext : DbContext
         {
-            
             if( services==null) throw  new ArgumentNullException(nameof(services));
             if(autumnEntityFrameworkSettingsAction==null) throw  new ArgumentNullException(nameof(autumnEntityFrameworkSettingsAction));
             var service = services.Single(c =>
@@ -30,10 +29,9 @@ namespace Autumn.Mvc.Data.EF.SqlServer
             
             var builder = new EntityFrameworkCoreSettingsBuilder(dataSettings);
             autumnEntityFrameworkSettingsAction(builder);
-            var entityFrameworkCoreSettings = builder.Build();
-            services.AddSingleton(entityFrameworkCoreSettings);
-            
-            if (entityFrameworkCoreSettings.UseEvolve)
+            var settings = builder.Build();
+
+            if (settings.UseEvolve)
             {
                 var logger = loggerFactory?.CreateLogger("Evolve");
                 Action<string> log = Console.WriteLine;
@@ -45,22 +43,25 @@ namespace Autumn.Mvc.Data.EF.SqlServer
                     };
                 }
 
-                using (var connection = new SqlConnection((entityFrameworkCoreSettings.ConnectionString)))
+                using (var connection = new NpgsqlConnection(settings.ConnectionString))
                 {
-                    var evolve = new Evolve.Evolve(connection, log);
+                    var evolve = new Evolve.Evolve(connection, log)
+                    {
+                        MustEraseOnValidationError = true
+                    };
                     evolve.Migrate();
                 }
             }
 
             services.AddDbContextPool<TContext>(o =>
             {
-                o.UseSqlServer(entityFrameworkCoreSettings.ConnectionString, sqlServerOptionsAction);
+                o.UseNpgsql(settings.ConnectionString, npgsqlOptionsAction);
             });
 
             services.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(TContext)));
-
             services.AddScoped(typeof(ICrudPageableRepositoryAsync<,>),
                 typeof(EntityFrameworkCrudPageableRepositoryAsync<,>));
+
 
             return services;
         }

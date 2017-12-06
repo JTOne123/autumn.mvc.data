@@ -1,5 +1,7 @@
 ﻿using System;
-using Autumn.Mvc.Data.EF.Mysql.Configuration;
+using System.Linq;
+using Autumn.Mvc.Data.Configurations;
+using Autumn.Mvc.Data.EF.Configuration;
 using Autumn.Mvc.Data.EF.Repositories;
 using Autumn.Mvc.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -10,20 +12,26 @@ using MySql.Data.MySqlClient;
 
 namespace Autumn.Mvc.Data.EF.Mysql
 {
-    public static class AutumnServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddAutumnEntityFrameworkCoreMysql<TContext>(
-            this IServiceCollection serviceCollection,
-            Action<AutumnEntityFrameworkCoreMysqlSettingsBuilder> autumnMySqlOptionsAction,
+            this IServiceCollection services,
+            Action<EntityFrameworkCoreSettingsBuilder> autumnEntityFrameworkSettingsAction,
             Action<MySqlDbContextOptionsBuilder> mysqlOptionsAction = null,
             ILoggerFactory loggerFactory = null)
             where TContext : DbContext
         {
-            var builder = new AutumnEntityFrameworkCoreMysqlSettingsBuilder();
-            autumnMySqlOptionsAction(builder);
+            if( services==null) throw  new ArgumentNullException(nameof(services));
+            if(autumnEntityFrameworkSettingsAction==null) throw  new ArgumentNullException(nameof(autumnEntityFrameworkSettingsAction));
+            var service = services.Single(c =>
+                c.ServiceType == typeof(AutumnDataSettings) && c.Lifetime == ServiceLifetime.Singleton);
+            var dataSettings = (AutumnDataSettings) service.ImplementationInstance;
+            
+            var builder = new EntityFrameworkCoreSettingsBuilder(dataSettings);
+            autumnEntityFrameworkSettingsAction(builder);
             var settings = builder.Build();
 
-            if (settings.Evolve)
+            if (settings.UseEvolve)
             {
                 var logger = loggerFactory?.CreateLogger("Evolve");
                 Action<string> log = Console.WriteLine;
@@ -45,17 +53,16 @@ namespace Autumn.Mvc.Data.EF.Mysql
                 }
             }
 
-            serviceCollection.AddDbContextPool<TContext>(o =>
+            services.AddDbContextPool<TContext>(o =>
             {
                 o.UseMySql(settings.ConnectionString, mysqlOptionsAction);
             });
 
-            serviceCollection.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(TContext)));
-            serviceCollection.AddScoped(typeof(IAutumnCrudPageableRepositoryAsync<,>),
+            services.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(TContext)));
+            services.AddScoped(typeof(ICrudPageableRepositoryAsync<,>),
                 typeof(EntityFrameworkCrudPageableRepositoryAsync<,>));
 
-
-            return serviceCollection;
+            return services;
         }
     }
 }

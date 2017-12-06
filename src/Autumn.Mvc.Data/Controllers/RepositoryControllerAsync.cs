@@ -52,7 +52,7 @@ namespace Autumn.Mvc.Data.Controllers
             try
             {
                 if (!ModelState.IsValid) 
-                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModel(ModelState));
+                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
                 
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NotFound();
@@ -60,7 +60,7 @@ namespace Autumn.Mvc.Data.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModel(e));
+                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModelInternalError(e));
             }
         }
         
@@ -70,7 +70,7 @@ namespace Autumn.Mvc.Data.Controllers
             try
             {
                 if (!ModelState.IsValid) 
-                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModel(ModelState));
+                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
                 
                 var result = await _repository.FindAsync(filter, pageable);
                 return result.TotalElements == result.NumberOfElements
@@ -79,7 +79,7 @@ namespace Autumn.Mvc.Data.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModel(e));
+                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModelInternalError(e));
             }
         }
 
@@ -89,7 +89,7 @@ namespace Autumn.Mvc.Data.Controllers
             try
             {
                 if (!ModelState.IsValid) 
-                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModel(ModelState));
+                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
        
                 var entity = Mapper.Map<TEntity>(entityPostRequest);
                 var result = await _repository.InsertAsync(entity);
@@ -99,7 +99,7 @@ namespace Autumn.Mvc.Data.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModel(e));
+                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModelInternalError(e));
             }
         }
 
@@ -109,7 +109,7 @@ namespace Autumn.Mvc.Data.Controllers
             try
             {
                 if (!ModelState.IsValid) 
-                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModel(ModelState));
+                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
        
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NoContent();
@@ -118,7 +118,7 @@ namespace Autumn.Mvc.Data.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModel(e));
+                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModelInternalError(e));
             }
         }
 
@@ -129,7 +129,7 @@ namespace Autumn.Mvc.Data.Controllers
             try
             {
                 if (!ModelState.IsValid) 
-                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModel(ModelState));
+                    return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
        
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NoContent();
@@ -139,7 +139,7 @@ namespace Autumn.Mvc.Data.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModel(e));
+                return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModelInternalError(e));
             }
         }
     }

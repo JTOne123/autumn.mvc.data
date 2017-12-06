@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
+using Autumn.Mvc.Data.Configurations;
+using Autumn.Mvc.Data.EF.Configuration;
 using Autumn.Mvc.Data.EF.Repositories;
-using Autumn.Mvc.Data.EF.Sqlite.Configuration;
 using Autumn.Mvc.Data.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -10,20 +12,26 @@ using Microsoft.Extensions.Logging;
 
 namespace Autumn.Mvc.Data.EF.Sqlite
 {
-    public static class AutumnServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddAutumnEntityFrameworkCoreNgsql<TContext>(
-            this IServiceCollection serviceCollection,
-            Action<AutumnEntityFrameworkCoreSqliteSettingsBuilder> autumnSqliteOptionsAction,
+            this IServiceCollection services,
+            Action<EntityFrameworkCoreSettingsBuilder> autumnEntityFrameworkSettingsAction,
             Action<SqliteDbContextOptionsBuilder> sqliteOptionsAction = null,
             ILoggerFactory loggerFactory = null)
             where TContext : DbContext
         {
-            var builder = new AutumnEntityFrameworkCoreSqliteSettingsBuilder();
-            autumnSqliteOptionsAction(builder);
+            if(services==null) throw  new ArgumentNullException(nameof(services));
+            if(autumnEntityFrameworkSettingsAction==null) throw  new ArgumentNullException(nameof(autumnEntityFrameworkSettingsAction));
+            var service = services.Single(c =>
+                c.ServiceType == typeof(AutumnDataSettings) && c.Lifetime == ServiceLifetime.Singleton);
+            var dataSettings = (AutumnDataSettings) service.ImplementationInstance;
+            
+            var builder = new EntityFrameworkCoreSettingsBuilder(dataSettings);
+            autumnEntityFrameworkSettingsAction(builder);
             var settings = builder.Build();
 
-            if (settings.Evolve)
+            if (settings.UseEvolve)
             {
                 var logger = loggerFactory?.CreateLogger("Evolve");
                 Action<string> log = Console.WriteLine;
@@ -37,22 +45,25 @@ namespace Autumn.Mvc.Data.EF.Sqlite
 
                 using (var connection = new SqliteConnection(settings.ConnectionString))
                 {
-                    var evolve = new Evolve.Evolve(connection, log);
+                    var evolve = new Evolve.Evolve(connection, log)
+                    {
+                        MustEraseOnValidationError = true
+                    };
                     evolve.Migrate();
                 }
             }
 
-            serviceCollection.AddDbContextPool<TContext>(o =>
+            services.AddDbContextPool<TContext>(o =>
             {
                 o.UseSqlite(settings.ConnectionString, sqliteOptionsAction);
             });
 
-            serviceCollection.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(TContext)));
-            serviceCollection.AddScoped(typeof(IAutumnCrudPageableRepositoryAsync<,>),
+            services.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(TContext)));
+            services.AddScoped(typeof(ICrudPageableRepositoryAsync<,>),
                 typeof(EntityFrameworkCrudPageableRepositoryAsync<,>));
 
 
-            return serviceCollection;
+            return services;
         }
     }
 }

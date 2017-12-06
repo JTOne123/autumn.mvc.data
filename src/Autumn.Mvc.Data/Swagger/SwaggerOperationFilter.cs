@@ -56,12 +56,14 @@ namespace Autumn.Mvc.Data.Swagger
             // register request swagger schema for PUT request
             var entitySchemaPut = GetOrRegistrySchema(entityInfo.ProxyRequestTypes[HttpMethod.Put], HttpMethod.Put,_settings.NamingStrategy);
 
-            var errorSchema = GetOrRegistrySchema(typeof(ErrorModel), HttpMethod.Get, _settings.NamingStrategy);
+            var errorSchemaBadRequest = GetOrRegistrySchema(typeof(ErrorModelBadRequest), HttpMethod.Get, _settings.NamingStrategy);
+            var errorSchemaInternalErrorRequest = GetOrRegistrySchema(typeof(ErrorModelInternalError), HttpMethod.Get, _settings.NamingStrategy);
+            
             operation.Responses = new ConcurrentDictionary<string, Response>();
             // add generic reponse for internal error from server
-            operation.Responses.Add(((int)HttpStatusCode.BadRequest).ToString(), new Response() {Schema = errorSchema});
+            operation.Responses.Add(((int)HttpStatusCode.BadRequest).ToString(), new Response() {Schema = errorSchemaBadRequest});
             // add generic reponse for internal error from server
-            operation.Responses.Add(((int)HttpStatusCode.InternalServerError).ToString(), new Response() {Schema = errorSchema});
+            operation.Responses.Add(((int)HttpStatusCode.InternalServerError).ToString(), new Response() {Schema = errorSchemaInternalErrorRequest});
          
             operation.Consumes.Clear();
            
