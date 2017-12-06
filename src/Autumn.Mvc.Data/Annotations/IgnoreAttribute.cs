@@ -3,7 +3,7 @@
 namespace Autumn.Mvc.Data.Annotations
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class IgnoreOperationPropertyAttribute : Attribute
+    public class IgnoreAttribute : Attribute
     {
         /// <summary>
         /// enables or disables the property in the POST (insert) request object on the associated resource

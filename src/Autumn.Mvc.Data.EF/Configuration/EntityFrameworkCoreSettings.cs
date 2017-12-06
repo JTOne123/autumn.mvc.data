@@ -7,7 +7,6 @@ namespace Autumn.Mvc.Data.EF.Configuration
     {
         public AutumnDataSettings Parent { get; private set; }
         public string ConnectionString { get; set; }
-        public bool UseEvolve { get; set; }
 
         public EntityFrameworkCoreSettings(AutumnDataSettings parent)
         {

@@ -7,7 +7,7 @@ namespace Autumn.Mvc.Data.Configurations
     {
         public PropertyInfo Property { get; }
 
-        public EntityKeyInfo(PropertyInfo property, KeyAttribute keyAttribute)
+        public EntityKeyInfo(PropertyInfo property, IdAttribute idAttribute)
         {
             Property = property;
         }

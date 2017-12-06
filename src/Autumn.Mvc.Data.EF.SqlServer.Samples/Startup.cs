@@ -1,4 +1,7 @@
-﻿using Autumn.Mvc.Data.EF.SqlServer.Samples.Models;
+﻿using System;
+using System.Data.SqlClient;
+using Autumn.Mvc.Data.EF.Configuration;
+using Autumn.Mvc.Data.EF.SqlServer.Samples.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +30,7 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
                 .AddAutumnEntityFrameworkCoreSqlServer<ChinookContext>(config =>
                     config
                         .ConnectionString("server=localhost;database=master;User Id=sa;password=@utUmn_mvc_D@t@!")
-                        .Evolve()
+                        
                 );
         }
 
@@ -42,6 +45,26 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
             app
                 .UseAutumnData()
                 .UseMvc();
+
+            var entityFrameworkCoreSettings = (EntityFrameworkCoreSettings)app.ApplicationServices.GetService(typeof(EntityFrameworkCoreSettings));
+            {
+                var logger = loggerFactory?.CreateLogger("Evolve");
+                Action<string> log = Console.WriteLine;
+                if (logger != null)
+                {
+                    log = (e) =>
+                    {
+                        logger.LogInformation(e);
+                    };
+                }
+
+                using (var connection = new SqlConnection((entityFrameworkCoreSettings.ConnectionString)))
+                {
+                    var evolve = new Evolve.Evolve(connection, log);
+                    evolve.Migrate();
+                }
+
+            }
         }
     }
 }

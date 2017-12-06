@@ -67,7 +67,7 @@ namespace Autumn.Mvc.Data.Configurations
                 EntityKeyInfo entityKeyInfo = null;
                 foreach (var property in type.GetProperties())
                 {
-                    var keyAttribute = property.GetCustomAttribute<KeyAttribute>();
+                    var keyAttribute = property.GetCustomAttribute<IdAttribute>();
                     if (keyAttribute == null) continue;
                     entityKeyInfo = new EntityKeyInfo(property, keyAttribute);
                     break;

@@ -6,7 +6,7 @@ namespace Autumn.Mvc.Data.Annotations
     /// attribute to identify the property of the entity as key uniqueness
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public class KeyAttribute : Attribute
+    public class IdAttribute : Attribute
     {
     }
 }

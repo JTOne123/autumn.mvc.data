@@ -17,12 +17,6 @@ namespace Autumn.Mvc.Data.EF.Configuration
             return this;
         }
 
-        public EntityFrameworkCoreSettingsBuilder Evolve(bool use=true)
-        {
-            _settings.UseEvolve = use;
-            return this;
-        }
-
         public EntityFrameworkCoreSettings Build()
         {
             return _settings;

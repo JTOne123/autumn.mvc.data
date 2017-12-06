@@ -258,7 +258,7 @@ namespace Autumn.Mvc.Data.Swagger
         {
             if (httpMethod != HttpMethod.Get)
             {
-                var attribute = property.GetCustomAttribute<IgnoreOperationPropertyAttribute>();
+                var attribute = property.GetCustomAttribute<IgnoreAttribute>();
                 if (attribute != null)
                 {
                     if (!attribute.Insertable && httpMethod == HttpMethod.Post) return null;

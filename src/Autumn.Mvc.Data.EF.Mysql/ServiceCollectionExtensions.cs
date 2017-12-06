@@ -7,8 +7,6 @@ using Autumn.Mvc.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
 
 namespace Autumn.Mvc.Data.EF.Mysql
 {
@@ -17,8 +15,7 @@ namespace Autumn.Mvc.Data.EF.Mysql
         public static IServiceCollection AddAutumnEntityFrameworkCoreMysql<TContext>(
             this IServiceCollection services,
             Action<EntityFrameworkCoreSettingsBuilder> autumnEntityFrameworkSettingsAction,
-            Action<MySqlDbContextOptionsBuilder> mysqlOptionsAction = null,
-            ILoggerFactory loggerFactory = null)
+            Action<MySqlDbContextOptionsBuilder> mysqlOptionsAction = null)
             where TContext : DbContext
         {
             if( services==null) throw  new ArgumentNullException(nameof(services));
@@ -29,33 +26,12 @@ namespace Autumn.Mvc.Data.EF.Mysql
             
             var builder = new EntityFrameworkCoreSettingsBuilder(dataSettings);
             autumnEntityFrameworkSettingsAction(builder);
-            var settings = builder.Build();
-
-            if (settings.UseEvolve)
-            {
-                var logger = loggerFactory?.CreateLogger("Evolve");
-                Action<string> log = Console.WriteLine;
-                if (logger != null)
-                {
-                    log = (e) =>
-                    {
-                        logger.LogInformation(e);
-                    };
-                }
-
-                using (var connection = new MySqlConnection(settings.ConnectionString))
-                {
-                    var evolve = new Evolve.Evolve(connection, log)
-                    {
-                        MustEraseOnValidationError = true
-                    };
-                    evolve.Migrate();
-                }
-            }
-
+            var entityFrameworkCoreSettings = builder.Build();
+            services.AddSingleton(entityFrameworkCoreSettings);
+            
             services.AddDbContextPool<TContext>(o =>
             {
-                o.UseMySql(settings.ConnectionString, mysqlOptionsAction);
+                o.UseMySql(entityFrameworkCoreSettings.ConnectionString, mysqlOptionsAction);
             });
 
             services.AddScoped(typeof(DbContext), (s) => s.GetService(typeof(TContext)));

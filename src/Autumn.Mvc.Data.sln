@@ -35,6 +35,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mysql", "Mysql", "{965B8F9D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autumn.Mvc.Data.EF.Mysql", "Autumn.Mvc.Data.EF.Mysql\Autumn.Mvc.Data.EF.Mysql.csproj", "{2C250512-7E20-4B7B-B11C-EFA47095C10C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autumn.Mvc.Data.EF.Sqlite.Samples", "Autumn.Mvc.Data.EF.Sqlite.Samples\Autumn.Mvc.Data.EF.Sqlite.Samples.csproj", "{4078B2F7-8953-47C8-B034-23D7294D5719}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{2C250512-7E20-4B7B-B11C-EFA47095C10C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C250512-7E20-4B7B-B11C-EFA47095C10C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C250512-7E20-4B7B-B11C-EFA47095C10C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4078B2F7-8953-47C8-B034-23D7294D5719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4078B2F7-8953-47C8-B034-23D7294D5719}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4078B2F7-8953-47C8-B034-23D7294D5719}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4078B2F7-8953-47C8-B034-23D7294D5719}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,5 +101,6 @@ Global
 		{97E3206F-D690-4C7F-8EC1-4287F5436F43} = {D59DA3D6-ADAC-494D-80E3-D42510CDFC93}
 		{965B8F9D-EB2B-46A4-9CD4-7DAA45601055} = {9D63C3D9-0647-428D-885C-1A80EB47D8F7}
 		{2C250512-7E20-4B7B-B11C-EFA47095C10C} = {965B8F9D-EB2B-46A4-9CD4-7DAA45601055}
+		{4078B2F7-8953-47C8-B034-23D7294D5719} = {D59DA3D6-ADAC-494D-80E3-D42510CDFC93}
 	EndGlobalSection
 EndGlobal
