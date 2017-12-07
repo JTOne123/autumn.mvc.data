@@ -22,7 +22,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     public class ArticleV2 : Article
     {
         [BsonElement("publish_date")]
-        public DateTime? PublishDate { get; set; }
+        public DateTime PublishDate { get; set; }
 
         [Range(0, 100)]
         [BsonElement("score")]

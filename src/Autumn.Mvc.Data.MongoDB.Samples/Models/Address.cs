@@ -7,14 +7,14 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
         [BsonElement("street")]
         public string Street { get; set; }
 
-        [BsonElement("suite")]
-        public string Suite { get; set; }
+        [BsonElement("state")]
+        public string State { get; set; }
 
         [BsonElement("city")]
         public string City { get; set; }
 
-        [BsonElement("zipcode")]
-        public string ZipCode { get; set; }
-
+        [BsonElement("postal_code")]
+        public string PostalCode { get; set; }
+    
     }
 }

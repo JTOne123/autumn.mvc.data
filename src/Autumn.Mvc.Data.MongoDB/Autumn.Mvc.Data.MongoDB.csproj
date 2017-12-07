@@ -1,10 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <PackageId>Autumn.Mvc.Data.MongoDB</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>Gwendal Garnier</Authors>
+    <PackageLicenseUrl>https://github.com/gwendallg/autumn.mvc.data/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/gwendallg/autumn.mvc.data</PackageProjectUrl>
+    <PackageIconUrl>https://github.com/gwendallg/autumn.mvc.data/blob/master/logo64.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/gwendallg/autumn.mvc.datat</RepositoryUrl>
+    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
+    <Title>Component Library for REST Repository API Implementation based on MongoDB.Driver</Title>
+    <Description>Autumn.Mvc.Data.MongoDB is aspNet Core extension that will make it easier for you to write your REST Data Repository APIs based on MongoDB.Driver. Its purpose is to convert a query in RSQL format to lamba expression and to provide a pagination mechanism. Install it and test it! (show samples on github)</Description>
+    <Copyright>Copyright © G.Garnier 2017</Copyright>
+    <PackageTags>Rsql Querydsl API WOA architecture REST Repository MongoDB</PackageTags>
   </PropertyGroup>
-  <ItemGroup>
+<ItemGroup>
     <PackageReference Include="Antlr4" Version="4.6.4" />
-    <PackageReference Include="Autumn.Mvc" Version="0.1.1" />
+    <PackageReference Include="Autumn.Mvc" Version="0.2.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
   </ItemGroup>
   <ItemGroup>

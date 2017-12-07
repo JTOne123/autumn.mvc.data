@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Autumn.Mvc.Data.Annotations;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
@@ -10,16 +11,19 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     public class Customer : AbstractEntity
     {    
         [Required]
-        [BsonElement("name")]
-        public string Name { get; set; }
+        [BsonElement("last_name")]
+        public string LastName { get; set; }
 
         [Required]
-        [BsonElement("username")]
-        public string UserName { get; set; }
+        [BsonElement("first_name")]
+        public string FirstName { get; set; }
+        
+        [BsonElement("birth_date")]
+        public DateTime? BirthDate { get; set; }
     }
-    
+
     [BsonIgnoreExtraElements]
-    [Entity(Name = "customers",Version = "v2")]
+    [Entity(Name = "customers", Version = "v2")]
     public class CustomerV2 : Customer
     {
 
@@ -28,15 +32,11 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
 
         [BsonElement("address")]
         public Address Address { get; set; }
-        
-        [JsonIgnore]
-        [BsonElement("count")]
-        public int Count { get; set; }
     }
 
     [BsonIgnoreExtraElements]
     [Entity(Name = "customers", Version = "v3")]
-    public class CustomerV3 : Customer
+    public class CustomerV3 : CustomerV2
     {
 
         [Ignore(Insertable = true)]
@@ -48,10 +48,16 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     
     [BsonIgnoreExtraElements]
     [Entity(Name = "customers", Version = "v4")]
-    public class CustomerV4 : AbstractEntity
+    public class CustomerV4 : CustomerV3
     {
 
-        [BsonElement("test")]
-        public string Test { get; set; }
+        [BsonElement("account")]
+        public string Account { get; set; }
+        
+        [BsonElement("debit")]
+        public double Debit { get; set; }
+        
+        [BsonElement("credit")]
+        public double Credit { get; set; }
     }
 }
