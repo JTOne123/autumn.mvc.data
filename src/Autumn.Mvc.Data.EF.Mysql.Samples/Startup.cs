@@ -41,7 +41,7 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env,ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -60,25 +60,26 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples
                 })
                 .UseMvc();
 
-            var entityFrameworkCoreSettings = (AutumnEntityFrameworkCoreSettings)app.ApplicationServices.GetService(typeof(AutumnEntityFrameworkCoreSettings));
+            var entityFrameworkCoreSettings = app.GetAutumnEntityFrameworkCoreSettings();
+            
+            var logger = loggerFactory?.CreateLogger("Evolve");
+            Action<string> log = Console.WriteLine;
+            if (logger != null)
             {
-                var logger = loggerFactory?.CreateLogger("Evolve");
-                Action<string> log = Console.WriteLine;
-                if (logger != null)
+                log = (e) =>
                 {
-                    log = (e) =>
-                    {
-                        logger.LogInformation(e);
-                    };
-                }
+                    logger.LogInformation(e);
+                };
+            }
 
-                using (var connection = new MySqlConnection(entityFrameworkCoreSettings.ConnectionString))
+            using (var connection = new MySqlConnection(entityFrameworkCoreSettings.ConnectionString))
+            {
+                #region bug Evolve   
+
+                connection.Open();
+                using (var command = connection.CreateCommand())
                 {
-                    #region bug Evolve   
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = @"CREATE TABLE IF NOT EXISTS `changelog` (
+                    command.CommandText = @"CREATE TABLE IF NOT EXISTS `changelog` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type` tinyint(4) unsigned  DEFAULT NULL,
   `version` varchar(50) DEFAULT NULL,
@@ -90,14 +91,13 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples
   `success` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ";
-                        command.ExecuteNonQuery();
-                    }
-                    #endregion
-                    
-                    var evolve = new Evolve.Evolve(connection, log);
-                    evolve.Migrate();
+                    command.ExecuteNonQuery();
                 }
 
+                #endregion
+
+                var evolve = new Evolve.Evolve(connection, log);
+                evolve.Migrate();
             }
         }
     }

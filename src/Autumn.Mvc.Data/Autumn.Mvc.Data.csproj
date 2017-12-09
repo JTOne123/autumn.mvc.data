@@ -17,7 +17,7 @@
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.1" />
     <PackageReference Include="AutoMapper" Version="6.2.1" />
-    <PackageReference Include="Autumn.Mvc" Version="0.2.0" />
+    <PackageReference Include="Autumn.Mvc" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />

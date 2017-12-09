@@ -16,7 +16,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Antlr4" Version="4.6.4" />
-    <PackageReference Include="Autumn.Mvc" Version="0.2.0" />
+    <PackageReference Include="Autumn.Mvc" Version="1.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
   </ItemGroup>
   <ItemGroup>

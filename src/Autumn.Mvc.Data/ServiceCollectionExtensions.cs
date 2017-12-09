@@ -27,8 +27,8 @@ namespace Autumn.Mvc.Data
   `/osssssssss+NNoyyyyyyyyys+`       /__/     \__\ \______/      |__|      \______/  |__|  |__| |__| \__| 
      .:ossss/..NN..oyyyyy/.     
        `+s/.  .NN.  .oyo`       
-         `    .NN.    .         							Version : {0}
-              .NN.", "0.0.1");
+         `    .NN.    .         							
+              .NN.");
         }
 
         public static IServiceCollection AddAutumnData(this IServiceCollection services,
@@ -39,9 +39,7 @@ namespace Autumn.Mvc.Data
                 throw new ArgumentNullException(nameof(services));
      
             Console.WriteLine(Logo());
-            var service = services.Single(c =>
-                c.ServiceType == typeof(AutumnSettings) && c.Lifetime == ServiceLifetime.Singleton);
-            var settings = (AutumnSettings) service.ImplementationInstance;
+            var settings = services.GetAutumnSettings();
 
             var autumnDataSettingsBuilder =
                 new AutumnDataSettingsBuilder(settings.DataSettings(), Assembly.GetCallingAssembly());

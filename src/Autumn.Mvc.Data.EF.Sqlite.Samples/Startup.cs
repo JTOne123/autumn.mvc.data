@@ -29,7 +29,6 @@ namespace Autumn.Mvc.Data.EF.Sqlite.Samples
                         .ConnectionString("Data Source=chinook.db3")
                 ).AddSwaggerGen(c =>
                 {
-                 
                     foreach (var version in services.GetAutumnDataSettings().ApiVersions)
                     {
                         c.SwaggerDoc(version, new Info {Title = "api", Version = version});
@@ -61,8 +60,7 @@ namespace Autumn.Mvc.Data.EF.Sqlite.Samples
                 })
                 .UseMvc();
 
-            var entityFrameworkCoreSettings =
-                (AutumnEntityFrameworkCoreSettings) app.ApplicationServices.GetService(typeof(AutumnEntityFrameworkCoreSettings));
+            var entityFrameworkCoreSettings = app.GetAutumnEntityFrameworkCoreSettings();
             var logger = loggerFactory?.CreateLogger("Evolve");
             Action<string> log = Console.WriteLine;
             if (logger != null)

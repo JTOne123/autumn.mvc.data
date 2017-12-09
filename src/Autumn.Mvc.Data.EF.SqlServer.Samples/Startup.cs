@@ -66,25 +66,25 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
                 })
                 .UseMvc();
 
-            var entityFrameworkCoreSettings = (AutumnEntityFrameworkCoreSettings)app.ApplicationServices.GetService(typeof(AutumnEntityFrameworkCoreSettings));
+            var entityFrameworkCoreSettings = app.GetAutumnEntityFrameworkCoreSettings();
+
+            var logger = loggerFactory?.CreateLogger("Evolve");
+            Action<string> log = Console.WriteLine;
+            if (logger != null)
             {
-                var logger = loggerFactory?.CreateLogger("Evolve");
-                Action<string> log = Console.WriteLine;
-                if (logger != null)
+                log = (e) =>
                 {
-                    log = (e) =>
-                    {
-                        logger.LogInformation(e);
-                    };
-                }
-
-                using (var connection = new SqlConnection((entityFrameworkCoreSettings.ConnectionString)))
-                {
-                    var evolve = new Evolve.Evolve(connection, log);
-                    evolve.Migrate();
-                }
-
+                    logger.LogInformation(e);
+                };
             }
+
+            using (var connection = new SqlConnection((entityFrameworkCoreSettings.ConnectionString)))
+            {
+                var evolve = new Evolve.Evolve(connection, log);
+                evolve.Migrate();
+            }
+
+
         }
     }
 }

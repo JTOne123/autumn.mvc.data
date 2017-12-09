@@ -29,10 +29,11 @@ namespace Autumn.Mvc.Data.EF.Npgsql.Samples
                 )
                 .AddAutumnEntityFrameworkCoreNpgsql<ChinookContext>(config =>
                     config
-                        .ConnectionString("server=localhost;Port=5432;Database=chinook;User Id=chinook;password=@utUmn_mvc_D@t@!")
+                        .ConnectionString(
+                            "server=localhost;Port=5432;Database=chinook;User Id=chinook;password=@utUmn_mvc_D@t@!")
                 ).AddSwaggerGen(c =>
                 {
-                 
+
                     foreach (var version in services.GetAutumnDataSettings().ApiVersions)
                     {
                         c.SwaggerDoc(version, new Info {Title = "api", Version = version});
@@ -44,7 +45,7 @@ namespace Autumn.Mvc.Data.EF.Npgsql.Samples
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env,ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -63,25 +64,25 @@ namespace Autumn.Mvc.Data.EF.Npgsql.Samples
                 })
                 .UseMvc();
 
-            var entityFrameworkCoreSettings = (AutumnEntityFrameworkCoreSettings)app.ApplicationServices.GetService(typeof(AutumnEntityFrameworkCoreSettings));
+            var entityFrameworkCoreSettings = app.GetAutumnEntityFrameworkCoreSettings();
+
+            var logger = loggerFactory?.CreateLogger("Evolve");
+            Action<string> log = Console.WriteLine;
+            if (logger != null)
             {
-                var logger = loggerFactory?.CreateLogger("Evolve");
-                Action<string> log = Console.WriteLine;
-                if (logger != null)
+                log = (e) =>
                 {
-                    log = (e) =>
-                    {
-                        logger.LogInformation(e);
-                    };
-                }
-
-                using (var connection = new NpgsqlConnection(entityFrameworkCoreSettings.ConnectionString))
-                {
-                    var evolve = new Evolve.Evolve(connection, log);
-                    evolve.Migrate();
-                }
-
+                    logger.LogInformation(e);
+                };
             }
+
+            using (var connection = new NpgsqlConnection(entityFrameworkCoreSettings.ConnectionString))
+            {
+                var evolve = new Evolve.Evolve(connection, log);
+                evolve.Migrate();
+            }
+
         }
+
     }
 }

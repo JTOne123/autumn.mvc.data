@@ -17,11 +17,7 @@ namespace Autumn.Mvc.Data.MongoDB
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (mongoDbSettingsAction == null) throw new ArgumentNullException(nameof(mongoDbSettingsAction));
             
-            var service = services.Single(c =>
-                c.ServiceType == typeof(AutumnDataSettings) && c.Lifetime == ServiceLifetime.Singleton);
-            var dataSettings = (AutumnDataSettings) service.ImplementationInstance;
-            
-            var builder = new AutumnMongoDBSettingsBuilder(dataSettings);
+            var builder = new AutumnMongoDBSettingsBuilder(services.GetAutumnDataSettings());
             mongoDbSettingsAction(builder);
             var settings = builder.Build();
 

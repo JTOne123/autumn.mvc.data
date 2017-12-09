@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Autumn.Mvc" Version="0.2.0" />
+    <PackageReference Include="Autumn.Mvc" Version="1.0.0" />
     <PackageReference Include="Evolve" Version="1.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.0" />
