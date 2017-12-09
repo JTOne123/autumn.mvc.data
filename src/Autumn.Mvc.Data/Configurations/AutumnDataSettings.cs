@@ -13,11 +13,9 @@ namespace Autumn.Mvc.Data.Configurations
         public IReadOnlyDictionary<Type, AttributeRouteModel> Routes { get; set; }
         public IReadOnlyDictionary<Type, EntityInfo> EntitiesInfos { get; set; }
         public IReadOnlyDictionary<string, IReadOnlyList<HttpMethod>> IgnoreOperations { get; set; }
-        public bool UseSwagger { get; set; } = true;
         public bool PluralizeController { get; set; } = true;
-        public string ApiVersion { get; set; } = "v1";
         public Assembly EntityAssembly { get; set; }
-        public string ConnectionString { get; set; }
+        public IReadOnlyCollection<string> ApiVersions { get; set; }
 
         public AutumnDataSettings(AutumnSettings parent)
         {

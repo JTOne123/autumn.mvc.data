@@ -4,9 +4,7 @@ using System.Reflection;
 using Autumn.Mvc.Configurations;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
-using Autumn.Mvc.Data.Swagger;
 using Microsoft.Extensions.DependencyInjection;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace Autumn.Mvc.Data
 {
@@ -62,22 +60,16 @@ namespace Autumn.Mvc.Data
                 p.FeatureProviders.Add(new RespositoryControllerFeatureProvider(settings));
             });
 
-            if (dataSettings.UseSwagger)
-            {
-                services.AddSwaggerGen(c =>
-                {
-                    foreach (var version in dataSettings.EntitiesInfos.Values.Select(e => e.ApiVersion)
-                        .Distinct())
-                    {
-                        c.SwaggerDoc(version, new Info {Title = "api", Version = version});
-                    }
-                    c.DocumentFilter<SwaggerDocumentFilter>();
-                    c.OperationFilter<SwaggerOperationFilter>();
-
-                });
-            }
-
             return services;
+        }
+
+
+        public static AutumnDataSettings GetAutumnDataSettings(this IServiceCollection serviceCollection)
+        {
+            if (serviceCollection == null) throw new ArgumentNullException(nameof(serviceCollection));
+            var service = serviceCollection.SingleOrDefault(c =>
+                c.Lifetime == ServiceLifetime.Singleton && c.ServiceType == typeof(AutumnDataSettings));
+            return (AutumnDataSettings) service?.ImplementationInstance;
         }
 
     }

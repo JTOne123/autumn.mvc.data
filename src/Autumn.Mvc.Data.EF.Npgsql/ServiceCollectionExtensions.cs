@@ -14,7 +14,7 @@ namespace Autumn.Mvc.Data.EF.Npgsql
     {
         public static IServiceCollection AddAutumnEntityFrameworkCoreNpgsql<TContext>(
             this IServiceCollection services,
-            Action<EntityFrameworkCoreSettingsBuilder> autumnEntityFrameworkSettingsAction,
+            Action<AutumnEntityFrameworkCoreSettingsBuilder> autumnEntityFrameworkSettingsAction,
             Action<NpgsqlDbContextOptionsBuilder> npgsqlOptionsAction = null)
             where TContext : DbContext
         {
@@ -24,7 +24,7 @@ namespace Autumn.Mvc.Data.EF.Npgsql
                 c.ServiceType == typeof(AutumnDataSettings) && c.Lifetime == ServiceLifetime.Singleton);
             var dataSettings = (AutumnDataSettings) service.ImplementationInstance;
             
-            var builder = new EntityFrameworkCoreSettingsBuilder(dataSettings);
+            var builder = new AutumnEntityFrameworkCoreSettingsBuilder(dataSettings);
             autumnEntityFrameworkSettingsAction(builder);
             var entityFrameworkCoreSettings = builder.Build();
             services.AddSingleton(entityFrameworkCoreSettings);

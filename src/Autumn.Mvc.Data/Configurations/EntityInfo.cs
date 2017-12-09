@@ -19,7 +19,7 @@ namespace Autumn.Mvc.Data.Configurations
         public IReadOnlyDictionary<HttpMethod, Type> ProxyRequestTypes { get; }
         public IReadOnlyList<HttpMethod> IgnoreOperations { get; }
 
-        public EntityInfo(AutumnDataSettings dataSettings, Type entityType, IReadOnlyDictionary<HttpMethod, Type> proxyRequestTypes,
+        public EntityInfo(AutumnDataSettings dataSettings, string defaultApiVersion, Type entityType, IReadOnlyDictionary<HttpMethod, Type> proxyRequestTypes,
             EntityAttribute entityAttribute,
             EntityKeyInfo keyInfo)
         {
@@ -29,7 +29,7 @@ namespace Autumn.Mvc.Data.Configurations
             ApiVersion =
                 Regex.Match(entityAttribute.Version ?? string.Empty, "v[0-9]+", RegexOptions.IgnoreCase).Success
                     ? entityAttribute.Version
-                    : Settings.ApiVersion;
+                    : defaultApiVersion;
             Name = entityAttribute.Name ?? entityType.Name;
             KeyInfo = keyInfo;
             if (Settings.Parent.NamingStrategy != null)

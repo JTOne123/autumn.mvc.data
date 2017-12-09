@@ -2,10 +2,12 @@
 using System.Data.SqlClient;
 using Autumn.Mvc.Data.EF.Configuration;
 using Autumn.Mvc.Data.EF.Mysql.Samples.Models;
+using Autumn.Mvc.Data.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Autumn.Mvc.Data.EF.SqlServer.Samples
 {
@@ -25,13 +27,22 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
                 .AddAutumn(config =>
                     config
                         .QueryFieldName("search"))
-                .AddAutumnData(
-                    )
+                .AddAutumnData()
                 .AddAutumnEntityFrameworkCoreSqlServer<ChinookContext>(config =>
                     config
                         .ConnectionString("server=localhost;database=master;User Id=sa;password=@utUmn_mvc_D@t@!")
                         
-                );
+                ).AddSwaggerGen(c =>
+                {
+                 
+                    foreach (var version in services.GetAutumnDataSettings().ApiVersions)
+                    {
+                        c.SwaggerDoc(version, new Info {Title = "api", Version = version});
+                    }
+                    c.DocumentFilter<SwaggerDocumentFilter>();
+                    c.OperationFilter<SwaggerOperationFilter>();
+
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,9 +55,18 @@ namespace Autumn.Mvc.Data.EF.SqlServer.Samples
             }
             app
                 .UseAutumnData()
+                .UseSwagger()
+                .UseSwaggerUI(c =>
+                {
+                    foreach (var version in app.GetAutumnDataSettings().ApiVersions)
+                    {
+                        c.SwaggerEndpoint(string.Format("/swagger/{0}/swagger.json", version),
+                            string.Format("API {0}", version));
+                    }
+                })
                 .UseMvc();
 
-            var entityFrameworkCoreSettings = (EntityFrameworkCoreSettings)app.ApplicationServices.GetService(typeof(EntityFrameworkCoreSettings));
+            var entityFrameworkCoreSettings = (AutumnEntityFrameworkCoreSettings)app.ApplicationServices.GetService(typeof(AutumnEntityFrameworkCoreSettings));
             {
                 var logger = loggerFactory?.CreateLogger("Evolve");
                 Action<string> log = Console.WriteLine;

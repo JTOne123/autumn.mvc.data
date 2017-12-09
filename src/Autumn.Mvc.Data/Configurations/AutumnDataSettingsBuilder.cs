@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using AutoMapper;
@@ -16,6 +17,7 @@ namespace Autumn.Mvc.Data.Configurations
     {
         private readonly AutumnDataSettings _settings;
         private readonly Assembly _callingAssembly;
+        private string _defaultApiVersion = "v1";
       
         public AutumnDataSettingsBuilder(AutumnDataSettings settings, Assembly callingAssembly)
         {
@@ -25,20 +27,14 @@ namespace Autumn.Mvc.Data.Configurations
 
         public AutumnDataSettings Build()
         {
-            BuildEntitiesInfos(_settings, _callingAssembly);
+            BuildEntitiesInfos(_settings, _callingAssembly, _defaultApiVersion);
             BuildRoutes(_settings);
             return _settings;
         }
 
-        public AutumnDataSettingsBuilder ApiVersion(string version)
+        public AutumnDataSettingsBuilder ApiVersion(string version = "v1")
         {
-            _settings.ApiVersion = version;
-            return this;
-        }
-
-        public AutumnDataSettingsBuilder Swagger(bool use = true)
-        {
-            _settings.UseSwagger = use;
+            _defaultApiVersion = version;
             return this;
         }
 
@@ -53,11 +49,11 @@ namespace Autumn.Mvc.Data.Configurations
             _settings.EntityAssembly = assembly;
             return this;
         }
-        
+
         /// <summary>         
         /// build EntitiesInfos
         /// </summary>
-        private static void BuildEntitiesInfos(AutumnDataSettings settings,Assembly callingAssembly)
+        private static void BuildEntitiesInfos(AutumnDataSettings settings, Assembly callingAssembly, string apiVersion)
         {
             var items = new Dictionary<Type, EntityInfo>();
             foreach (var type in (settings.EntityAssembly ?? callingAssembly).GetTypes())
@@ -75,7 +71,7 @@ namespace Autumn.Mvc.Data.Configurations
                 if (entityKeyInfo == null) continue;
                 var proxyTypes = DataModelHelper.BuildModelsRequestTypes(type);
                 items.Add(type,
-                    new EntityInfo(settings, type, proxyTypes, entityAttribute, entityKeyInfo));
+                    new EntityInfo(settings, apiVersion, type, proxyTypes, entityAttribute, entityKeyInfo));
             }
 
             Mapper.Reset();
@@ -92,6 +88,8 @@ namespace Autumn.Mvc.Data.Configurations
             });
 
             settings.EntitiesInfos = new ReadOnlyDictionary<Type, EntityInfo>(items);
+            settings.ApiVersions = new ReadOnlyCollection<string>(settings.EntitiesInfos.Values.Select(e => e.ApiVersion)
+                .Distinct().OrderBy(e => e).ToList());
         }
 
         /// <summary>

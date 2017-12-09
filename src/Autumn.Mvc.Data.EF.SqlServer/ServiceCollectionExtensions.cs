@@ -14,7 +14,7 @@ namespace Autumn.Mvc.Data.EF.SqlServer
     {
         public static IServiceCollection AddAutumnEntityFrameworkCoreSqlServer<TContext>(
             this IServiceCollection services,
-            Action<EntityFrameworkCoreSettingsBuilder> autumnEntityFrameworkSettingsAction,
+            Action<AutumnEntityFrameworkCoreSettingsBuilder> autumnEntityFrameworkSettingsAction,
             Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null)
             where TContext : DbContext
         {
@@ -25,7 +25,7 @@ namespace Autumn.Mvc.Data.EF.SqlServer
                 c.ServiceType == typeof(AutumnDataSettings) && c.Lifetime == ServiceLifetime.Singleton);
             var dataSettings = (AutumnDataSettings) service.ImplementationInstance;
             
-            var builder = new EntityFrameworkCoreSettingsBuilder(dataSettings);
+            var builder = new AutumnEntityFrameworkCoreSettingsBuilder(dataSettings);
             autumnEntityFrameworkSettingsAction(builder);
             var entityFrameworkCoreSettings = builder.Build();
             services.AddSingleton(entityFrameworkCoreSettings);

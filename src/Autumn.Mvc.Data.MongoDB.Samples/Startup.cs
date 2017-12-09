@@ -2,6 +2,7 @@
 using Autumn.Mvc.Data.MongoDB.Configurations;
 using Autumn.Mvc.Data.MongoDB.Samples.Models;
 using Autumn.Mvc.Data.MongoDB.Samples.Models.Generators;
+using Autumn.Mvc.Data.Swagger;
 using Foundation.ObjectHydrator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Newtonsoft.Json.Serialization;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Autumn.Mvc.Data.MongoDB.Samples
 {
@@ -36,14 +38,24 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
                         .NamingStrategy(new SnakeCaseNamingStrategy())
                         .PageSize(50)
                         )
-                .AddAutumnData(config => config
-                    .Swagger())
+                .AddAutumnData()
                 .AddAutumnMongo(config =>
                     config
                         .ConnectionString(
                             "mongodb://localhost:27017")
                         .Database("samples")
-                );
+                )
+                .AddSwaggerGen(c =>
+                {
+                 
+                    foreach (var version in services.GetAutumnDataSettings().ApiVersions)
+                    {
+                        c.SwaggerDoc(version, new Info {Title = "api", Version = version});
+                    }
+                    c.DocumentFilter<SwaggerDocumentFilter>();
+                    c.OperationFilter<SwaggerOperationFilter>();
+
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,20 +66,25 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
                 app.UseDeveloperExceptionPage();
             }
 
-            var settings = (AutumnMongoDBSettings) app.ApplicationServices.GetService(typeof(AutumnMongoDBSettings));
-            populateDatabase(settings.ConnectionString, settings.Database);
-
+            populateDatabase(app.GetAutumnMongoDBSettings());
             app
                 .UseAutumnData()
+                .UseSwagger()
+                .UseSwaggerUI(c =>
+                {
+                    foreach (var version in app.GetAutumnDataSettings().ApiVersions)
+                    {
+                        c.SwaggerEndpoint(string.Format("/swagger/{0}/swagger.json", version),
+                            string.Format("API {0}", version));
+                    }
+                })
                 .UseMvc();
-
-
         }
 
-        public async void populateDatabase(string connectionString, string databaseName)
+        public async void populateDatabase(AutumnMongoDBSettings mongoDbSettings)
         {
-            var client = new MongoClient(connectionString);
-            var database = client.GetDatabase(databaseName);
+            var client = new MongoClient(mongoDbSettings.ConnectionString);
+            var database = client.GetDatabase(mongoDbSettings.Database);
 
             #region Customers
 

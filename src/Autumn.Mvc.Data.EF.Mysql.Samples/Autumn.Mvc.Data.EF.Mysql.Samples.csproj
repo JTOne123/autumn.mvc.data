@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Autumn.Mvc.Data.EF.Mysql\Autumn.Mvc.Data.EF.Mysql.csproj" />
     <ProjectReference Include="..\Autumn.Mvc.Data.EF\Autumn.Mvc.Data.EF.csproj" />
+    <ProjectReference Include="..\Autumn.Mvc.Data.Swagger\Autumn.Mvc.Data.Swagger.csproj" />
     <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
   </ItemGroup>
 </Project>

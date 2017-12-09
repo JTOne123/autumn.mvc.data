@@ -14,7 +14,7 @@ namespace Autumn.Mvc.Data.EF.Sqlite
     {
         public static IServiceCollection AddAutumnEntityFrameworkCoreSqlite<TContext>(
             this IServiceCollection services,
-            Action<EntityFrameworkCoreSettingsBuilder> autumnEntityFrameworkSettingsAction,
+            Action<AutumnEntityFrameworkCoreSettingsBuilder> autumnEntityFrameworkSettingsAction,
             Action<SqliteDbContextOptionsBuilder> sqliteOptionsAction = null)
             where TContext : DbContext
         {
@@ -24,7 +24,7 @@ namespace Autumn.Mvc.Data.EF.Sqlite
                 c.ServiceType == typeof(AutumnDataSettings) && c.Lifetime == ServiceLifetime.Singleton);
             var dataSettings = (AutumnDataSettings) service.ImplementationInstance;
             
-            var builder = new EntityFrameworkCoreSettingsBuilder(dataSettings);
+            var builder = new AutumnEntityFrameworkCoreSettingsBuilder(dataSettings);
             autumnEntityFrameworkSettingsAction(builder);
             var entityFrameworkCoreSettings = builder.Build();
             services.AddSingleton(entityFrameworkCoreSettings);

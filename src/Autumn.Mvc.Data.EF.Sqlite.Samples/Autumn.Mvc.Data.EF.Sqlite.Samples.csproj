@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Autumn.Mvc.Data.EF.Sqlite\Autumn.Mvc.Data.EF.Sqlite.csproj" />
     <ProjectReference Include="..\Autumn.Mvc.Data.EF\Autumn.Mvc.Data.EF.csproj" />
+    <ProjectReference Include="..\Autumn.Mvc.Data.Swagger\Autumn.Mvc.Data.Swagger.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SQL_Scripts" />

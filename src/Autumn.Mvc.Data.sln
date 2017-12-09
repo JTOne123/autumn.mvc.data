@@ -41,6 +41,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autumn.Mvc.Data.EF.Npgsql.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autumn.Mvc.Data.EF.Mysql.Samples", "Autumn.Mvc.Data.EF.Mysql.Samples\Autumn.Mvc.Data.EF.Mysql.Samples.csproj", "{198A6858-6693-4E68-ACCF-07EE51233A68}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Autumn.Mvc.Data.Swagger", "Autumn.Mvc.Data.Swagger", "{83D99052-2395-452F-B003-9B025D390940}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autumn.Mvc.Data.Swagger", "Autumn.Mvc.Data.Swagger\Autumn.Mvc.Data.Swagger.csproj", "{3A1A9B14-FE4B-48F8-BC26-DA68906194A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +99,10 @@ Global
 		{198A6858-6693-4E68-ACCF-07EE51233A68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{198A6858-6693-4E68-ACCF-07EE51233A68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{198A6858-6693-4E68-ACCF-07EE51233A68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A1A9B14-FE4B-48F8-BC26-DA68906194A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A1A9B14-FE4B-48F8-BC26-DA68906194A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A1A9B14-FE4B-48F8-BC26-DA68906194A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A1A9B14-FE4B-48F8-BC26-DA68906194A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -116,5 +124,6 @@ Global
 		{4078B2F7-8953-47C8-B034-23D7294D5719} = {D59DA3D6-ADAC-494D-80E3-D42510CDFC93}
 		{6E782B11-7330-4DF3-A43B-F7EBF0D5FF83} = {506CF688-4B86-4D86-BD46-B8617F86FE1F}
 		{198A6858-6693-4E68-ACCF-07EE51233A68} = {965B8F9D-EB2B-46A4-9CD4-7DAA45601055}
+		{3A1A9B14-FE4B-48F8-BC26-DA68906194A7} = {83D99052-2395-452F-B003-9B025D390940}
 	EndGlobalSection
 EndGlobal

@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
+  <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <PackageId>Autumn.Mvc.Data.MongoDB</PackageId>
     <PackageVersion>1.0.0</PackageVersion>
@@ -14,7 +14,7 @@
     <Copyright>Copyright © G.Garnier 2017</Copyright>
     <PackageTags>Rsql Querydsl API WOA architecture REST Repository MongoDB</PackageTags>
   </PropertyGroup>
-<ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Antlr4" Version="4.6.4" />
     <PackageReference Include="Autumn.Mvc" Version="0.2.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />

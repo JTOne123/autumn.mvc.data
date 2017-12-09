@@ -3,12 +3,12 @@ using Autumn.Mvc.Data.Configurations;
 
 namespace Autumn.Mvc.Data.EF.Configuration
 {
-    public class EntityFrameworkCoreSettings
+    public class AutumnEntityFrameworkCoreSettings
     {
         public AutumnDataSettings Parent { get; private set; }
         public string ConnectionString { get; set; }
 
-        public EntityFrameworkCoreSettings(AutumnDataSettings parent)
+        public AutumnEntityFrameworkCoreSettings(AutumnDataSettings parent)
         {
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
         }
