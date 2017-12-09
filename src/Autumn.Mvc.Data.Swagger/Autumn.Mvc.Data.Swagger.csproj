@@ -1,6 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+ <PackageVersion>1.0.0</PackageVersion>
+    <Authors>Gwendal Garnier</Authors>
+    <PackageLicenseUrl>https://github.com/gwendallg/autumn.mvc.data/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/gwendallg/autumn.mvc.data</PackageProjectUrl>
+    <PackageIconUrl>https://github.com/gwendallg/autumn.mvc.data/blob/master/logo64.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/gwendallg/autumn.mvc.datat</RepositoryUrl>
+    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
+    <Title>Common Component Library for REST Repository API Implementation</Title>
+    <Description>Autumn.Mvc.Data.Swagger is Autumn.Mvc.Data extension that will make it easier for you to write Swagger interface. . Install it and test it!</Description>
+    <Copyright>Copyright © G.Garnier 2017</Copyright>
+    <PackageTags>Rsql Querydsl API WOA architecture REST Repository Swagger Autumn</PackageTags>
   </PropertyGroup>
   <ItemGroup>
      <PackageReference Include="Swashbuckle.AspNetCore" Version="1.1.0" />
