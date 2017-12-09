@@ -1,0 +1,20 @@
+faker.locale = "en"
+
+const STEPCOUNT = 100; //total 100 * 100 = 10000
+
+function isRandomBlank(blankWeight) {
+    return Math.random() * 100 <= blankWeight;
+};
+
+for (let i = 0; i < 100; i++) {
+    db.getCollection("articles").insertMany(
+        _.times(STEPCOUNT, () => {
+            return {
+                "title": faker.lorem.words(),
+                "content": faker.lorem.paragraph()
+            }
+        })
+    )
+
+    console.log(`${(i + 1) * STEPCOUNT} docs inserted`);
+}

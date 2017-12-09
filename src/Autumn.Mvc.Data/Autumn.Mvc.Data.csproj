@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Autumn.Mvc.Data</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>Gwendal Garnier</Authors>
+    <PackageLicenseUrl>https://github.com/gwendallg/autumn.mvc.data/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/gwendallg/autumn.mvc.data</PackageProjectUrl>
+    <PackageIconUrl>https://github.com/gwendallg/autumn.mvc.data/blob/master/logo64.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/gwendallg/autumn.mvc.datat</RepositoryUrl>
+    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
+    <Title>Common Component Library for REST Repository API Implementation</Title>
+    <Description>Autumn.Mvc.Data is aspNet Core extension that will make it easier for you to write your REST Data Repository APIs. Its purpose is to convert a query in RSQL format to lamba expression and to provide a pagination mechanism. Install it and test it!</Description>
+    <Copyright>Copyright © G.Garnier 2017</Copyright>
+    <PackageTags>Rsql Querydsl API WOA architecture REST Repository</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.1" />
+    <PackageReference Include="AutoMapper" Version="6.2.1" />
+    <PackageReference Include="Autumn.Mvc" Version="0.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="generate-source.sh" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Reflection.Emit, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\..\..\..\..\home\gwendall\.nuget\packages\system.reflection.emit\4.3.0\ref\netstandard1.1\System.Reflection.Emit.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Emit.ILGeneration, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\..\..\..\..\home\gwendall\.nuget\packages\system.reflection.emit.ilgeneration\4.3.0\ref\netstandard1.0\System.Reflection.Emit.ILGeneration.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

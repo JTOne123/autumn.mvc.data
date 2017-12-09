@@ -1,0 +1,1 @@
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=@utUmn_mvc_D@t@!' -p 1433:1433 -d microsoft/mssql-server-linux:2017-CU1

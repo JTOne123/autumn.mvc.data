@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Autumn.Mvc.Data.EF</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>Gwendal Garnier</Authors>
+    <PackageLicenseUrl>https://github.com/gwendallg/autumn.mvc.data/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/gwendallg/autumn.mvc.data</PackageProjectUrl>
+    <PackageIconUrl>https://github.com/gwendallg/autumn.mvc.data/blob/master/logo64.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/gwendallg/autumn.mvc.datat</RepositoryUrl>
+    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
+    <Title>Common Component Library for REST Repository API Implementation for EntityFrameworkCore</Title>
+    <Description>Autumn.Mvc.Data.EF is aspNet Core extension that will make it easier for you to write your REST Data Repository APIs based on EntityFrameworkCore. Its purpose is to convert a query in RSQL format to lamba expression and to provide a pagination mechanism. Install it and test it!</Description>
+    <Copyright>Copyright © G.Garnier 2017</Copyright>
+    <PackageTags>Rsql Querydsl API WOA architecture REST Repository EntityFrameworkCore</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autumn.Mvc" Version="0.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.0" />
+  </ItemGroup>
+</Project>
