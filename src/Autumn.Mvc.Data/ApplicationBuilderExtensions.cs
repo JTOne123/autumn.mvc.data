@@ -1,5 +1,4 @@
 ﻿using System;
-using Autumn.Mvc.Configurations;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Middlewares;
 using Microsoft.AspNetCore.Builder;
@@ -12,8 +11,7 @@ namespace Autumn.Mvc.Data
         {
             if (app == null)
                 throw new ArgumentNullException(nameof(app));
-            var settings = (AutumnSettings) app.ApplicationServices.GetService(typeof(AutumnSettings));
-            app = app.UseMiddleware<IgnoreOperationMiddleware>(settings);
+            app = app.UseMiddleware<IgnoreOperationMiddleware>(app.GetAutumnSettings());
             return app;
         }
 

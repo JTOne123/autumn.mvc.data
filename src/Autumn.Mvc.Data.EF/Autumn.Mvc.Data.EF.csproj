@@ -18,7 +18,7 @@
     <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Autumn.Mvc" Version="0.2.0" />
+    <PackageReference Include="Autumn.Mvc" Version="1.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.0" />
   </ItemGroup>
 </Project>
