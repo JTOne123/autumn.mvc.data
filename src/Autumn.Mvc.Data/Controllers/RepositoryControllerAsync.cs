@@ -92,9 +92,13 @@ namespace Autumn.Mvc.Data.Controllers
                     return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
        
                 var entity = Mapper.Map<TEntity>(entityPostRequest);
+                if (_entityInfo.CreatedDateInfo != null)
+                {
+                    _entityInfo.CreatedDateInfo.SetValue(entity,DateTime.Now);
+                }
                 var result = await _repository.InsertAsync(entity);
                 var uri = string.Format("{0}/{1}", Request.HttpContext.Request.Path.ToString().TrimEnd('/'),
-                    _entityInfo.KeyInfo.Property.GetValue(result));
+                    _entityInfo.KeyInfo.GetValue(result));
                 return Created(uri, result);
             }
             catch (Exception e)
@@ -134,6 +138,10 @@ namespace Autumn.Mvc.Data.Controllers
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NoContent();
                 Mapper.Map(entityPutRequest, result);
+                if (_entityInfo.LastModifiedDateInfo != null)
+                {
+                    _entityInfo.LastModifiedDateInfo.SetValue(result,DateTime.Now);
+                }
                 result = await _repository.UpdateAsync(result, id);
                 return Ok(result);
             }

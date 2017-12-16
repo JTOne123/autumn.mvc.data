@@ -18,7 +18,7 @@ namespace Autumn.Mvc.Data.Configurations
         private readonly AutumnDataSettings _settings;
         private readonly Assembly _callingAssembly;
         private string _defaultApiVersion = "v1";
-      
+
         public AutumnDataSettingsBuilder(AutumnDataSettings settings, Assembly callingAssembly)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -50,28 +50,51 @@ namespace Autumn.Mvc.Data.Configurations
             return this;
         }
 
+        private static bool IsAuditableDateProperty(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo == null) return false;
+            if (propertyInfo.PropertyType == typeof(DateTime)) return true;
+            if (propertyInfo.PropertyType == typeof(DateTime?)) return true;
+            if (propertyInfo.PropertyType == typeof(DateTimeOffset)) return true;
+            return propertyInfo.PropertyType == typeof(DateTimeOffset?);
+        }
+
         /// <summary>         
         /// build EntitiesInfos
         /// </summary>
         private static void BuildEntitiesInfos(AutumnDataSettings settings, Assembly callingAssembly, string apiVersion)
         {
             var items = new Dictionary<Type, EntityInfo>();
+
             foreach (var type in (settings.EntityAssembly ?? callingAssembly).GetTypes())
             {
                 var entityAttribute = type.GetCustomAttribute<EntityAttribute>(false);
                 if (entityAttribute == null) continue;
-                EntityKeyInfo entityKeyInfo = null;
+
+                PropertyInfo keyPropertyInfo = null;
+                PropertyInfo createDatePropertyInfo = null;
+                PropertyInfo lastModifiedDatePropertyInfo = null;
                 foreach (var property in type.GetProperties())
                 {
                     var keyAttribute = property.GetCustomAttribute<IdAttribute>();
-                    if (keyAttribute == null) continue;
-                    entityKeyInfo = new EntityKeyInfo(property, keyAttribute);
-                    break;
+                    if (keyAttribute != null)
+                    {
+                        keyPropertyInfo = property;
+                    }
+                    if (property.GetCustomAttribute<CreatedDateAttribute>(true) != null &&
+                        IsAuditableDateProperty(property))
+                    {
+                        createDatePropertyInfo = property;
+                    }
+                    if (property.GetCustomAttribute<LastModifiedDateAttribute>(true) != null &&
+                        IsAuditableDateProperty(property))
+                    {
+                        lastModifiedDatePropertyInfo = property;
+                    }
                 }
-                if (entityKeyInfo == null) continue;
                 var proxyTypes = DataModelHelper.BuildModelsRequestTypes(type);
                 items.Add(type,
-                    new EntityInfo(settings, apiVersion, type, proxyTypes, entityAttribute, entityKeyInfo));
+                    new EntityInfo(settings, apiVersion, type, proxyTypes, entityAttribute, keyPropertyInfo,createDatePropertyInfo,lastModifiedDatePropertyInfo));
             }
 
             Mapper.Reset();
@@ -80,15 +103,16 @@ namespace Autumn.Mvc.Data.Configurations
             {
                 foreach (var entityInfo in items.Values)
                 {
-                    foreach (var proxyType in entityInfo.ProxyRequestTypes.Values)
+                    foreach (var proxyType in entityInfo.ProxyRequestTypes)
                     {
-                        c.CreateMap(proxyType, entityInfo.EntityType);
+                        c.CreateMap(proxyType.Value, entityInfo.EntityType);
                     }
                 }
             });
 
             settings.EntitiesInfos = new ReadOnlyDictionary<Type, EntityInfo>(items);
-            settings.ApiVersions = new ReadOnlyCollection<string>(settings.EntitiesInfos.Values.Select(e => e.ApiVersion)
+            settings.ApiVersions = new ReadOnlyCollection<string>(settings.EntitiesInfos.Values
+                .Select(e => e.ApiVersion)
                 .Distinct().OrderBy(e => e).ToList());
         }
 
@@ -114,7 +138,7 @@ namespace Autumn.Mvc.Data.Configurations
                     name = name + "s";
                 }
                 name = string.Format("{0}/{1}", info.ApiVersion, name);
-                var entityKeyType = info.KeyInfo.Property.PropertyType;
+                var entityKeyType = info.KeyInfo.PropertyType;
                 var controllerType = baseType.MakeGenericType(
                     info.EntityType,
                     info.ProxyRequestTypes[HttpMethod.Post],
@@ -122,7 +146,7 @@ namespace Autumn.Mvc.Data.Configurations
                     entityKeyType);
                 var attributeRouteModel = new AttributeRouteModel(new RouteAttribute(name));
                 routes.Add(controllerType, attributeRouteModel);
-                ignoreOperations.Add("/"+name, info.IgnoreOperations);
+                ignoreOperations.Add("/" + name, info.IgnoreOperations);
             }
             settings.Routes = new ReadOnlyDictionary<Type, AttributeRouteModel>(routes);
             settings.IgnoreOperations =

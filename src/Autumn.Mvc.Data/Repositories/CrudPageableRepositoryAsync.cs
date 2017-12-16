@@ -29,7 +29,7 @@ namespace Autumn.Mvc.Data.Repositories
         {
             var filter = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
-                    Expression.Property(_parameter, _entityInfo.KeyInfo.Property),
+                    Expression.Property(_parameter, _entityInfo.KeyInfo),
                     Expression.Constant(id)
                 )
                 , _parameter
@@ -75,7 +75,7 @@ namespace Autumn.Mvc.Data.Repositories
         {
             var filter = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
-                    Expression.Property(_parameter, _entityInfo.KeyInfo.Property),
+                    Expression.Property(_parameter, _entityInfo.KeyInfo),
                     Expression.Constant(id)
                 ),
                 _parameter
@@ -93,7 +93,7 @@ namespace Autumn.Mvc.Data.Repositories
         {
             var filter = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
-                    Expression.Property(_parameter, _entityInfo.KeyInfo.Property),
+                    Expression.Property(_parameter, _entityInfo.KeyInfo),
                     Expression.Constant(id)
                 )
                 ,

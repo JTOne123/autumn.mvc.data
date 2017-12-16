@@ -73,8 +73,10 @@ namespace Autumn.Mvc.Data.Models
             {
                 if (!ignoreAttribute.Insertable && httpMethod == HttpMethod.Post) return;
                 if (!ignoreAttribute.Updatable && httpMethod == HttpMethod.Put) return;
-            } 
-          
+            }
+            if (propertyInfo.GetCustomAttribute<CreatedDateAttribute>() != null) return;
+            if (propertyInfo.GetCustomAttribute<LastModifiedDateAttribute>() != null) return;
+           
             var propertyName = propertyInfo.Name;
             var propertyType = propertyInfo.PropertyType;
             var fieldBuilder = typeBuilder.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);
