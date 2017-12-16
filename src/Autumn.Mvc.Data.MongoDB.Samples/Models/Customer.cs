@@ -59,15 +59,6 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
         
         [BsonElement("credit")]
         public double Credit { get; set; }
-        
-        [Ignore()]
-        [CreatedDate]
-        [BsonElement("createdDate")]
-        public DateTime CreatedDate { get; set; }
-        
-        [Ignore()]
-        [LastModifiedDate]
-        [BsonElement("modifiedDate")]
-        public DateTime? LastModifiedDate { get; set; }
+
     }
 }

@@ -19,6 +19,8 @@ namespace Autumn.Mvc.Data.Configurations
         public PropertyInfo KeyInfo { get; }
         public PropertyInfo CreatedDateInfo { get; }
         public PropertyInfo LastModifiedDateInfo { get; }
+        public PropertyInfo CreatedByInfo { get; }
+        public PropertyInfo LastModifiedByInfo { get;  }
         public IReadOnlyDictionary<HttpMethod, Type> ProxyRequestTypes { get; }
         public IReadOnlyList<HttpMethod> IgnoreOperations { get; }
 
@@ -30,7 +32,9 @@ namespace Autumn.Mvc.Data.Configurations
             EntityAttribute entityAttribute,
             PropertyInfo keyInfo,
             PropertyInfo createdDateInfo,
-            PropertyInfo lastModifiedDateInfo)
+            PropertyInfo lastModifiedDateInfo,
+            PropertyInfo createdByInfo,
+            PropertyInfo lastModifiedByInfo)
         {
             Settings = dataSettings ?? throw new ArgumentNullException(nameof(dataSettings));
             EntityType = entityType ?? throw new ArgumentNullException(nameof(entityType));
@@ -43,6 +47,8 @@ namespace Autumn.Mvc.Data.Configurations
             KeyInfo = keyInfo;
             CreatedDateInfo = createdDateInfo;
             LastModifiedDateInfo = lastModifiedDateInfo;
+            CreatedByInfo = createdByInfo;
+            LastModifiedByInfo = lastModifiedByInfo;
             if (Settings.Parent.NamingStrategy != null)
             {
                 ControllerName = Settings.Parent.NamingStrategy.GetPropertyName(Name, false);

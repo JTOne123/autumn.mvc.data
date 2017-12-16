@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Autumn.Mvc.Configurations;
@@ -9,6 +10,7 @@ using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Models;
 using Autumn.Mvc.Data.Repositories;
 using Autumn.Mvc.Models.Paginations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Autumn.Mvc.Data.Controllers
@@ -28,6 +30,7 @@ namespace Autumn.Mvc.Data.Controllers
         private readonly ICrudPageableRepositoryAsync<TEntity,TKey> _repository;
         private readonly EntityInfo _entityInfo;
         private readonly AutumnSettings _settings;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         /// <summary>
         /// associed repository of controller
@@ -39,11 +42,12 @@ namespace Autumn.Mvc.Data.Controllers
         }
 
         public RepositoryControllerAsync(ICrudPageableRepositoryAsync<TEntity, TKey> repository,
-            AutumnSettings settings)
+            AutumnSettings settings,IHttpContextAccessor httpContextAccessor)
         {
             _repository = repository;
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _entityInfo = _settings.DataSettings().EntitiesInfos[typeof(TEntity)];
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet("{id}")]
@@ -96,6 +100,11 @@ namespace Autumn.Mvc.Data.Controllers
                 {
                     _entityInfo.CreatedDateInfo.SetValue(entity,DateTime.Now);
                 }
+                if (_entityInfo.CreatedByInfo != null)
+                {
+                    var userId = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    _entityInfo.CreatedByInfo.SetValue(entity, userId);
+                }
                 var result = await _repository.InsertAsync(entity);
                 var uri = string.Format("{0}/{1}", Request.HttpContext.Request.Path.ToString().TrimEnd('/'),
                     _entityInfo.KeyInfo.GetValue(result));
@@ -141,6 +150,11 @@ namespace Autumn.Mvc.Data.Controllers
                 if (_entityInfo.LastModifiedDateInfo != null)
                 {
                     _entityInfo.LastModifiedDateInfo.SetValue(result,DateTime.Now);
+                }
+                if (_entityInfo.LastModifiedByInfo != null)
+                {
+                    var userId = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    _entityInfo.LastModifiedByInfo.SetValue(result, userId);
                 }
                 result = await _repository.UpdateAsync(result, id);
                 return Ok(result);

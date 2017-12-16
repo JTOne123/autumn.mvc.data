@@ -50,6 +50,11 @@ namespace Autumn.Mvc.Data.Configurations
             return this;
         }
 
+        /// <summary>
+        /// check if property is AuditableDate
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
         private static bool IsAuditableDateProperty(PropertyInfo propertyInfo)
         {
             if (propertyInfo == null) return false;
@@ -57,6 +62,17 @@ namespace Autumn.Mvc.Data.Configurations
             if (propertyInfo.PropertyType == typeof(DateTime?)) return true;
             if (propertyInfo.PropertyType == typeof(DateTimeOffset)) return true;
             return propertyInfo.PropertyType == typeof(DateTimeOffset?);
+        }
+
+        /// <summary>
+        /// check if property is AuditableBy
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
+        private static bool IsAuditableByProperty(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo == null) return false;
+            return (propertyInfo.PropertyType == typeof(string));
         }
 
         /// <summary>         
@@ -74,6 +90,8 @@ namespace Autumn.Mvc.Data.Configurations
                 PropertyInfo keyPropertyInfo = null;
                 PropertyInfo createDatePropertyInfo = null;
                 PropertyInfo lastModifiedDatePropertyInfo = null;
+                PropertyInfo createByPropertyInfo = null;
+                PropertyInfo lastModifiedByPropertyInfo = null;
                 foreach (var property in type.GetProperties())
                 {
                     var keyAttribute = property.GetCustomAttribute<IdAttribute>();
@@ -91,10 +109,30 @@ namespace Autumn.Mvc.Data.Configurations
                     {
                         lastModifiedDatePropertyInfo = property;
                     }
+                    if (property.GetCustomAttribute<CreatedByAttribute>(true) != null &&
+                        IsAuditableByProperty(property))
+                    {
+                        createByPropertyInfo = property;
+                    }
+                    if (property.GetCustomAttribute<LastModifiedByAttribute>(true) != null &&
+                        IsAuditableByProperty(property))
+                    {
+                        lastModifiedByPropertyInfo = property;
+                    }
                 }
                 var proxyTypes = DataModelHelper.BuildModelsRequestTypes(type);
                 items.Add(type,
-                    new EntityInfo(settings, apiVersion, type, proxyTypes, entityAttribute, keyPropertyInfo,createDatePropertyInfo,lastModifiedDatePropertyInfo));
+                    new EntityInfo(
+                        settings,
+                        apiVersion,
+                        type,
+                        proxyTypes,
+                        entityAttribute,
+                        keyPropertyInfo,
+                        createDatePropertyInfo,
+                        lastModifiedDatePropertyInfo,
+                        createByPropertyInfo,
+                        lastModifiedByPropertyInfo));
             }
 
             Mapper.Reset();

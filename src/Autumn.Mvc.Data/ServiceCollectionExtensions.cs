@@ -4,6 +4,7 @@ using System.Reflection;
 using Autumn.Mvc.Configurations;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Autumn.Mvc.Data
@@ -47,6 +48,8 @@ namespace Autumn.Mvc.Data
             autumnDataSettingsBuilderAction?.Invoke(autumnDataSettingsBuilder);
             var dataSettings = autumnDataSettingsBuilder.Build();
             services.AddSingleton(dataSettings);
+            // for current user
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMvc
             (
                 c =>
