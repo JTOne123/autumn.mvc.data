@@ -107,5 +107,17 @@ namespace Autumn.Mvc.Data.Repositories
         
         #endregion
         
+        #region CountAsync
+
+        public async Task<long> CountAsync(Expression<Func<TEntity, bool>> filter = null)
+        {
+            return await OnCountAsync(
+                    filter ?? QueryExpressionHelper.True<TEntity>());
+        }
+
+        protected abstract Task<long> OnCountAsync(Expression<Func<TEntity, bool>> filter);
+        
+        #endregion
+        
     }
 }

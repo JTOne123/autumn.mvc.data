@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using AutoMapper;
+using Autumn.Mvc.Configurations.Exceptions;
 using Autumn.Mvc.Data.Annotations;
 using Autumn.Mvc.Data.Controllers;
 using Autumn.Mvc.Data.Models;
@@ -27,6 +29,12 @@ namespace Autumn.Mvc.Data.Configurations
 
         public AutumnDataSettings Build()
         {
+            if (_settings.Parent.NamingStrategy != null)
+            {
+                _settings.OnlyCountField =
+                    _settings.Parent.NamingStrategy.GetPropertyName(_settings.OnlyCountField, false);
+            }
+
             BuildEntitiesInfos(_settings, _callingAssembly, _defaultApiVersion);
             BuildRoutes(_settings);
             return _settings;
@@ -41,6 +49,20 @@ namespace Autumn.Mvc.Data.Configurations
         public AutumnDataSettingsBuilder PluralizeController(bool use = true)
         {
             _settings.PluralizeController = use;
+            return this;
+        }
+
+        /// <summary>
+        /// configuration of only count fieldName from query
+        /// </summary>
+        /// <param name="onlyCountFieldName">configuration of only count fieldName from query</param>
+        /// <returns></returns>
+        public AutumnDataSettingsBuilder OnlyCountFieldName(string onlyCountFieldName)
+        {
+            if (string.IsNullOrWhiteSpace(onlyCountFieldName)) throw new ArgumentNullException(nameof(onlyCountFieldName));
+            if (Regex.Match(onlyCountFieldName, @"(_)?([A-Za-z0-9]((_)?[A-Za-z0-9])*(_)?)").Value != onlyCountFieldName)
+                throw new InvalidFormatFieldNameException("onlyCountFieldName", onlyCountFieldName);
+            _settings.OnlyCountField = onlyCountFieldName;
             return this;
         }
 

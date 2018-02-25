@@ -49,5 +49,12 @@ namespace Autumn.Mvc.Data.Repositories
         /// <param name="id"></param>
         /// <returns></returns>
         Task<TEntity> DeleteAsync(TKey id);
+        
+        /// <summary>
+        /// count entities by criteria
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        Task<long> CountAsync(Expression<Func<TEntity, bool>> filter=null);
     }
 }

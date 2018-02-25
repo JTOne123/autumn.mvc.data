@@ -31,8 +31,9 @@ namespace Autumn.Mvc.Data.Controllers
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="autumnPageable"></param>
+        /// <param name="onlyCount"></param>
         /// <returns></returns>
-        Task<IActionResult> Get(Expression<Func<TEntity, bool>> filter, IPageable<TEntity> autumnPageable);
+        Task<IActionResult> Get(Expression<Func<TEntity, bool>> filter, IPageable<TEntity> autumnPageable, bool onlyCount = false);
         
         /// <summary>
         /// add new entity in repository

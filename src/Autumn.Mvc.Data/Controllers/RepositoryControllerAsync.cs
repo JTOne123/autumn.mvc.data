@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Net;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Autumn.Mvc.Configurations;
@@ -22,12 +23,13 @@ namespace Autumn.Mvc.Data.Controllers
     /// <typeparam name="TEntityPost">entity type post operation</typeparam>
     /// <typeparam name="TEntityPut">entity type put operation</typeparam>
     /// <typeparam name="TKey">key of entity</typeparam>
-    public class RepositoryControllerAsync<TEntity,TEntityPost, TEntityPut, TKey> : Controller, IRepositoryControllerAsync<TEntity, TEntityPost, TEntityPut, TKey>
-        where TEntity : class 
-        where TEntityPost : class 
-        where TEntityPut : class 
+    public class RepositoryControllerAsync<TEntity, TEntityPost, TEntityPut, TKey> : Controller,
+        IRepositoryControllerAsync<TEntity, TEntityPost, TEntityPut, TKey>
+        where TEntity : class
+        where TEntityPost : class
+        where TEntityPut : class
     {
-        private readonly ICrudPageableRepositoryAsync<TEntity,TKey> _repository;
+        private readonly ICrudPageableRepositoryAsync<TEntity, TKey> _repository;
         private readonly EntityInfo _entityInfo;
         private readonly AutumnSettings _settings;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -42,7 +44,7 @@ namespace Autumn.Mvc.Data.Controllers
         }
 
         public RepositoryControllerAsync(ICrudPageableRepositoryAsync<TEntity, TKey> repository,
-            AutumnSettings settings,IHttpContextAccessor httpContextAccessor)
+            AutumnSettings settings, IHttpContextAccessor httpContextAccessor)
         {
             _repository = repository;
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -55,9 +57,9 @@ namespace Autumn.Mvc.Data.Controllers
         {
             try
             {
-                if (!ModelState.IsValid) 
+                if (!ModelState.IsValid)
                     return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
-                
+
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NotFound();
                 return Ok(result);
@@ -67,14 +69,17 @@ namespace Autumn.Mvc.Data.Controllers
                 return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModelInternalError(e));
             }
         }
-        
+
         [HttpGet("")]
-        public virtual async Task<IActionResult> Get(Expression<Func<TEntity, bool>> filter, IPageable<TEntity> pageable)
+        public virtual async Task<IActionResult> Get(Expression<Func<TEntity, bool>> filter,
+            IPageable<TEntity> pageable, bool onlyCount = false)
         {
             try
             {
-                if (!ModelState.IsValid) 
+                if (!ModelState.IsValid)
                     return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
+
+                if (onlyCount) return Ok(new { TotalElements = await _repository.CountAsync(filter)});
                 
                 var result = await _repository.FindAsync(filter, pageable);
                 return result.TotalElements == result.NumberOfElements
@@ -92,19 +97,21 @@ namespace Autumn.Mvc.Data.Controllers
         {
             try
             {
-                if (!ModelState.IsValid) 
+                if (!ModelState.IsValid)
                     return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
-       
+
                 var entity = Mapper.Map<TEntity>(entityPostRequest);
                 if (_entityInfo.CreatedDateInfo != null)
                 {
-                    _entityInfo.CreatedDateInfo.SetValue(entity,DateTime.Now);
+                    _entityInfo.CreatedDateInfo.SetValue(entity, DateTime.Now);
                 }
+
                 if (_entityInfo.CreatedByInfo != null)
                 {
                     var userId = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                     _entityInfo.CreatedByInfo.SetValue(entity, userId);
                 }
+
                 var result = await _repository.InsertAsync(entity);
                 var uri = string.Format("{0}/{1}", Request.HttpContext.Request.Path.ToString().TrimEnd('/'),
                     _entityInfo.KeyInfo.GetValue(result));
@@ -116,14 +123,14 @@ namespace Autumn.Mvc.Data.Controllers
             }
         }
 
-       [HttpDelete("{id}")]
+        [HttpDelete("{id}")]
         public virtual async Task<IActionResult> Delete(TKey id)
         {
             try
             {
-                if (!ModelState.IsValid) 
+                if (!ModelState.IsValid)
                     return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
-       
+
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NoContent();
                 result = await _repository.DeleteAsync(id);
@@ -135,27 +142,29 @@ namespace Autumn.Mvc.Data.Controllers
             }
         }
 
-      
+
         [HttpPut("{id}")]
         public virtual async Task<IActionResult> Put([FromBody] [Required] TEntityPut entityPutRequest, TKey id)
         {
             try
             {
-                if (!ModelState.IsValid) 
+                if (!ModelState.IsValid)
                     return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
-       
+
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NoContent();
                 Mapper.Map(entityPutRequest, result);
                 if (_entityInfo.LastModifiedDateInfo != null)
                 {
-                    _entityInfo.LastModifiedDateInfo.SetValue(result,DateTime.Now);
+                    _entityInfo.LastModifiedDateInfo.SetValue(result, DateTime.Now);
                 }
+
                 if (_entityInfo.LastModifiedByInfo != null)
                 {
                     var userId = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                     _entityInfo.LastModifiedByInfo.SetValue(result, userId);
                 }
+
                 result = await _repository.UpdateAsync(result, id);
                 return Ok(result);
             }
