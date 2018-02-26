@@ -9,7 +9,7 @@ namespace Autumn.Mvc.Data.Configurations
 {
     public class AutumnDataSettings
     {
-        private const string CDefaultOnlyCountFieldName = "OnlyCount";
+        private const string CDefaultCountOnlyFieldName = "CountOnly";
         
         public AutumnSettings Parent { get; private set; }
         public IReadOnlyDictionary<Type, AttributeRouteModel> Routes { get; set; }
@@ -18,7 +18,7 @@ namespace Autumn.Mvc.Data.Configurations
         public bool PluralizeController { get; set; } = true;
         public Assembly EntityAssembly { get; set; }
         public IReadOnlyCollection<string> ApiVersions { get; set; }
-        public string OnlyCountField { get; set; } = CDefaultOnlyCountFieldName;
+        public string CountOnlyField { get; set; } = CDefaultCountOnlyFieldName;
 
         public AutumnDataSettings(AutumnSettings parent)
         {

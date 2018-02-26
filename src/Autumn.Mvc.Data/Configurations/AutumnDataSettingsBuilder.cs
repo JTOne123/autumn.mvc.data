@@ -31,8 +31,8 @@ namespace Autumn.Mvc.Data.Configurations
         {
             if (_settings.Parent.NamingStrategy != null)
             {
-                _settings.OnlyCountField =
-                    _settings.Parent.NamingStrategy.GetPropertyName(_settings.OnlyCountField, false);
+                _settings.CountOnlyField =
+                    _settings.Parent.NamingStrategy.GetPropertyName(_settings.CountOnlyField, false);
             }
 
             BuildEntitiesInfos(_settings, _callingAssembly, _defaultApiVersion);
@@ -62,7 +62,7 @@ namespace Autumn.Mvc.Data.Configurations
             if (string.IsNullOrWhiteSpace(onlyCountFieldName)) throw new ArgumentNullException(nameof(onlyCountFieldName));
             if (Regex.Match(onlyCountFieldName, @"(_)?([A-Za-z0-9]((_)?[A-Za-z0-9])*(_)?)").Value != onlyCountFieldName)
                 throw new InvalidFormatFieldNameException("onlyCountFieldName", onlyCountFieldName);
-            _settings.OnlyCountField = onlyCountFieldName;
+            _settings.CountOnlyField = onlyCountFieldName;
             return this;
         }
 

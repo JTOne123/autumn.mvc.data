@@ -55,7 +55,7 @@ namespace Autumn.Mvc.Data
             (
                 c =>
                 {
-                    c.ModelBinderProviders.Insert(2,new OnlyCountModelBinderProvider(dataSettings));
+                    c.ModelBinderProviders.Insert(2,new CountOnlyModelBinderProvider(dataSettings));
                     c.Conventions.Add(new RepositoryControllerNameConvention(dataSettings));
                 }
             ).ConfigureApplicationPartManager(p =>

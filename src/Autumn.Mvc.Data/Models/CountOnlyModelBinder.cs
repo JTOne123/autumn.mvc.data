@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Autumn.Mvc.Data.Models
 {
-    public class OnlyCountModelBinder  : IModelBinder 
+    public class CountOnlyModelBinder  : IModelBinder 
     {
         private readonly AutumnDataSettings _autumnDataSettings;
         
-        public OnlyCountModelBinder(AutumnDataSettings autumnDataSettings)
+        public CountOnlyModelBinder(AutumnDataSettings autumnDataSettings)
         {
             _autumnDataSettings = autumnDataSettings ?? throw new ArgumentNullException(nameof(autumnDataSettings));
         }
@@ -19,7 +19,7 @@ namespace Autumn.Mvc.Data.Models
             try
             {
                 var queryCollection = bindingContext.ActionContext.HttpContext.Request.Query;
-                if (queryCollection.TryGetValue(_autumnDataSettings.OnlyCountField, out var onlyCountString))
+                if (queryCollection.TryGetValue(_autumnDataSettings.CountOnlyField, out var onlyCountString))
                 {
                     if (bool.TryParse(onlyCountString, out var onlyCount))
                     {

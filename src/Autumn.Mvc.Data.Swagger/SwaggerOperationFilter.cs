@@ -161,7 +161,7 @@ namespace Autumn.Mvc.Data.Swagger
                         Type = "boolean",
                         Description = "only count of entities",
                         Default = "false",
-                        Name = _settings.DataSettings().OnlyCountField
+                        Name = _settings.DataSettings().CountOnlyField
                     };
                     operation.Parameters.Add(parameter);
                     break;

@@ -4,18 +4,18 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Autumn.Mvc.Data.Models
 {
-    public class OnlyCountModelBinderProvider : IModelBinderProvider
+    public class CountOnlyModelBinderProvider : IModelBinderProvider
     {
         private readonly AutumnDataSettings _autumnDataSettings;
 
-        public OnlyCountModelBinderProvider(AutumnDataSettings autumnDataSettings)
+        public CountOnlyModelBinderProvider(AutumnDataSettings autumnDataSettings)
         {
             _autumnDataSettings = autumnDataSettings ?? throw new ArgumentNullException(nameof(autumnDataSettings));
         }
 
         public IModelBinder GetBinder(ModelBinderProviderContext context)
         {
-            return new OnlyCountModelBinder(_autumnDataSettings);
+            return new CountOnlyModelBinder(_autumnDataSettings);
         }
     }
 }

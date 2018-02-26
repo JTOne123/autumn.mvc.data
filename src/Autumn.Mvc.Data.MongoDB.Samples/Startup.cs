@@ -38,10 +38,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
                         .NamingStrategy(new SnakeCaseNamingStrategy())
                         .PageSize(50)
                         )
-                .AddAutumnData(config =>
-                    config
-                        .OnlyCountFieldName("onlyCount")
-                  )
+                .AddAutumnData()
                 .AddAutumnMongo(config =>
                     config
                         .ConnectionString(
