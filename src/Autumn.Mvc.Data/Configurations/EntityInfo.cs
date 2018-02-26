@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Autumn.Mvc.Data.Annotations;
 
@@ -15,13 +16,25 @@ namespace Autumn.Mvc.Data.Configurations
         public string Name { get; }
         public string ControllerName { get; }
         public AutumnDataSettings Settings { get; set; }
-        public EntityKeyInfo KeyInfo { get; }
+        public PropertyInfo KeyInfo { get; }
+        public PropertyInfo CreatedDateInfo { get; }
+        public PropertyInfo LastModifiedDateInfo { get; }
+        public PropertyInfo CreatedByInfo { get; }
+        public PropertyInfo LastModifiedByInfo { get;  }
         public IReadOnlyDictionary<HttpMethod, Type> ProxyRequestTypes { get; }
         public IReadOnlyList<HttpMethod> IgnoreOperations { get; }
 
-        public EntityInfo(AutumnDataSettings dataSettings, string defaultApiVersion, Type entityType, IReadOnlyDictionary<HttpMethod, Type> proxyRequestTypes,
+        public EntityInfo(
+            AutumnDataSettings dataSettings,
+            string defaultApiVersion,
+            Type entityType,
+            IReadOnlyDictionary<HttpMethod, Type> proxyRequestTypes,
             EntityAttribute entityAttribute,
-            EntityKeyInfo keyInfo)
+            PropertyInfo keyInfo,
+            PropertyInfo createdDateInfo,
+            PropertyInfo lastModifiedDateInfo,
+            PropertyInfo createdByInfo,
+            PropertyInfo lastModifiedByInfo)
         {
             Settings = dataSettings ?? throw new ArgumentNullException(nameof(dataSettings));
             EntityType = entityType ?? throw new ArgumentNullException(nameof(entityType));
@@ -32,6 +45,10 @@ namespace Autumn.Mvc.Data.Configurations
                     : defaultApiVersion;
             Name = entityAttribute.Name ?? entityType.Name;
             KeyInfo = keyInfo;
+            CreatedDateInfo = createdDateInfo;
+            LastModifiedDateInfo = lastModifiedDateInfo;
+            CreatedByInfo = createdByInfo;
+            LastModifiedByInfo = lastModifiedByInfo;
             if (Settings.Parent.NamingStrategy != null)
             {
                 ControllerName = Settings.Parent.NamingStrategy.GetPropertyName(Name, false);

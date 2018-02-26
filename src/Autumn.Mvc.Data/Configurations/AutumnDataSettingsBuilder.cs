@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using AutoMapper;
+using Autumn.Mvc.Configurations.Exceptions;
 using Autumn.Mvc.Data.Annotations;
 using Autumn.Mvc.Data.Controllers;
 using Autumn.Mvc.Data.Models;
@@ -18,7 +20,7 @@ namespace Autumn.Mvc.Data.Configurations
         private readonly AutumnDataSettings _settings;
         private readonly Assembly _callingAssembly;
         private string _defaultApiVersion = "v1";
-      
+
         public AutumnDataSettingsBuilder(AutumnDataSettings settings, Assembly callingAssembly)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -27,6 +29,12 @@ namespace Autumn.Mvc.Data.Configurations
 
         public AutumnDataSettings Build()
         {
+            if (_settings.Parent.NamingStrategy != null)
+            {
+                _settings.CountOnlyField =
+                    _settings.Parent.NamingStrategy.GetPropertyName(_settings.CountOnlyField, false);
+            }
+
             BuildEntitiesInfos(_settings, _callingAssembly, _defaultApiVersion);
             BuildRoutes(_settings);
             return _settings;
@@ -44,10 +52,49 @@ namespace Autumn.Mvc.Data.Configurations
             return this;
         }
 
+        /// <summary>
+        /// configuration of only count fieldName from query
+        /// </summary>
+        /// <param name="onlyCountFieldName">configuration of only count fieldName from query</param>
+        /// <returns></returns>
+        public AutumnDataSettingsBuilder OnlyCountFieldName(string onlyCountFieldName)
+        {
+            if (string.IsNullOrWhiteSpace(onlyCountFieldName)) throw new ArgumentNullException(nameof(onlyCountFieldName));
+            if (Regex.Match(onlyCountFieldName, @"(_)?([A-Za-z0-9]((_)?[A-Za-z0-9])*(_)?)").Value != onlyCountFieldName)
+                throw new InvalidFormatFieldNameException("onlyCountFieldName", onlyCountFieldName);
+            _settings.CountOnlyField = onlyCountFieldName;
+            return this;
+        }
+
         public AutumnDataSettingsBuilder EntityAssembly(Assembly assembly)
         {
             _settings.EntityAssembly = assembly;
             return this;
+        }
+
+        /// <summary>
+        /// check if property is AuditableDate
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
+        private static bool IsAuditableDateProperty(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo == null) return false;
+            if (propertyInfo.PropertyType == typeof(DateTime)) return true;
+            if (propertyInfo.PropertyType == typeof(DateTime?)) return true;
+            if (propertyInfo.PropertyType == typeof(DateTimeOffset)) return true;
+            return propertyInfo.PropertyType == typeof(DateTimeOffset?);
+        }
+
+        /// <summary>
+        /// check if property is AuditableBy
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
+        private static bool IsAuditableByProperty(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo == null) return false;
+            return (propertyInfo.PropertyType == typeof(string));
         }
 
         /// <summary>         
@@ -56,22 +103,58 @@ namespace Autumn.Mvc.Data.Configurations
         private static void BuildEntitiesInfos(AutumnDataSettings settings, Assembly callingAssembly, string apiVersion)
         {
             var items = new Dictionary<Type, EntityInfo>();
+
             foreach (var type in (settings.EntityAssembly ?? callingAssembly).GetTypes())
             {
                 var entityAttribute = type.GetCustomAttribute<EntityAttribute>(false);
                 if (entityAttribute == null) continue;
-                EntityKeyInfo entityKeyInfo = null;
+
+                PropertyInfo keyPropertyInfo = null;
+                PropertyInfo createDatePropertyInfo = null;
+                PropertyInfo lastModifiedDatePropertyInfo = null;
+                PropertyInfo createByPropertyInfo = null;
+                PropertyInfo lastModifiedByPropertyInfo = null;
                 foreach (var property in type.GetProperties())
                 {
                     var keyAttribute = property.GetCustomAttribute<IdAttribute>();
-                    if (keyAttribute == null) continue;
-                    entityKeyInfo = new EntityKeyInfo(property, keyAttribute);
-                    break;
+                    if (keyAttribute != null)
+                    {
+                        keyPropertyInfo = property;
+                    }
+                    if (property.GetCustomAttribute<CreatedDateAttribute>(true) != null &&
+                        IsAuditableDateProperty(property))
+                    {
+                        createDatePropertyInfo = property;
+                    }
+                    if (property.GetCustomAttribute<LastModifiedDateAttribute>(true) != null &&
+                        IsAuditableDateProperty(property))
+                    {
+                        lastModifiedDatePropertyInfo = property;
+                    }
+                    if (property.GetCustomAttribute<CreatedByAttribute>(true) != null &&
+                        IsAuditableByProperty(property))
+                    {
+                        createByPropertyInfo = property;
+                    }
+                    if (property.GetCustomAttribute<LastModifiedByAttribute>(true) != null &&
+                        IsAuditableByProperty(property))
+                    {
+                        lastModifiedByPropertyInfo = property;
+                    }
                 }
-                if (entityKeyInfo == null) continue;
                 var proxyTypes = DataModelHelper.BuildModelsRequestTypes(type);
                 items.Add(type,
-                    new EntityInfo(settings, apiVersion, type, proxyTypes, entityAttribute, entityKeyInfo));
+                    new EntityInfo(
+                        settings,
+                        apiVersion,
+                        type,
+                        proxyTypes,
+                        entityAttribute,
+                        keyPropertyInfo,
+                        createDatePropertyInfo,
+                        lastModifiedDatePropertyInfo,
+                        createByPropertyInfo,
+                        lastModifiedByPropertyInfo));
             }
 
             Mapper.Reset();
@@ -80,15 +163,16 @@ namespace Autumn.Mvc.Data.Configurations
             {
                 foreach (var entityInfo in items.Values)
                 {
-                    foreach (var proxyType in entityInfo.ProxyRequestTypes.Values)
+                    foreach (var proxyType in entityInfo.ProxyRequestTypes)
                     {
-                        c.CreateMap(proxyType, entityInfo.EntityType);
+                        c.CreateMap(proxyType.Value, entityInfo.EntityType);
                     }
                 }
             });
 
             settings.EntitiesInfos = new ReadOnlyDictionary<Type, EntityInfo>(items);
-            settings.ApiVersions = new ReadOnlyCollection<string>(settings.EntitiesInfos.Values.Select(e => e.ApiVersion)
+            settings.ApiVersions = new ReadOnlyCollection<string>(settings.EntitiesInfos.Values
+                .Select(e => e.ApiVersion)
                 .Distinct().OrderBy(e => e).ToList());
         }
 
@@ -114,7 +198,7 @@ namespace Autumn.Mvc.Data.Configurations
                     name = name + "s";
                 }
                 name = string.Format("{0}/{1}", info.ApiVersion, name);
-                var entityKeyType = info.KeyInfo.Property.PropertyType;
+                var entityKeyType = info.KeyInfo.PropertyType;
                 var controllerType = baseType.MakeGenericType(
                     info.EntityType,
                     info.ProxyRequestTypes[HttpMethod.Post],
@@ -122,7 +206,7 @@ namespace Autumn.Mvc.Data.Configurations
                     entityKeyType);
                 var attributeRouteModel = new AttributeRouteModel(new RouteAttribute(name));
                 routes.Add(controllerType, attributeRouteModel);
-                ignoreOperations.Add("/"+name, info.IgnoreOperations);
+                ignoreOperations.Add("/" + name, info.IgnoreOperations);
             }
             settings.Routes = new ReadOnlyDictionary<Type, AttributeRouteModel>(routes);
             settings.IgnoreOperations =

@@ -29,7 +29,7 @@ namespace Autumn.Mvc.Data.Repositories
         {
             var filter = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
-                    Expression.Property(_parameter, _entityInfo.KeyInfo.Property),
+                    Expression.Property(_parameter, _entityInfo.KeyInfo),
                     Expression.Constant(id)
                 )
                 , _parameter
@@ -75,7 +75,7 @@ namespace Autumn.Mvc.Data.Repositories
         {
             var filter = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
-                    Expression.Property(_parameter, _entityInfo.KeyInfo.Property),
+                    Expression.Property(_parameter, _entityInfo.KeyInfo),
                     Expression.Constant(id)
                 ),
                 _parameter
@@ -93,7 +93,7 @@ namespace Autumn.Mvc.Data.Repositories
         {
             var filter = Expression.Lambda<Func<TEntity, bool>>(
                 Expression.Equal(
-                    Expression.Property(_parameter, _entityInfo.KeyInfo.Property),
+                    Expression.Property(_parameter, _entityInfo.KeyInfo),
                     Expression.Constant(id)
                 )
                 ,
@@ -104,6 +104,18 @@ namespace Autumn.Mvc.Data.Repositories
 
 
         protected abstract Task<TEntity> OnDeleteAsync(Expression<Func<TEntity, bool>> filter);
+        
+        #endregion
+        
+        #region CountAsync
+
+        public async Task<long> CountAsync(Expression<Func<TEntity, bool>> filter = null)
+        {
+            return await OnCountAsync(
+                    filter ?? QueryExpressionHelper.True<TEntity>());
+        }
+
+        protected abstract Task<long> OnCountAsync(Expression<Func<TEntity, bool>> filter);
         
         #endregion
         

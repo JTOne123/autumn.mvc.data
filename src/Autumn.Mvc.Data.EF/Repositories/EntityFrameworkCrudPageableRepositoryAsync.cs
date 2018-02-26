@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -30,10 +31,9 @@ namespace Autumn.Mvc.Data.EF.Repositories
         protected override async Task<IPage<TEntity>> OnFindAsync(Expression<Func<TEntity, bool>> filter,
             IPageable<TEntity> autumnPageable)
         {
-            var count = await _dbContext.Set<TEntity>()
-                .AsNoTracking()
-                .Where(filter).CountAsync();
-
+            var count = await CountAsync(filter);
+            if(count == 0) return new Page<TEntity>(new List<TEntity>(), autumnPageable);
+            
             var find = _dbContext.Set<TEntity>()
                 .AsNoTracking()
                 .Where(filter);
@@ -76,6 +76,13 @@ namespace Autumn.Mvc.Data.EF.Repositories
             _dbContext.Set<TEntity>().Remove(entityDb);
             await _dbContext.SaveChangesAsync();    
             return entityDb;
+        }
+
+        protected override async Task<long> OnCountAsync(Expression<Func<TEntity, bool>> filter)
+        {
+           return await _dbContext.Set<TEntity>()
+                .AsNoTracking()
+                .Where(filter).CountAsync();
         }
 
         public void Dispose()

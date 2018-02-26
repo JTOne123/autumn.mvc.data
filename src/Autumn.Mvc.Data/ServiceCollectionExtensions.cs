@@ -4,6 +4,8 @@ using System.Reflection;
 using Autumn.Mvc.Configurations;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.Controllers;
+using Autumn.Mvc.Data.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Autumn.Mvc.Data
@@ -47,10 +49,13 @@ namespace Autumn.Mvc.Data
             autumnDataSettingsBuilderAction?.Invoke(autumnDataSettingsBuilder);
             var dataSettings = autumnDataSettingsBuilder.Build();
             services.AddSingleton(dataSettings);
+            // for current user
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMvc
             (
                 c =>
                 {
+                    c.ModelBinderProviders.Insert(2,new CountOnlyModelBinderProvider(dataSettings));
                     c.Conventions.Add(new RepositoryControllerNameConvention(dataSettings));
                 }
             ).ConfigureApplicationPartManager(p =>

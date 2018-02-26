@@ -59,5 +59,6 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
         
         [BsonElement("credit")]
         public double Credit { get; set; }
+
     }
 }

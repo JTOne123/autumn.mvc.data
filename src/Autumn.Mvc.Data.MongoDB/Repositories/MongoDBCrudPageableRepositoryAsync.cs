@@ -117,5 +117,16 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
         }
 
         #endregion
+        
+        
+        #region CountAsync
+        
+        protected override async Task<long> OnCountAsync(Expression<Func<TEntity, bool>> filter)
+        {
+            var filterDefinition = _filterDefinitionBuilder.Where(filter);
+            return await _collection.CountAsync(filterDefinition);
+        }
+        
+        #endregion
     }
 }

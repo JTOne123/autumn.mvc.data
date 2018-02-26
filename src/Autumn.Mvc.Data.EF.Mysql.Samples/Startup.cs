@@ -21,8 +21,7 @@ namespace Autumn.Mvc.Data.EF.Mysql.Samples
                 .AddAutumn(config =>
                     config
                         .QueryFieldName("search"))
-                .AddAutumnData(
-                )
+                .AddAutumnData()
                 .AddAutumnEntityFrameworkCoreMysql<ChinookContext>(config =>
                     config
                         .ConnectionString("server=localhost;database=chinook;port=3306;Uid=chinook;password=@utUmn_mvc_D@t@!")
