@@ -154,16 +154,6 @@ namespace Autumn.Mvc.Data.Swagger
                         Name = _settings.PageNumberField
                     };
                     operation.Parameters.Add(parameter);
-                    
-                    parameter = new NonBodyParameter
-                    {
-                        In = "query",
-                        Type = "boolean",
-                        Description = "only count of entities",
-                        Default = "false",
-                        Name = _settings.DataSettings().CountOnlyField
-                    };
-                    operation.Parameters.Add(parameter);
                     break;
             }
         }

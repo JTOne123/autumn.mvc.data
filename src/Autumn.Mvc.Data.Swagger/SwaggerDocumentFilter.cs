@@ -22,7 +22,7 @@ namespace Autumn.Mvc.Data.Swagger
             foreach (var key in swaggerDoc.Paths.Keys)
             {
                 var pathItem = swaggerDoc.Paths[key];
-                var path = key.Replace("{id}", string.Empty).TrimEnd('/').TrimStart('/');
+                var path = key.Replace("{id}", string.Empty).TrimEnd('/');
                 if (!_settings.DataSettings().IgnoreOperations.ContainsKey(path)) continue;
                 var ignores = _settings.DataSettings().IgnoreOperations[path];
                 if (ignores.Contains(HttpMethod.Post))
