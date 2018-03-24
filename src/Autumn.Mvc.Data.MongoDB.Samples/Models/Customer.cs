@@ -11,14 +11,11 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     public class Customer : AbstractEntity
     {    
         [Required]
-        [BsonElement("last_name")]
         public string LastName { get; set; }
 
         [Required]
-        [BsonElement("first_name")]
         public string FirstName { get; set; }
         
-        [BsonElement("birth_date")]
         public DateTime? BirthDate { get; set; }
     }
 
@@ -27,10 +24,8 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     public class CustomerV2 : Customer
     {
 
-        [BsonElement("email")]
         public string Email { get; set; }
 
-        [BsonElement("address")]
         public Address Address { get; set; }
     }
 
@@ -40,7 +35,6 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     {
 
         [Ignore(Insertable = true)]
-        [BsonElement("active")]
         public bool? Active { get; set; }
     }
     
@@ -51,13 +45,10 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     public class CustomerV4 : CustomerV3
     {
 
-        [BsonElement("account")]
         public string Account { get; set; }
         
-        [BsonElement("debit")]
         public double Debit { get; set; }
         
-        [BsonElement("credit")]
         public double Credit { get; set; }
 
     }

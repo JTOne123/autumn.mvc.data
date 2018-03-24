@@ -4,9 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using AutoMapper;
-using Autumn.Mvc.Configurations.Exceptions;
 using Autumn.Mvc.Data.Annotations;
 using Autumn.Mvc.Data.Controllers;
 using Autumn.Mvc.Data.Models;
@@ -20,6 +18,7 @@ namespace Autumn.Mvc.Data.Configurations
         private readonly AutumnDataSettings _settings;
         private readonly Assembly _callingAssembly;
         private string _defaultApiVersion = "v1";
+        private Type _repositoryControllerAyncType;
 
         public AutumnDataSettingsBuilder(AutumnDataSettings settings, Assembly callingAssembly)
         {
@@ -29,23 +28,45 @@ namespace Autumn.Mvc.Data.Configurations
 
         public AutumnDataSettings Build()
         {
-            if (_settings.Parent.NamingStrategy != null)
-            {
-                _settings.CountOnlyField =
-                    _settings.Parent.NamingStrategy.GetPropertyName(_settings.CountOnlyField, false);
-            }
-
+            _settings.RepositoryContollerType = _repositoryControllerAyncType ?? typeof(RepositoryControllerAsync<,,,>);    
             BuildEntitiesInfos(_settings, _callingAssembly, _defaultApiVersion);
             BuildRoutes(_settings);
             return _settings;
         }
 
-        public AutumnDataSettingsBuilder ApiVersion(string version = "v1")
+        /// <summary>
+        /// set default api version
+        /// </summary>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        public AutumnDataSettingsBuilder ApiVersion(string version)
         {
             _defaultApiVersion = version;
             return this;
         }
 
+        /// <summary>
+        /// set default repository controller type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidCastException"></exception>
+        public AutumnDataSettingsBuilder RepositoryControllerType(Type type)
+        {
+            if(type==null ) throw new ArgumentNullException(nameof(type));
+            if (!type.IsSubclassOf(typeof(RepositoryControllerAsync<,,,>)))
+                 throw new InvalidCastException(nameof(type));   
+            _repositoryControllerAyncType = type;
+            return this;
+
+        }
+
+        /// <summary>
+        /// set pluralize paths
+        /// </summary>
+        /// <param name="use"></param>
+        /// <returns></returns>
         public AutumnDataSettingsBuilder PluralizeController(bool use = true)
         {
             _settings.PluralizeController = use;
@@ -53,19 +74,10 @@ namespace Autumn.Mvc.Data.Configurations
         }
 
         /// <summary>
-        /// configuration of only count fieldName from query
+        /// set assembly how found entities
         /// </summary>
-        /// <param name="onlyCountFieldName">configuration of only count fieldName from query</param>
+        /// <param name="assembly"></param>
         /// <returns></returns>
-        public AutumnDataSettingsBuilder OnlyCountFieldName(string onlyCountFieldName)
-        {
-            if (string.IsNullOrWhiteSpace(onlyCountFieldName)) throw new ArgumentNullException(nameof(onlyCountFieldName));
-            if (Regex.Match(onlyCountFieldName, @"(_)?([A-Za-z0-9]((_)?[A-Za-z0-9])*(_)?)").Value != onlyCountFieldName)
-                throw new InvalidFormatFieldNameException("onlyCountFieldName", onlyCountFieldName);
-            _settings.CountOnlyField = onlyCountFieldName;
-            return this;
-        }
-
         public AutumnDataSettingsBuilder EntityAssembly(Assembly assembly)
         {
             _settings.EntityAssembly = assembly;
@@ -184,7 +196,6 @@ namespace Autumn.Mvc.Data.Configurations
         {
             var routes = new Dictionary<Type, AttributeRouteModel>();
             var ignoreOperations = new Dictionary<string, IReadOnlyList<HttpMethod>>();
-            var baseType = typeof(RepositoryControllerAsync<,,,>);
             foreach (var entityType in settings.EntitiesInfos.Keys)
             {
                 var info = settings.EntitiesInfos[entityType];
@@ -195,11 +206,11 @@ namespace Autumn.Mvc.Data.Configurations
                 }
                 if (settings.PluralizeController && !name.EndsWith("s"))
                 {
-                    name = name + "s";
+                    name = string.Concat(name,"s");
                 }
                 name = string.Format("{0}/{1}", info.ApiVersion, name);
                 var entityKeyType = info.KeyInfo.PropertyType;
-                var controllerType = baseType.MakeGenericType(
+                var controllerType = settings.RepositoryContollerType.MakeGenericType(
                     info.EntityType,
                     info.ProxyRequestTypes[HttpMethod.Post],
                     info.ProxyRequestTypes[HttpMethod.Put],

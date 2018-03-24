@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Net;
 using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Autumn.Mvc.Configurations;
@@ -70,7 +69,7 @@ namespace Autumn.Mvc.Data.Controllers
             }
         }
 
-        [HttpGet("")]
+        [HttpGet]
         public virtual async Task<IActionResult> Get(Expression<Func<TEntity, bool>> filter,
             IPageable<TEntity> pageable)
         {

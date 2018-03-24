@@ -43,7 +43,8 @@ namespace Autumn.Mvc.Data.Swagger
             if (!(context.ApiDescription.ActionDescriptor is ControllerActionDescriptor actionDescriptor)) return;
             if (!actionDescriptor.ControllerTypeInfo.IsGenericType &&
                 actionDescriptor.ControllerTypeInfo.GetGenericTypeDefinition() !=
-                typeof(RepositoryControllerAsync<,,,>)) return;
+                typeof(RepositoryControllerAsync<,,,>) || 
+                actionDescriptor.ControllerTypeInfo.GetGenericTypeDefinition().IsSubclassOf(typeof(RepositoryControllerAsync<,,,>) )) return;
 
             // find entity type
             var entityType = actionDescriptor.ControllerTypeInfo.GetGenericArguments()[0];
@@ -79,6 +80,7 @@ namespace Autumn.Mvc.Data.Swagger
                     parameter.Description = "Identifier of the object to update";
 
                     parameter = operation.Parameters.Single(p => p.Name == "entityPutRequest");
+                    parameter.Name = "entity";
                     parameter.Description = "New value of the object";
                     ((BodyParameter) parameter).Schema = entitySchemaPut;
                     parameter.Required = true;
@@ -100,6 +102,7 @@ namespace Autumn.Mvc.Data.Swagger
                     operation.Consumes.Add(ConsumeContentType);
 
                     parameter = operation.Parameters.Single(p => p.Name == "entityPostRequest");
+                    parameter.Name = "entity";
                     parameter.Description = "Value of the object to create";
                     parameter.Required = true;
                     ((BodyParameter) parameter).Schema = entitySchemaPost;

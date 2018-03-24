@@ -5,6 +5,8 @@ using Autumn.Mvc.Data.MongoDB.Configurations;
 using Autumn.Mvc.Data.MongoDB.Repositories;
 using Autumn.Mvc.Data.Repositories;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Driver;
 
 namespace Autumn.Mvc.Data.MongoDB
 {
@@ -20,8 +22,14 @@ namespace Autumn.Mvc.Data.MongoDB
             var builder = new AutumnMongoDBSettingsBuilder(services.GetAutumnDataSettings());
             mongoDbSettingsAction(builder);
             var settings = builder.Build();
-
             services.AddSingleton(settings);
+
+            // add convention
+            if (settings.Convention != null)
+            {
+                var pack = new ConventionPack {settings.Convention};
+                ConventionRegistry.Register("autumnConvention", pack, t => true);
+            }
 
             services.AddScoped(typeof(ICrudPageableRepositoryAsync<,>),
                 typeof(MongoDBCrudPageableRepositoryAsync<,>));

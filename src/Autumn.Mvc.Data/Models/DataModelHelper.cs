@@ -40,6 +40,7 @@ namespace Autumn.Mvc.Data.Models
         /// <summary>
         /// create type builder
         /// </summary>
+        /// <param name="originType"></param>
         /// <param name="httpMethod"></param>
         /// <returns></returns>
         private static TypeBuilder GetTypeBuilder(Type originType, HttpMethod httpMethod)
@@ -79,7 +80,7 @@ namespace Autumn.Mvc.Data.Models
            
             var propertyName = propertyInfo.Name;
             var propertyType = propertyInfo.PropertyType;
-            var fieldBuilder = typeBuilder.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);
+            var fieldBuilder = typeBuilder.DefineField(string.Concat("_", propertyName), propertyType, FieldAttributes.Private);
             var propertyBuilder =
                 typeBuilder.DefineProperty(propertyName, PropertyAttributes.HasDefault, propertyType, null);
 

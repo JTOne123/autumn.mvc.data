@@ -1,4 +1,5 @@
 ﻿using Autumn.Mvc.Data.Configurations;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace Autumn.Mvc.Data.MongoDB.Configurations
 {
@@ -22,10 +23,17 @@ namespace Autumn.Mvc.Data.MongoDB.Configurations
             _settings.Database = database;
             return this;
         }
+        
+        public AutumnMongoDBSettingsBuilder Convention(IConvention convention)
+        {
+            _settings.Convention = convention;
+            return this;
+        }
 
         public AutumnMongoDBSettings Build()
         {
             return _settings;
         }
+
     }
 }
