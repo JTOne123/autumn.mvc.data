@@ -10,24 +10,20 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
         [BsonId]
         [Id()]
         [Ignore()]
-        [BsonElement("_id")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
         
         [CreatedBy]
-        [BsonElement("createdBy")]
+        [Ignore(Updatable = true, Insertable = false)]
         public string CreatedBy { get; set; }
         
         [LastModifiedBy]
-        [BsonElement("modifiedBy")]
         public string LastModifiedBy { get; set; }
         
         [CreatedDate]
-        [BsonElement("createdDate")]
         public DateTime CreatedDate { get; set; }
         
         [LastModifiedDate]
-        [BsonElement("modifiedDate")]
         public DateTime? LastModifiedDate { get; set; }
     }
 }

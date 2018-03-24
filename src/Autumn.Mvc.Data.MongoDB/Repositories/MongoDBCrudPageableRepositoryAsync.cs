@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using Autumn.Mvc.Data.Repositories;
 using Autumn.Mvc.Models.Paginations;
 using MongoDB.Driver;
 
-namespace Autumn.Mvc.Data.MongoDB.Repositories
+namespace Autumn.Mvc.Data.MongoDB.Repositories    
 {
     public class MongoDBCrudPageableRepositoryAsync<TEntity, TKey> : CrudPageableRepositoryAsync<TEntity, TKey>
         where TEntity : class
@@ -17,7 +18,8 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
         private readonly IMongoCollection<TEntity> _collection;
         private readonly FilterDefinitionBuilder<TEntity> _filterDefinitionBuilder;
 
-        public MongoDBCrudPageableRepositoryAsync(AutumnSettings settings, AutumnMongoDBSettings mongoDbSettings) :
+        public MongoDBCrudPageableRepositoryAsync(AutumnSettings settings,
+            AutumnMongoDBSettings mongoDbSettings) :
             base(settings)
         {
             _filterDefinitionBuilder = new FilterDefinitionBuilder<TEntity>();
@@ -43,7 +45,12 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
         protected override async Task<IPage<TEntity>> OnFindAsync(Expression<Func<TEntity, bool>> filter,
             IPageable<TEntity> pageable)
         {
-            var count = (int) await _collection.CountAsync(filter);
+            var count = await _collection.CountAsync(filter);
+            if (count == 0)
+            {
+                return new Page<TEntity>(new List<TEntity>(), pageable, count);     
+            }
+            
             var find = _collection.Find(filter);
 
             var offset = pageable.PageNumber * pageable.PageSize;

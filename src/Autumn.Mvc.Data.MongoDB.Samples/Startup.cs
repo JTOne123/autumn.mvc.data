@@ -1,5 +1,6 @@
 ﻿using System;
 using Autumn.Mvc.Data.MongoDB.Configurations;
+using Autumn.Mvc.Data.MongoDB.Conventions;
 using Autumn.Mvc.Data.MongoDB.Samples.Models;
 using Autumn.Mvc.Data.MongoDB.Samples.Models.Generators;
 using Autumn.Mvc.Data.Swagger;
@@ -17,6 +18,8 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
 {
     public class Startup
     {
+        
+        
         public Startup(IHostingEnvironment env,IConfiguration configuration)
         {
             _configuration = configuration;
@@ -29,33 +32,37 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
             services
                 .AddAutumn(config =>
                     config
                         .QueryFieldName("q")
-                        .PageNumberFieldName("pNum")
-                        .PageSizeFieldName("pSiz")
+                        .PageNumberFieldName("o")
+                        .PageSizeFieldName("l")
                         .NamingStrategy(new SnakeCaseNamingStrategy())
                         .PageSize(50)
-                        )
-                .AddAutumnData()
+                )
+                .AddAutumnData(config =>
+                    config.ApiVersion("v0")
+                )
                 .AddAutumnMongo(config =>
                     config
-                        .ConnectionString(
-                            "mongodb://localhost:27017")
+                        .ConnectionString($"{_configuration["Connections:0:ConnectionString"]}")
                         .Database("samples")
+                        .Convention(new SnakeCaseElementNameConvention())
                 )
                 .AddSwaggerGen(c =>
                 {
-                 
+
                     foreach (var version in services.GetAutumnDataSettings().ApiVersions)
                     {
                         c.SwaggerDoc(version, new Info {Title = "api", Version = version});
                     }
+
                     c.DocumentFilter<SwaggerDocumentFilter>();
                     c.OperationFilter<SwaggerOperationFilter>();
 
-            });
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -81,6 +88,10 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
                 .UseMvc();
         }
 
+        /// <summary>
+        /// populate database for sample
+        /// </summary>
+        /// <param name="mongoDbSettings"></param>
         public async void populateDatabase(AutumnMongoDBSettings mongoDbSettings)
         {
             var client = new MongoClient(mongoDbSettings.ConnectionString);
@@ -89,7 +100,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
             #region Customers
 
             var collection = database.GetCollection<CustomerV4>("customers");
-            var count = collection.Count(e => e.Id != null);
+            var count = await collection.CountAsync(e => e.Id != null);
             if (count == 0)
             {
                 var custormerHydrator = new Hydrator<CustomerV4>()
@@ -108,7 +119,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
                     .WithDouble(x => x.Credit, 0, 10000)
                     .WithDouble(x => x.Credit, 0, 10000);
 
-                var customers = custormerHydrator.GetList(100000);
+                var customers = custormerHydrator.GetList(500);
                 await collection.InsertManyAsync(customers);
             }
 
@@ -117,7 +128,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
             #region Articles
 
             var collection2 = database.GetCollection<ArticleV2>("articles");
-            count = collection2.Count(e => e.Id != null);
+            count = await collection2.CountAsync(e => e.Id != null);
             if (count == 0)
             {
                 var articleHydrator = new Hydrator<ArticleV2>()
@@ -127,10 +138,8 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
                     .WithInteger(x => x.Score, 0, 100)
                     .WithDate(x => x.PublishDate, DateTime.Now.AddDays(-600), DateTime.Now.Date);
 
-                var article = articleHydrator.GetList(1000);
+                var article = articleHydrator.GetList(100);
                 await collection2.InsertManyAsync(article);
-
-
             }
 
             #endregion

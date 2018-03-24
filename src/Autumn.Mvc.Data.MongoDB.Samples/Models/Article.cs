@@ -10,10 +10,8 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     public class Article : AbstractEntity
     {
         [Required]
-        [BsonElement("title")]
         public string Title { get; set; }
 
-        [BsonElement("content")]
         public string Content { get; set; }
     }
 
@@ -21,11 +19,9 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     [Entity(Name = "articles", Version = "v2",Insertable = false)]
     public class ArticleV2 : Article
     {
-        [BsonElement("publish_date")]
         public DateTime PublishDate { get; set; }
 
         [Range(0, 100)]
-        [BsonElement("score")]
         public int Score { get; set; }
     }
 }

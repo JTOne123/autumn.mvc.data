@@ -3,7 +3,7 @@ using Autumn.Mvc.Data.Annotations;
 
 namespace Autumn.Mvc.Data.EF.Sqlite.Samples.Models
 {
-    [Entity]
+    [Entity(Insertable =false,Updatable =false,Deletable =false )]
     public class Customer : AbstractEntityWithAddress
     {
         [Required]

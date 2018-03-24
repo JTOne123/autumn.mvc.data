@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Net;
 using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Autumn.Mvc.Configurations;
@@ -70,16 +69,14 @@ namespace Autumn.Mvc.Data.Controllers
             }
         }
 
-        [HttpGet("")]
+        [HttpGet]
         public virtual async Task<IActionResult> Get(Expression<Func<TEntity, bool>> filter,
-            IPageable<TEntity> pageable, bool onlyCount = false)
+            IPageable<TEntity> pageable)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
-
-                if (onlyCount) return Ok(new { TotalElements = await _repository.CountAsync(filter)});
                 
                 var result = await _repository.FindAsync(filter, pageable);
                 return result.TotalElements == result.NumberOfElements

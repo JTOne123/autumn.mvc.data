@@ -1,13 +1,15 @@
 ﻿using System;
 using Autumn.Mvc.Data.Configurations;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace Autumn.Mvc.Data.MongoDB.Configurations
 {
     public class AutumnMongoDBSettings
     {
-        public AutumnDataSettings Parent { get; private set; }
+        public AutumnDataSettings Parent { get;  }
         public string ConnectionString { get; set; }
         public string Database { get; set; }
+        public IConvention Convention { get; set; }
 
         public AutumnMongoDBSettings(AutumnDataSettings parent)
         {

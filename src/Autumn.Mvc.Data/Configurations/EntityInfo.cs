@@ -55,7 +55,7 @@ namespace Autumn.Mvc.Data.Configurations
             }
             if (Settings.PluralizeController && !ControllerName.EndsWith("s"))
             {
-                ControllerName += "s";
+                string.Concat(ControllerName, "s");
             }
             var ignoreOperations = new List<HttpMethod>();
             if (!entityAttribute.Insertable)
