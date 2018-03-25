@@ -9,9 +9,14 @@ namespace Autumn.Mvc.Data.Annotations
     public class EntityAttribute : Attribute
     {
         /// <summary>
-        /// name of entity, used by the API to define the path to the resource {version}/{name}
+        /// name of entity use for collection
         /// </summary>
         public string Name { get; set; }
+        
+        /// <summary>
+        /// name of resource used by the API to define the path to the resource {version}/{name}
+        /// </summary>
+        public string ResourceName { get; set; }
 
         /// <summary>
         /// version of entity,  used by the API to define the path to the resource {version}/{name}

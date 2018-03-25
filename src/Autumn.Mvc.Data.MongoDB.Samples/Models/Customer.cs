@@ -1,12 +1,14 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Autumn.Mvc.Data.Annotations;
+using Autumn.Mvc.Data.MongoDB.Annotations;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 
 namespace Autumn.Mvc.Data.MongoDB.Samples.Models
 {
     [BsonIgnoreExtraElements]
+    [Collection(Name="customer")]
     [Entity(Name = "customers",Version = "v1")]
     public class Customer : AbstractEntity
     {    
@@ -20,6 +22,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     }
 
     [BsonIgnoreExtraElements]
+    [Collection(Name="customer")]
     [Entity(Name = "customers", Version = "v2")]
     public class CustomerV2 : Customer
     {
@@ -30,6 +33,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     }
 
     [BsonIgnoreExtraElements]
+    [Collection(Name="customer")]
     [Entity(Name = "customers", Version = "v3")]
     public class CustomerV3 : CustomerV2
     {
@@ -41,6 +45,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     
     
     [BsonIgnoreExtraElements]
+    [Collection(Name="customer")]
     [Entity(Name = "customers", Version = "v4")]
     public class CustomerV4 : CustomerV3
     {

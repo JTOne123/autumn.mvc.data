@@ -102,7 +102,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
 
             #region Customers
 
-            var collection = database.GetCollection<CustomerV4>("customers");
+            var collection = database.GetCollection<CustomerV4>("customer");
             var count = await collection.CountAsync(e => e.Id != null);
             if (count == 0)
             {
@@ -130,7 +130,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
 
             #region Articles
 
-            var collection2 = database.GetCollection<ArticleV2>("articles");
+            var collection2 = database.GetCollection<ArticleV2>("article");
             count = await collection2.CountAsync(e => e.Id != null);
             if (count == 0)
             {

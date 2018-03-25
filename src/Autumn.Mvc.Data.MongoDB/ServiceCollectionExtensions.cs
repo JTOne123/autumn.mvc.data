@@ -22,6 +22,8 @@ namespace Autumn.Mvc.Data.MongoDB
             var builder = new AutumnMongoDBSettingsBuilder(services.GetAutumnDataSettings());
             mongoDbSettingsAction(builder);
             var settings = builder.Build();
+
+            
             services.AddSingleton(settings);
 
             // add convention

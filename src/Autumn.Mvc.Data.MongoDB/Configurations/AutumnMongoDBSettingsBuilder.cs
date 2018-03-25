@@ -1,4 +1,8 @@
-﻿using Autumn.Mvc.Data.Configurations;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Autumn.Mvc.Data.Configurations;
+using Autumn.Mvc.Data.MongoDB.Annotations;
 using MongoDB.Bson.Serialization.Conventions;
 
 namespace Autumn.Mvc.Data.MongoDB.Configurations
@@ -32,6 +36,16 @@ namespace Autumn.Mvc.Data.MongoDB.Configurations
 
         public AutumnMongoDBSettings Build()
         {
+             _settings.CollectionInfos = new Dictionary<Type, CollectionInfo>();
+            foreach (var type in _settings.Parent.EntitiesInfos.Keys)
+            {
+                var collectionAttribute = type.GetCustomAttribute(typeof(CollectionAttribute)) as CollectionAttribute;
+                var entityInfo = _settings.Parent.EntitiesInfos[type];
+                _settings.CollectionInfos.Add(type,
+                    collectionAttribute != null
+                        ? new CollectionInfo(entityInfo, collectionAttribute.Name)
+                        : new CollectionInfo(entityInfo, entityInfo.Name));
+            }
             return _settings;
         }
 
