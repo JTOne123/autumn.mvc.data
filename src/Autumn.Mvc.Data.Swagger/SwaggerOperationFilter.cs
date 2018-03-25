@@ -41,14 +41,16 @@ namespace Autumn.Mvc.Data.Swagger
         {
             if (operation.Parameters == null) return;
             if (!(context.ApiDescription.ActionDescriptor is ControllerActionDescriptor actionDescriptor)) return;
-            if (!actionDescriptor.ControllerTypeInfo.IsGenericType &&
-                actionDescriptor.ControllerTypeInfo.GetGenericTypeDefinition() !=
-                typeof(RepositoryControllerAsync<,,,>) || 
-                actionDescriptor.ControllerTypeInfo.GetGenericTypeDefinition().IsSubclassOf(typeof(RepositoryControllerAsync<,,,>) )) return;
-
+            if (!actionDescriptor.ControllerTypeInfo.IsGenericType) return;
+            if (actionDescriptor.ControllerTypeInfo.GetGenericTypeDefinition() !=typeof(RepositoryControllerAsync<,,,>))
+            {
+                if (!typeof(RepositoryControllerAsync<,,,>).IsSubclassOfRawGeneric(actionDescriptor.ControllerTypeInfo))
+                 return;
+            }
             // find entity type
             var entityType = actionDescriptor.ControllerTypeInfo.GetGenericArguments()[0];
             // find entity type info
+            if (!_settings.DataSettings().EntitiesInfos.ContainsKey(entityType)) return;
             var entityInfo = _settings.DataSettings().EntitiesInfos[entityType];
             // register response swagger schema for GET request
             var entitySchemaGet = GetOrRegistrySchema(entityType,HttpMethod.Get,_settings.NamingStrategy);

@@ -1,6 +1,7 @@
 ﻿using System;
 using Autumn.Mvc.Data.MongoDB.Configurations;
 using Autumn.Mvc.Data.MongoDB.Conventions;
+using Autumn.Mvc.Data.MongoDB.Samples.Controllers;
 using Autumn.Mvc.Data.MongoDB.Samples.Models;
 using Autumn.Mvc.Data.MongoDB.Samples.Models.Generators;
 using Autumn.Mvc.Data.Swagger;
@@ -43,7 +44,9 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
                         .PageSize(50)
                 )
                 .AddAutumnData(config =>
-                    config.ApiVersion("v0")
+                    config
+                        .RepositoryControllerType(typeof(DefaultController<,,,>))
+                        .ApiVersion("v0")
                 )
                 .AddAutumnMongo(config =>
                     config
