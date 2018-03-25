@@ -88,6 +88,26 @@ namespace Autumn.Mvc.Data.Controllers
                 return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModelInternalError(e));
             }
         }
+        
+        /// <summary>
+        /// event on inserting
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        protected virtual TEntity OnInserting(TEntity entity)
+        {
+            return entity;
+        }
+
+        /// <summary>
+        /// event on inserted
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        protected virtual TEntity OnInserted(TEntity entity)
+        {
+            return entity;
+        }
 
         [HttpPost]
         public virtual async Task<IActionResult> Post([FromBody] [Required] TEntityPost entityPostRequest)
@@ -98,27 +118,23 @@ namespace Autumn.Mvc.Data.Controllers
                     return StatusCode((int) HttpStatusCode.BadRequest, new ErrorModelBadRequest(ModelState));
 
                 var entity = Mapper.Map<TEntity>(entityPostRequest);
-                if (_entityInfo.CreatedDateInfo != null)
-                {
-                    _entityInfo.CreatedDateInfo.SetValue(entity, DateTime.Now);
-                }
-
-                if (_entityInfo.CreatedByInfo != null)
-                {
-                    var userId = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                    _entityInfo.CreatedByInfo.SetValue(entity, userId);
-                }
-
+                OnInserting(entity);
                 var result = await _repository.InsertAsync(entity);
                 var uri = string.Format("{0}/{1}", Request.HttpContext.Request.Path.ToString().TrimEnd('/'),
                     _entityInfo.KeyInfo.GetValue(result));
-                return Created(uri, result);
+                return Created(uri, OnInserted(entity));
             }
             catch (Exception e)
             {
                 return StatusCode((int) HttpStatusCode.InternalServerError, new ErrorModelInternalError(e));
             }
         }
+
+        protected virtual TEntity OnDeleted(TEntity entity)
+        {
+            return entity;
+        }
+        
 
         [HttpDelete("{id}")]
         public virtual async Task<IActionResult> Delete(TKey id)
@@ -131,7 +147,7 @@ namespace Autumn.Mvc.Data.Controllers
                 var result = await _repository.FindOneAsync(id);
                 if (result == null) return NoContent();
                 result = await _repository.DeleteAsync(id);
-                return Ok(result);
+                return Ok(OnDeleted(result));
             }
             catch (Exception e)
             {
@@ -139,6 +155,16 @@ namespace Autumn.Mvc.Data.Controllers
             }
         }
 
+        protected virtual TEntity OnUpdating(TEntity entity)
+        {
+            return entity;
+        }
+
+        protected virtual TEntity OnUpdated(TEntity entity)
+        {
+            return entity;
+        }
+        
 
         [HttpPut("{id}")]
         public virtual async Task<IActionResult> Put([FromBody] [Required] TEntityPut entityPutRequest, TKey id)
@@ -162,8 +188,8 @@ namespace Autumn.Mvc.Data.Controllers
                     _entityInfo.LastModifiedByInfo.SetValue(result, userId);
                 }
 
-                result = await _repository.UpdateAsync(result, id);
-                return Ok(result);
+                result = await _repository.UpdateAsync(OnUpdating(result), id);
+                return Ok(OnUpdated(result));
             }
             catch (Exception e)
             {

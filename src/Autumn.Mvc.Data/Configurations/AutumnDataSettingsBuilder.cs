@@ -44,7 +44,7 @@ namespace Autumn.Mvc.Data.Configurations
             _defaultApiVersion = version;
             return this;
         }
-
+     
         /// <summary>
         /// set default repository controller type
         /// </summary>
@@ -54,8 +54,8 @@ namespace Autumn.Mvc.Data.Configurations
         /// <exception cref="InvalidCastException"></exception>
         public AutumnDataSettingsBuilder RepositoryControllerType(Type type)
         {
-            if(type==null ) throw new ArgumentNullException(nameof(type));
-            if (!type.IsSubclassOf(typeof(RepositoryControllerAsync<,,,>)))
+            if(type == null ) throw new ArgumentNullException(nameof(type));
+            if (!typeof(RepositoryControllerAsync<,,,>).IsSubclassOfRawGeneric(type))
                  throw new InvalidCastException(nameof(type));   
             _repositoryControllerAyncType = type;
             return this;
