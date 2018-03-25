@@ -1,12 +1,14 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Autumn.Mvc.Data.Annotations;
+using Autumn.Mvc.Data.MongoDB.Annotations;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Autumn.Mvc.Data.MongoDB.Samples.Models
 {
     [BsonIgnoreExtraElements]
-    [Entity(Name = "articles", Version = "v1",Deletable = false,Updatable = false)]
+    [Collection(Name="article")]
+    [Entity(Name = "article", Version = "v1",Deletable = false,Updatable = false)]
     public class Article : AbstractEntity
     {
         [Required]
@@ -16,7 +18,8 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
     }
 
     [BsonIgnoreExtraElements]
-    [Entity(Name = "articles", Version = "v2",Insertable = false)]
+    [Collection(Name="article")]
+    [Entity(Name = "article", Version = "v2",Insertable = false)]
     public class ArticleV2 : Article
     {
         public DateTime PublishDate { get; set; }

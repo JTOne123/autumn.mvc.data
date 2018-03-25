@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Autumn.Mvc.Configurations;
-using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.MongoDB.Configurations;
 using Autumn.Mvc.Data.Repositories;
 using Autumn.Mvc.Models.Paginations;
@@ -25,8 +24,8 @@ namespace Autumn.Mvc.Data.MongoDB.Repositories
             _filterDefinitionBuilder = new FilterDefinitionBuilder<TEntity>();
             var client = new MongoClient(mongoDbSettings.ConnectionString);
             var database = client.GetDatabase(mongoDbSettings.Database);
-            var collectionName = settings.DataSettings().EntitiesInfos[typeof(TEntity)].Name;
-            _collection = database.GetCollection<TEntity>(collectionName);
+            var collectionInfo = mongoDbSettings.CollectionInfos[typeof(TEntity)];
+            _collection = database.GetCollection<TEntity>(collectionInfo.Name);
         }
 
         #region FindOneAsync

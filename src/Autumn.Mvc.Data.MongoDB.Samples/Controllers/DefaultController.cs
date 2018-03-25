@@ -13,7 +13,6 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Controllers
     {
         public DefaultController(ICrudPageableRepositoryAsync<TEntity, TKey> repository, AutumnSettings settings, IHttpContextAccessor httpContextAccessor) : base(repository, settings, httpContextAccessor)
         {
-            int i = 0;
         }
     }
 }
