@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.MongoDB.Annotations;
 using MongoDB.Bson.Serialization.Conventions;
@@ -41,11 +42,17 @@ namespace Autumn.Mvc.Data.MongoDB.Configurations
             {
                 var collectionAttribute = type.GetCustomAttribute(typeof(CollectionAttribute)) as CollectionAttribute;
                 var entityInfo = _settings.Parent.EntitiesInfos[type];
-                _settings.CollectionInfos.Add(type,
-                    collectionAttribute != null
-                        ? new CollectionInfo(entityInfo, collectionAttribute.Name)
-                        : new CollectionInfo(entityInfo, entityInfo.Name));
+
+                var name = collectionAttribute != null ? collectionAttribute.Name : entityInfo.Name;
+                var stringBuilder = new StringBuilder();
+                foreach (var c in name)
+                {
+                    stringBuilder.Append(!char.IsLetterOrDigit(c) ? '_' : c);
+                }
+
+                _settings.CollectionInfos.Add(type, new CollectionInfo(entityInfo, stringBuilder.ToString()));
             }
+
             return _settings;
         }
 

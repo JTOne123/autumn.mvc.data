@@ -17,7 +17,7 @@ namespace Autumn.Mvc.Data.Swagger
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
         
-        public void Apply(SwaggerDocument swaggerDoc, DocumentFilterContext context)
+        public virtual void Apply(SwaggerDocument swaggerDoc, DocumentFilterContext context)
         {
             foreach (var key in swaggerDoc.Paths.Keys)
             {
