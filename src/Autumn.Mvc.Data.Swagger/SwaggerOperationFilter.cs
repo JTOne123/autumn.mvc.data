@@ -37,7 +37,7 @@ namespace Autumn.Mvc.Data.Swagger
         /// </summary>
         /// <param name="operation"></param>
         /// <param name="context"></param>
-        public void Apply(Operation operation, OperationFilterContext context)
+        public virtual void Apply(Operation operation, OperationFilterContext context)
         {
             if (operation.Parameters == null) return;
             if (!(context.ApiDescription.ActionDescriptor is ControllerActionDescriptor actionDescriptor)) return;
