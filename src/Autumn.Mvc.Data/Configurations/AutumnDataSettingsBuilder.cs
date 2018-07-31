@@ -114,12 +114,15 @@ namespace Autumn.Mvc.Data.Configurations
         /// </summary>
         private static void BuildEntitiesInfos(AutumnDataSettings settings, Assembly callingAssembly, string apiVersion)
         {
-            var items = new Dictionary<Type, EntityInfo>();
+            var entities = new Dictionary<Type, EntityInfo>();
+            var resources = new Dictionary<Type, ResourceInfo>();
 
             foreach (var type in (settings.EntityAssembly ?? callingAssembly).GetTypes())
             {
+                var resourceAttribute = type.GetCustomAttribute<ResourceAttribute>(false);
                 var entityAttribute = type.GetCustomAttribute<EntityAttribute>(false);
-                if (entityAttribute == null) continue;
+                if (entityAttribute == null && resourceAttribute == null) continue;
+
 
                 PropertyInfo keyPropertyInfo = null;
                 PropertyInfo createDatePropertyInfo = null;
@@ -133,59 +136,71 @@ namespace Autumn.Mvc.Data.Configurations
                     {
                         keyPropertyInfo = property;
                     }
+
                     if (property.GetCustomAttribute<CreatedDateAttribute>(true) != null &&
                         IsAuditableDateProperty(property))
                     {
                         createDatePropertyInfo = property;
                     }
+
                     if (property.GetCustomAttribute<LastModifiedDateAttribute>(true) != null &&
                         IsAuditableDateProperty(property))
                     {
                         lastModifiedDatePropertyInfo = property;
                     }
+
                     if (property.GetCustomAttribute<CreatedByAttribute>(true) != null &&
                         IsAuditableByProperty(property))
                     {
                         createByPropertyInfo = property;
                     }
+
                     if (property.GetCustomAttribute<LastModifiedByAttribute>(true) != null &&
                         IsAuditableByProperty(property))
                     {
                         lastModifiedByPropertyInfo = property;
                     }
                 }
-                var proxyTypes = DataModelHelper.BuildModelsRequestTypes(type);
-                items.Add(type,
+
+                entities.Add(type,
                     new EntityInfo(
                         settings,
-                        apiVersion,
                         type,
-                        proxyTypes,
                         entityAttribute,
                         keyPropertyInfo,
                         createDatePropertyInfo,
                         lastModifiedDatePropertyInfo,
                         createByPropertyInfo,
                         lastModifiedByPropertyInfo));
+
+                if (resourceAttribute != null)
+                {
+                    var proxyTypes = DataModelHelper.BuildModelsRequestTypes(type);
+                    resources.Add(type, new ResourceInfo(
+                        settings,
+                        entities[type], resourceAttribute.Version ?? apiVersion, proxyTypes, resourceAttribute));
+                }
             }
 
             Mapper.Reset();
 
             Mapper.Initialize(c =>
             {
-                foreach (var entityInfo in items.Values)
+                foreach (var value in resources.Values)
                 {
-                    foreach (var proxyType in entityInfo.ProxyRequestTypes)
+                    foreach (var proxyType in value.ProxyRequestTypes)
                     {
-                        c.CreateMap(proxyType.Value, entityInfo.EntityType);
+                        c.CreateMap(proxyType.Value, value.EntityInfo.EntityType);
                     }
                 }
             });
 
-            settings.EntitiesInfos = new ReadOnlyDictionary<Type, EntityInfo>(items);
-            settings.ApiVersions = new ReadOnlyCollection<string>(settings.EntitiesInfos.Values
+            settings.EntitiesInfos = new ReadOnlyDictionary<Type, EntityInfo>(entities);
+            settings.ResourceInfos = new ReadOnlyDictionary<Type, ResourceInfo>(resources);
+            settings.ApiVersions = new ReadOnlyCollection<string>(settings.ResourceInfos.Values
                 .Select(e => e.ApiVersion)
                 .Distinct().OrderBy(e => e).ToList());
+
         }
 
         /// <summary>
@@ -196,22 +211,24 @@ namespace Autumn.Mvc.Data.Configurations
         {
             var routes = new Dictionary<Type, AttributeRouteModel>();
             var ignoreOperations = new Dictionary<string, IReadOnlyList<HttpMethod>>();
-            foreach (var entityType in settings.EntitiesInfos.Keys)
+            foreach (var entityType in settings.ResourceInfos.Keys)
             {
-                var info = settings.EntitiesInfos[entityType];
+                var info = settings.ResourceInfos[entityType];
                 var name = info.Name;
                 if (settings.Parent.NamingStrategy != null)
                 {
                     name = settings.Parent.NamingStrategy.GetPropertyName(name, false);
                 }
+
                 if (settings.PluralizeController && !name.EndsWith("s"))
                 {
-                    name = string.Concat(name,"s");
+                    name = string.Concat(name, "s");
                 }
-                name = string.Format("{0}/{1}", info.ApiVersion, name);
-                var entityKeyType = info.KeyInfo.PropertyType;
+
+                name = $"{info.ApiVersion}/{name}";
+                var entityKeyType = info.EntityInfo.KeyInfo.PropertyType;
                 var controllerType = settings.RepositoryContollerType.MakeGenericType(
-                    info.EntityType,
+                    info.EntityInfo.EntityType,
                     info.ProxyRequestTypes[HttpMethod.Post],
                     info.ProxyRequestTypes[HttpMethod.Put],
                     entityKeyType);
@@ -219,6 +236,7 @@ namespace Autumn.Mvc.Data.Configurations
                 routes.Add(controllerType, attributeRouteModel);
                 ignoreOperations.Add("/" + name, info.IgnoreOperations);
             }
+
             settings.Routes = new ReadOnlyDictionary<Type, AttributeRouteModel>(routes);
             settings.IgnoreOperations =
                 new ReadOnlyDictionary<string, IReadOnlyList<HttpMethod>>(ignoreOperations);

@@ -4,7 +4,7 @@ using Autumn.Mvc.Data.Annotations;
 
 namespace Autumn.Mvc.Data.EF.Sqlite.Samples.Models
 {
-    [Entity]
+    [Resource]
     public class Employee : AbstractEntityWithAddress
     {
         [Required]

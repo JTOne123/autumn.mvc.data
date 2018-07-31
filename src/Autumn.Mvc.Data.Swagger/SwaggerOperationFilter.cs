@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -31,7 +32,7 @@ namespace Autumn.Mvc.Data.Swagger
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
-       
+
         /// <summary>
         /// apply operation description
         /// </summary>
@@ -41,27 +42,59 @@ namespace Autumn.Mvc.Data.Swagger
         {
             if (operation.Parameters == null) return;
             if (!(context.ApiDescription.ActionDescriptor is ControllerActionDescriptor actionDescriptor)) return;
-            if (!actionDescriptor.ControllerTypeInfo.IsGenericType) return;
-            if (actionDescriptor.ControllerTypeInfo.GetGenericTypeDefinition() !=typeof(RepositoryControllerAsync<,,,>))
+
+            if (IsRepositoryControllerAsync(actionDescriptor))
             {
-                if (!typeof(RepositoryControllerAsync<,,,>).IsSubclassOfRawGeneric(actionDescriptor.ControllerTypeInfo))
-                 return;
+                ProcessToRepositoryControllerAsync(_settings, operation, actionDescriptor);
             }
+            else
+            {
+                ProcessToOtherController(_settings, operation, actionDescriptor);
+            }
+        }
+
+        private static void ProcessToOtherController(AutumnSettings settings, Operation operation,
+            ControllerActionDescriptor actionDescriptor)
+        {
+            if (operation.Parameters.Count > actionDescriptor.MethodInfo.GetParameters().Length)
+            {
+                operation.Parameters.Clear();
+            }
+            foreach (var parameterInfo in actionDescriptor.MethodInfo.GetParameters())
+            {
+                var parameterType = parameterInfo.ParameterType;
+
+                if (parameterType.IsGenericType && (typeof(IPageable<>).IsSubclassOfRawGeneric(parameterType) ||
+                                                    typeof(Page<>).IsSubclassOfRawGeneric(parameterType)))
+                {
+                    BuildPageableParameters(settings, operation, parameterType.GetGenericArguments()[0]);
+                }
+
+                if (!parameterType.IsGenericType ||
+                    (!typeof(Expression<>).IsSubclassOfRawGeneric(parameterType))) continue;
+                {
+                    BuildQueryParameters(settings, operation);
+                }
+            }
+        }
+
+        private static void ProcessToRepositoryControllerAsync(AutumnSettings settings, Operation operation,
+            ControllerActionDescriptor actionDescriptor)
+        {
+            
             // find entity type
             var entityType = actionDescriptor.ControllerTypeInfo.GetGenericArguments()[0];
             // find entity type info
-            if (!_settings.DataSettings().EntitiesInfos.ContainsKey(entityType)) return;
-            var entityInfo = _settings.DataSettings().EntitiesInfos[entityType];
+            if (!settings.DataSettings().ResourceInfos.ContainsKey(entityType)) return;
+            var resourceInfo = settings.DataSettings().ResourceInfos[entityType];
             // register response swagger schema for GET request
-            var entitySchemaGet = GetOrRegistrySchema(entityType,HttpMethod.Get,_settings.NamingStrategy);
+            var entitySchemaGet = GetOrRegistrySchema(entityType,HttpMethod.Get,settings.NamingStrategy);
             // register request swagger schema for POST request
-            var entitySchemaPost = GetOrRegistrySchema(entityInfo.ProxyRequestTypes[HttpMethod.Post], HttpMethod.Post,_settings.NamingStrategy);
+            var entitySchemaPost = GetOrRegistrySchema(resourceInfo.ProxyRequestTypes[HttpMethod.Post], HttpMethod.Post,settings.NamingStrategy);
             // register request swagger schema for PUT request
-            var entitySchemaPut = GetOrRegistrySchema(entityInfo.ProxyRequestTypes[HttpMethod.Put], HttpMethod.Put,_settings.NamingStrategy);
-
-            var errorSchemaBadRequest = GetOrRegistrySchema(typeof(ErrorModelBadRequest), HttpMethod.Get, _settings.NamingStrategy);
-            var errorSchemaInternalErrorRequest = GetOrRegistrySchema(typeof(ErrorModelInternalError), HttpMethod.Get, _settings.NamingStrategy);
-            
+            var entitySchemaPut = GetOrRegistrySchema(resourceInfo.ProxyRequestTypes[HttpMethod.Put], HttpMethod.Put,settings.NamingStrategy);
+            var errorSchemaBadRequest = GetOrRegistrySchema(typeof(ErrorModelBadRequest), HttpMethod.Get, settings.NamingStrategy);
+            var errorSchemaInternalErrorRequest = GetOrRegistrySchema(typeof(ErrorModelInternalError), HttpMethod.Get, settings.NamingStrategy);
             operation.Responses = new ConcurrentDictionary<string, Response>();
             // add generic reponse for internal error from server
             operation.Responses.Add(((int)HttpStatusCode.BadRequest).ToString(), new Response() {Schema = errorSchemaBadRequest});
@@ -77,10 +110,8 @@ namespace Autumn.Mvc.Data.Swagger
                 // operation is "Put"
                 case "Put":
                     operation.Consumes.Add(ConsumeContentType);
-
                     parameter = operation.Parameters.Single(p => p.Name == "id");
                     parameter.Description = "Identifier of the object to update";
-
                     parameter = operation.Parameters.Single(p => p.Name == "entityPutRequest");
                     parameter.Name = "entity";
                     parameter.Description = "New value of the object";
@@ -100,6 +131,7 @@ namespace Autumn.Mvc.Data.Swagger
                     operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
                         new Response() {Schema = entitySchemaGet});
                     break;
+
                 case "Post":
                     operation.Consumes.Add(ConsumeContentType);
 
@@ -111,6 +143,7 @@ namespace Autumn.Mvc.Data.Swagger
                     operation.Responses.Add(((int) HttpStatusCode.Created).ToString(),
                         new Response() {Schema = entitySchemaGet, Description = "Created"});
                     break;
+
                 case "GetById":
                     parameter = operation.Parameters.Single(p => p.Name == "id");
                     parameter.Description = "Identifier of the object to search";
@@ -118,71 +151,91 @@ namespace Autumn.Mvc.Data.Swagger
 
                     operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
                         new Response() {Schema = entitySchemaGet});
-                    operation.Responses.Add(((int) HttpStatusCode.NotFound).ToString(), new Response(){Description = "Not Found"});
+                    operation.Responses.Add(((int) HttpStatusCode.NotFound).ToString(),
+                        new Response() {Description = "Not Found"});
                     break;
+
                 default:
-                    var genericPageType = typeof(Page<>);
-                    var pageType = genericPageType.MakeGenericType(entityType);
-                    var schema = GetOrRegistrySchema(pageType, HttpMethod.Get,_settings.NamingStrategy);
-                    operation.Responses.Add("200", new Response() {Schema = schema, Description = "OK"});
-                    operation.Responses.Add("206", new Response() {Schema = schema, Description = "Partial Content"});
                     operation.Parameters.Clear();
-                    parameter = new NonBodyParameter
-                    {
-                        Type = "string",
-                        In = "query",
-                        Description = "Query to search (cf. http://tools.ietf.org/html/draft-nottingham-atompub-fiql-00)",
-                        Name = _settings.QueryField
-                    };
-                    operation.Parameters.Add(parameter);
-
-                    parameter = new NonBodyParameter
-                    {
-                        In = "query",
-                        Type = "integer",
-                        Minimum = 0,
-                        Format = "int32",
-                        Description = "Size of the page",
-                        Default = _settings.PageSize,
-                        Name = _settings.PageSizeField
-                    };
-                    operation.Parameters.Add(parameter);
-
-                    parameter = new NonBodyParameter
-                    {
-                        In = "query",
-                        Type = "integer",
-                        Description = "Paging number (start to zero)",
-                        Minimum = 0,
-                        Format = "int32",
-                        Default = 0,
-                        Name = _settings.PageNumberField
-                    };
-                    operation.Parameters.Add(parameter);
+                    BuildQueryParameters(settings, operation);
+                    BuildPageableParameters(settings, operation, entityType);
                     break;
             }
         }
 
+        private static void BuildQueryParameters(AutumnSettings settings, Operation operation)
+        {
+            IParameter parameter = new NonBodyParameter
+            {
+                Type = "string",
+                In = "query",
+                Description = "Query to search (cf. http://tools.ietf.org/html/draft-nottingham-atompub-fiql-00)",
+                Name = settings.QueryField
+            };
+            operation.Parameters.Add(parameter);
+        }
+
+        private static void BuildPageableParameters(AutumnSettings settings, Operation operation, Type entityType)
+        {
+            var genericPageType = typeof(Page<>);
+            var pageType = genericPageType.MakeGenericType(entityType);
+            var schema = GetOrRegistrySchema(pageType, HttpMethod.Get,settings.NamingStrategy);
+            operation.Responses = new Dictionary<string, Response>
+            {
+                {"200", new Response() {Schema = schema, Description = "OK"}},
+                {"206", new Response() {Schema = schema, Description = "Partial Content"}}
+            };
+
+            IParameter parameter;
+            parameter = new NonBodyParameter
+            {
+                In = "query",
+                Type = "integer",
+                Minimum = 0,
+                Format = "int32",
+                Description = "Size of the page",
+                Default = settings.PageSize,
+                Name = settings.PageSizeField
+            };
+            operation.Parameters.Add(parameter);
+
+            parameter = new NonBodyParameter
+            {
+                In = "query",
+                Type = "integer",
+                Description = "Paging number (start to zero)",
+                Minimum = 0,
+                Format = "int32",
+                Default = 0,
+                Name = settings.PageNumberField
+            };
+            operation.Parameters.Add(parameter);
+        }
+
+        private static bool IsRepositoryControllerAsync(ControllerActionDescriptor actionDescriptor)
+        {
+            if (!actionDescriptor.ControllerTypeInfo.IsGenericType) return false;
+            return actionDescriptor.ControllerTypeInfo.GetGenericTypeDefinition() ==
+                   typeof(RepositoryControllerAsync<,,,>) ||
+                   typeof(RepositoryControllerAsync<,,,>).IsSubclassOfRawGeneric(actionDescriptor.ControllerTypeInfo);
+        }
+
         private static bool IsPrimitiveType(Type type)
         {
-            if (type == typeof(string) ||
-                type == typeof(short) ||
-                type == typeof(short?) ||
-                type == typeof(int) ||
-                type == typeof(int?) ||
-                type == typeof(long) ||
-                type == typeof(long?) || type == typeof(decimal) ||
-                type == typeof(decimal?) ||
-                type == typeof(double) ||
-                type == typeof(double?) || type == typeof(DateTime) ||
-                type == typeof(DateTime?) || type == typeof(DateTimeOffset) ||
-                type == typeof(DateTimeOffset?) || type == typeof(byte) ||
-                type == typeof(byte?) || type == typeof(bool) ||
-                type == typeof(bool?))
-            {
-                return true;
-            }
-            return false;
+            return type == typeof(string) ||
+                   type == typeof(short) ||
+                   type == typeof(short?) ||
+                   type == typeof(int) ||
+                   type == typeof(int?) ||
+                   type == typeof(long) ||
+                   type == typeof(long?) || type == typeof(decimal) ||
+                   type == typeof(decimal?) ||
+                   type == typeof(double) ||
+                   type == typeof(double?) || type == typeof(DateTime) ||
+                   type == typeof(DateTime?) || type == typeof(DateTimeOffset) ||
+                   type == typeof(DateTimeOffset?) || type == typeof(byte) ||
+                   type == typeof(byte?) || type == typeof(bool) ||
+                   type == typeof(bool?);
         }
 
         private static Schema BuildSchema(Type type, HttpMethod httpMethod, NamingStrategy namingStrategy)
