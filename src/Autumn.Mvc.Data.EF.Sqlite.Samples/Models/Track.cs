@@ -3,7 +3,7 @@ using Autumn.Mvc.Data.Annotations;
 
 namespace Autumn.Mvc.Data.EF.Sqlite.Samples.Models
 {
-    [Entity]
+    [Resource]
     public class Track : AbstractEntity
     {
         [Required]

@@ -6,7 +6,7 @@ namespace Autumn.Mvc.Data.EF.Npgsql.Samples.Models
     /// <summary>
     /// Entity class for media type
     /// </summary>
-    [Entity]
+    [Resource]
     public class MediaType : AbstractEntity
     {
         [MaxLength(120)]

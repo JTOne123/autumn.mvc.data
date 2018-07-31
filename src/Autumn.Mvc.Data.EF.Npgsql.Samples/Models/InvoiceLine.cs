@@ -2,7 +2,7 @@
 
 namespace Autumn.Mvc.Data.EF.Npgsql.Samples.Models
 {
-    [Entity(Version = "v2")]
+    [Resource(Version = "v2")]
     public class InvoiceLine : AbstractEntity
     {
         /// <summary>

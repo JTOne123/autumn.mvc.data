@@ -4,7 +4,7 @@ using Autumn.Mvc.Data.EF.Mysql.Samples.Models;
 
 namespace Autumn.Mvc.Data.EF.Mysql.Samples.Models
 {
-    [Entity]
+    [Resource]
     public class Customer : AbstractEntityWithAddress
     {
         [Required]

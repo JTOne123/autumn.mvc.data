@@ -2,7 +2,7 @@
 
 namespace Autumn.Mvc.Data.EF.Sqlite.Samples.Models
 {
-    [Entity(Insertable = false, Updatable = false, Deletable = false)]
+    [Resource(Insertable = false, Updatable = false, Deletable = false)]
     public class Genre : AbstractEntity
     {
         public string Name { get; set; }

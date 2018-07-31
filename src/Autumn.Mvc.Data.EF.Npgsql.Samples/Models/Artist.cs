@@ -3,7 +3,7 @@ using Autumn.Mvc.Data.Annotations;
 
 namespace Autumn.Mvc.Data.EF.Npgsql.Samples.Models
 {
-    [Entity(Version = "v1")]
+    [Resource(Version = "v1")]
     public class Artist : AbstractEntity
     {
         [MinLength(4)]
