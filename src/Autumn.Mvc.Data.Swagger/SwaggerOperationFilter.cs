@@ -290,7 +290,13 @@ namespace Autumn.Mvc.Data.Swagger
             {
                 result.Type = "boolean";
             }
-            else
+            else if (type.IsEnum ||
+                     (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                      type.GetGenericArguments()[0].IsEnum))
+            {
+                result.Type = "string";
+            }
+
             {
                 if (type.IsGenericType &&
                     type.GetGenericTypeDefinition() == typeof(List<>))
@@ -332,52 +338,64 @@ namespace Autumn.Mvc.Data.Swagger
             {
                 if (Caches.ContainsKey(type) && Caches[type].ContainsKey(method)) return Caches[type][method];
                 if (!Caches.ContainsKey(type)) Caches[type] = new Dictionary<HttpMethod, Schema>();
-                if (IsPrimitiveType(type))
+                try
                 {
-                    return BuildSchema(type, method, namingStrategy);
-                }
-                if (type.IsInterface)
-                {
-                    if (type.IsGenericType)
+                    if (IsPrimitiveType(type))
                     {
-                        if (type.GetGenericTypeDefinition() == typeof(IPageable<>))
-                        {
-                            type = typeof(Pageable<>).MakeGenericType(type.GetGenericArguments()[0]);
-                        }
+                        return BuildSchema(type, method, namingStrategy);
+                    }
 
-                        if (type.GetGenericTypeDefinition() == typeof(IPage<>))
+                    if (type.IsInterface)
+                    {
+                        if (type.IsGenericType)
                         {
-                            type = typeof(Page<>).MakeGenericType(type.GetGenericArguments()[0]);
-                        }
-
-                        if (type.GetGenericTypeDefinition() == typeof(IList<>))
-                        {
-                            var schema = GetOrRegistrySchema(type.GetGenericArguments()[0], method, namingStrategy);
-                            return new Schema()
+                            if (type.GetGenericTypeDefinition() == typeof(IPageable<>))
                             {
-                                Type = "array",
-                                Items = schema
-                            };
+                                type = typeof(Pageable<>).MakeGenericType(type.GetGenericArguments()[0]);
+                            }
+
+                            if (type.GetGenericTypeDefinition() == typeof(IPage<>))
+                            {
+                                type = typeof(Page<>).MakeGenericType(type.GetGenericArguments()[0]);
+                            }
+
+                            if (type.GetGenericTypeDefinition() == typeof(IList<>))
+                            {
+                                var schema = GetOrRegistrySchema(type.GetGenericArguments()[0], method, namingStrategy);
+                                return new Schema()
+                                {
+                                    Type = "array",
+                                    Items = schema
+                                };
+                            }
                         }
                     }
-                }
-                var o = Activator.CreateInstance(type);
-                var stringify = JsonConvert.SerializeObject(o);
-                var expected = JObject.Parse(stringify);
-                var result = new Schema {Properties = new ConcurrentDictionary<string, Schema>()};
-                foreach (var propertyName in expected.Properties())
-                {
-                    var name = namingStrategy.GetPropertyName(propertyName.Name, false);
-                    var property = type.GetProperty(propertyName.Name);
-                    if (property == null) continue;
-                    var propertySchema = BuildSchema(property, method, namingStrategy);
-                    if (propertySchema != null)
+
+                    var o = Activator.CreateInstance(type);
+                    var stringify = JsonConvert.SerializeObject(o);
+                    var expected = JObject.Parse(stringify);
+                    var result = new Schema {Properties = new ConcurrentDictionary<string, Schema>()};
+                    foreach (var propertyName in expected.Properties())
                     {
-                        result.Properties.Add(name, propertySchema);
+                        var name = namingStrategy.GetPropertyName(propertyName.Name, false);
+                        var property = type.GetProperty(propertyName.Name);
+                        if (property == null) continue;
+                        var propertySchema = BuildSchema(property, method, namingStrategy);
+                        if (propertySchema != null)
+                        {
+                            result.Properties.Add(name, propertySchema);
+                        }
                     }
+
+                    Caches[type][method] = result;
                 }
-                Caches[type][method] = result;
-                return result;
+                catch
+                {
+                    // impossible de convertir en schema
+                    Caches[type][method] = new Schema() {Type = "object"};
+                }
+
+                return Caches[type][method];
             }
         }
     }
