@@ -15,6 +15,7 @@ using Autumn.Mvc.Models.Paginations;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema.Generation;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen; 
@@ -84,6 +85,8 @@ namespace Autumn.Mvc.Data.Swagger
             
             // find entity type
             var entityType = actionDescriptor.ControllerTypeInfo.GetGenericArguments()[0];
+            
+          
             // find entity type info
             if (!settings.DataSettings().ResourceInfos.ContainsKey(entityType)) return;
             var resourceInfo = settings.DataSettings().ResourceInfos[entityType];
@@ -296,7 +299,7 @@ namespace Autumn.Mvc.Data.Swagger
             {
                 result.Type = "string";
             }
-
+            else
             {
                 if (type.IsGenericType &&
                     type.GetGenericTypeDefinition() == typeof(List<>))
@@ -340,6 +343,9 @@ namespace Autumn.Mvc.Data.Swagger
                 if (!Caches.ContainsKey(type)) Caches[type] = new Dictionary<HttpMethod, Schema>();
                 try
                 {
+                    var jSchemaGenerator = new JSchemaGenerator();
+                    var jSchema = jSchemaGenerator.Generate(type);
+                   
                     if (IsPrimitiveType(type))
                     {
                         return BuildSchema(type, method, namingStrategy);

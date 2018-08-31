@@ -14,6 +14,7 @@
     <PackageTags>Rsql Querydsl API WOA architecture REST Repository Swagger Autumn</PackageTags>
   </PropertyGroup>
   <ItemGroup>
+     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.10" />
      <PackageReference Include="Swashbuckle.AspNetCore" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
