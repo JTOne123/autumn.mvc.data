@@ -8,19 +8,23 @@ namespace Autumn.Mvc.Data.MongoDB.Samples.Models
 {
     [BsonIgnoreExtraElements]
     [Collection(Name="article")]
-    [Resource(Name="article", Version ="v1",Deletable = false,Updatable = false)]
-    public class Article : AbstractEntity
+    [Resource( Version ="v1",Deletable = false,Updatable = false)]
+    public class ArticleInfo : AbstractEntity
     {
         [Required]
         public string Title { get; set; }
 
         public string Content { get; set; }
+        
+        public bool? IsValidate { get; set; }
+        
+        public string[] Test { get; set; }
     }
 
     [BsonIgnoreExtraElements]
     [Collection(Name = "article")]
     [Resource(Name = "article", Version = "v2", Deletable = false, Updatable = false)]
-    public class ArticleV2 : Article
+    public class ArticleInfoV2 : ArticleInfo
     {
         public DateTime PublishDate { get; set; }
 

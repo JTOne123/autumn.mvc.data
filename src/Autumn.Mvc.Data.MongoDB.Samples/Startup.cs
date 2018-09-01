@@ -1,4 +1,5 @@
 ﻿using System;
+using Autumn.Mvc.Data.Configurations;
 using Autumn.Mvc.Data.MongoDB.Configurations;
 using Autumn.Mvc.Data.MongoDB.Conventions;
 using Autumn.Mvc.Data.MongoDB.Samples.Controllers;
@@ -46,6 +47,7 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
                 .AddAutumnData(config =>
                     config
                         .RepositoryControllerType(typeof(DefaultController<,,,>))
+                        .NamingStrategy(new KebabCaseNamingStrategy())
                         .ApiVersion("v0")
                 )
                 .AddAutumnMongo(config =>
@@ -130,11 +132,11 @@ namespace Autumn.Mvc.Data.MongoDB.Samples
 
             #region Articles
 
-            var collection2 = database.GetCollection<ArticleV2>("article");
+            var collection2 = database.GetCollection<ArticleInfoV2>("article");
             count = await collection2.CountAsync(e => e.Id != null);
             if (count == 0)
             {
-                var articleHydrator = new Hydrator<ArticleV2>()
+                var articleHydrator = new Hydrator<ArticleInfoV2>()
                     .Ignoring(x => x.Id)
                     .WithText(x => x.Content, 500)
                     .WithAlphaNumeric(x => x.Title, 30)

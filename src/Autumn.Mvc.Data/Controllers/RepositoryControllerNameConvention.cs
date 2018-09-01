@@ -20,9 +20,9 @@ namespace Autumn.Mvc.Data.Controllers
             var defaultSelector = controller.Selectors.First(s => s.AttributeRouteModel == null);
             defaultSelector.AttributeRouteModel = _settings.Routes[controller.ControllerType];
             var entityType = controller.ControllerType.GetGenericArguments()[0];
-            var autumnEntityInfo = _settings.ResourceInfos[entityType];
-            controller.ApiExplorer.GroupName = autumnEntityInfo.ApiVersion;
-            controller.ControllerName = autumnEntityInfo.ControllerName;
+            var resourceInfo = _settings.ResourceInfos[entityType];
+            controller.ApiExplorer.GroupName = resourceInfo.ApiVersion;
+            controller.ControllerName = resourceInfo.ControllerName;
         }
     }
 }
