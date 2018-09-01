@@ -100,7 +100,6 @@ namespace Autumn.Mvc.Data.Swagger
             operation.Responses.Add(((int)HttpStatusCode.BadRequest).ToString(), new Response() {Schema = errorSchemaBadRequest});
             // add generic reponse for internal error from server
             operation.Responses.Add(((int)HttpStatusCode.InternalServerError).ToString(), new Response() {Schema = errorSchemaInternalErrorRequest});
-         
             operation.Consumes.Clear();
            
             IParameter parameter;
@@ -111,7 +110,7 @@ namespace Autumn.Mvc.Data.Swagger
                 case "Put":
                     operation.Consumes.Add(ConsumeContentType);
                     parameter = operation.Parameters.Single(p => p.Name == "id");
-                    parameter.Description = "Identifier of the object to update";
+                    parameter.Description = "ID of the object to update";
                     parameter = operation.Parameters.Single(p => p.Name == "entityPutRequest");
                     parameter.Name = "entity";
                     parameter.Description = "New value of the object";
@@ -119,40 +118,37 @@ namespace Autumn.Mvc.Data.Swagger
                     parameter.Required = true;
 
                     operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
-                        new Response() {Schema = entitySchemaGet});
+                        new Response() {Schema = entitySchemaGet,Description = "Resource is Updated"});
                     break;
+                
                 case "Delete":
                     operation.Consumes.Add(ConsumeContentType);
-
                     parameter = operation.Parameters.Single(p => p.Name == "id");
-                    parameter.Description = "Identifier of the object to delete";
+                    parameter.Description = "ID of the object to delete";
                     parameter.Required = true;
-
                     operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
-                        new Response() {Schema = entitySchemaGet});
+                        new Response() {Schema = entitySchemaGet,Description = "Resource is deleted"});
                     break;
 
                 case "Post":
                     operation.Consumes.Add(ConsumeContentType);
-
                     parameter = operation.Parameters.Single(p => p.Name == "entityPostRequest");
                     parameter.Name = "entity";
-                    parameter.Description = "Value of the object to create";
+                    parameter.Description = "Object to create";
                     parameter.Required = true;
                     ((BodyParameter) parameter).Schema = entitySchemaPost;
                     operation.Responses.Add(((int) HttpStatusCode.Created).ToString(),
-                        new Response() {Schema = entitySchemaGet, Description = "Created"});
+                        new Response() {Schema = entitySchemaGet, Description = "Resource is created"});
                     break;
 
                 case "GetById":
                     parameter = operation.Parameters.Single(p => p.Name == "id");
-                    parameter.Description = "Identifier of the object to search";
+                    parameter.Description = "ID of resource to search";
                     parameter.Required = true;
-
                     operation.Responses.Add(((int) HttpStatusCode.OK).ToString(),
                         new Response() {Schema = entitySchemaGet});
                     operation.Responses.Add(((int) HttpStatusCode.NotFound).ToString(),
-                        new Response() {Description = "Not Found"});
+                        new Response() {Description = "Resource not Found"});
                     break;
 
                 default:
@@ -296,7 +292,7 @@ namespace Autumn.Mvc.Data.Swagger
             {
                 result.Type = "string";
             }
-
+            else
             {
                 if (type.IsGenericType &&
                     type.GetGenericTypeDefinition() == typeof(List<>))
@@ -320,15 +316,11 @@ namespace Autumn.Mvc.Data.Swagger
 
         private static Schema BuildSchema(PropertyInfo property, HttpMethod httpMethod, NamingStrategy namingStrategy)
         {
-            if (httpMethod != HttpMethod.Get)
-            {
-                var attribute = property.GetCustomAttribute<IgnoreAttribute>();
-                if (attribute != null)
-                {
-                    if (!attribute.Insertable && httpMethod == HttpMethod.Post) return null;
-                    if (!attribute.Updatable && httpMethod == HttpMethod.Put) return null;
-                }
-            }
+            if (httpMethod == HttpMethod.Get) return BuildSchema(property.PropertyType, httpMethod, namingStrategy);
+            var attribute = property.GetCustomAttribute<IgnoreAttribute>();
+            if (attribute == null) return BuildSchema(property.PropertyType, httpMethod, namingStrategy);
+            if (!attribute.Insertable && httpMethod == HttpMethod.Post) return null;
+            if (!attribute.Updatable && httpMethod == HttpMethod.Put) return null;
             return BuildSchema(property.PropertyType, httpMethod, namingStrategy);
         }
 

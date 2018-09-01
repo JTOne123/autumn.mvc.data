@@ -10,6 +10,7 @@ using Autumn.Mvc.Data.Controllers;
 using Autumn.Mvc.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Newtonsoft.Json.Serialization;
 
 namespace Autumn.Mvc.Data.Configurations
 {
@@ -18,7 +19,7 @@ namespace Autumn.Mvc.Data.Configurations
         private readonly AutumnDataSettings _settings;
         private readonly Assembly _callingAssembly;
         private string _defaultApiVersion = "v1";
-        private Type _repositoryControllerAyncType;
+        private Type _repositoryControllerAsyncType;
 
         public AutumnDataSettingsBuilder(AutumnDataSettings settings, Assembly callingAssembly)
         {
@@ -28,7 +29,7 @@ namespace Autumn.Mvc.Data.Configurations
 
         public AutumnDataSettings Build()
         {
-            _settings.RepositoryContollerType = _repositoryControllerAyncType ?? typeof(RepositoryControllerAsync<,,,>);    
+            _settings.RepositoryControllerType = _repositoryControllerAsyncType ?? typeof(RepositoryControllerAsync<,,,>);    
             BuildEntitiesInfos(_settings, _callingAssembly, _defaultApiVersion);
             BuildRoutes(_settings);
             return _settings;
@@ -57,7 +58,7 @@ namespace Autumn.Mvc.Data.Configurations
             if(type == null ) throw new ArgumentNullException(nameof(type));
             if (!typeof(RepositoryControllerAsync<,,,>).IsSubclassOfRawGeneric(type))
                  throw new InvalidCastException(nameof(type));   
-            _repositoryControllerAyncType = type;
+            _repositoryControllerAsyncType = type;
             return this;
 
         }
@@ -81,6 +82,18 @@ namespace Autumn.Mvc.Data.Configurations
         public AutumnDataSettingsBuilder EntityAssembly(Assembly assembly)
         {
             _settings.EntityAssembly = assembly;
+            return this;
+        }
+
+        
+        /// <summary>
+        /// set naming strategy for resource path
+        /// </summary>
+        /// <param name="namingStrategy"></param>
+        /// <returns></returns>
+        public AutumnDataSettingsBuilder NamingStrategy(NamingStrategy namingStrategy)
+        {
+            _settings.NamingStrategy = namingStrategy;
             return this;
         }
 
@@ -215,9 +228,9 @@ namespace Autumn.Mvc.Data.Configurations
             {
                 var info = settings.ResourceInfos[entityType];
                 var name = info.Name;
-                if (settings.Parent.NamingStrategy != null)
+                if (settings.NamingStrategy != null)
                 {
-                    name = settings.Parent.NamingStrategy.GetPropertyName(name, false);
+                    name = settings.NamingStrategy.GetPropertyName(name, false);
                 }
 
                 if (settings.PluralizeController && !name.EndsWith("s"))
@@ -227,7 +240,7 @@ namespace Autumn.Mvc.Data.Configurations
 
                 name = $"{info.ApiVersion}/{name}";
                 var entityKeyType = info.EntityInfo.KeyInfo.PropertyType;
-                var controllerType = settings.RepositoryContollerType.MakeGenericType(
+                var controllerType = settings.RepositoryControllerType.MakeGenericType(
                     info.EntityInfo.EntityType,
                     info.ProxyRequestTypes[HttpMethod.Post],
                     info.ProxyRequestTypes[HttpMethod.Put],

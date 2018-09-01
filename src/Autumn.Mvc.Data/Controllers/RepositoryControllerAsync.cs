@@ -120,8 +120,8 @@ namespace Autumn.Mvc.Data.Controllers
                 var entity = Mapper.Map<TEntity>(entityPostRequest);
                 OnInserting(entity);
                 var result = await _repository.InsertAsync(entity);
-                var uri = string.Format("{0}/{1}", Request.HttpContext.Request.Path.ToString().TrimEnd('/'),
-                    _entityInfo.KeyInfo.GetValue(result));
+                var uri =
+                    $"{Request.HttpContext.Request.Path.ToString().TrimEnd('/')}/{_entityInfo.KeyInfo.GetValue(result)}";
                 return Created(uri, OnInserted(entity));
             }
             catch (Exception e)
