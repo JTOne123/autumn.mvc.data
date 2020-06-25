@@ -13,7 +13,15 @@
     <Description>Autumn.Mvc.Data.EF.Sqlite is aspNet Core extension that will make it easier for you to write your REST Data Repository APIs based on EntityFrameworkCore Sqlite. Its purpose is to convert a query in RSQL format to lamba expression and to provide a pagination mechanism. Install it and test it! (show samples on github)</Description>
     <Copyright>Copyright © G.Garnier 2017</Copyright>
     <PackageTags>Rsql Querydsl API WOA architecture REST Repository EntityFrameworkCore Sqlite</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Autumn.Mvc" Version="1.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.0.1" />
