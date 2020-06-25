@@ -12,7 +12,15 @@
     <Description>Autumn.Mvc.Data.Swagger is Autumn.Mvc.Data extension that will make it easier for you to write Swagger interface. . Install it and test it!</Description>
     <Copyright>Copyright © G.Garnier 2017</Copyright>
     <PackageTags>Rsql Querydsl API WOA architecture REST Repository Swagger Autumn</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
   <ItemGroup>
      <PackageReference Include="Swashbuckle.AspNetCore" Version="1.1.0" />
   </ItemGroup>
