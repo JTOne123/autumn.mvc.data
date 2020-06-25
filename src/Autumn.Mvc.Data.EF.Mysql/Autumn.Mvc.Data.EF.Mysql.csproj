@@ -13,7 +13,15 @@
     <Description>Autumn.Mvc.Data.EF.Mysql is aspNet Core extension that will make it easier for you to write your REST Data Repository APIs based on EntityFrameworkCore Mysql. Its purpose is to convert a query in RSQL format to lamba expression and to provide a pagination mechanism. Install it and test it! (show samples on github)</Description>
     <Copyright>Copyright © G.Garnier 2017</Copyright>
     <PackageTags>Rsql Querydsl API WOA architecture REST Repository EntityFrameworkCore Mysql</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Autumn.Mvc.Data.EF\Autumn.Mvc.Data.EF.csproj" />
     <ProjectReference Include="..\Autumn.Mvc.Data\Autumn.Mvc.Data.csproj" />
